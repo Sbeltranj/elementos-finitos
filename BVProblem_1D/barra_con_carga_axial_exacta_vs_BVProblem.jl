@@ -20,7 +20,6 @@ L = 2         # m                # longitud de la barra
 b = 1000      # N/m              # fuerza axial aplicada sobre cada EF
 P = 250       # N                # carga nodal al final de la barra
 
-
 #%% Solución de la ecuacion diferencial
 
 # Solución numérica usando solve_bvp (boundary value problem)
@@ -35,7 +34,6 @@ EE(x) = E
 AA(x) = A
 bb(x) = b
 
-
 #%% Se plantea el sistema de ecuaciones:
 #consultar BVProblem: https://diffeq.sciml.ai/stable/tutorials/bvp_example/
 
@@ -45,13 +43,11 @@ function diffeq!(dy,y,p,x)
     dy[2] = -bb(x)              # dy2/dx = -b(x)
 end
 
-
 #Condición de contorno:
 function bc!(residual,y,p,x)
    residual[1] = y[1][1] - 0    # y1(0) = 0
    residual[2] = y[end][2] - P  # y2(L) = P
 end
-
 
 
 #BVProblem(function,conditions,solución tentativa EDO,tspan)
@@ -60,7 +56,6 @@ bvp = BVProblem(diffeq!, bc!, [0,0], (0.0,L))
 #solve(bvp,algoritmo de solución, delta)
 sol = solve(bvp, GeneralMIRK4(), dt=0.05)
 
-
 #%% Solución analítica
 
 # 41 puntos uniformemente distrib. entre 0 y L
@@ -68,8 +63,6 @@ x = collect(LinRange(0,2,41))
 
 u_exacta(x)      = (-b*x.^2/2 + (P + b*L)*x)/(E*A) #desplazamientos
 faxial_exacta(x) = (P + b*(L-x))                   #fuerza axial           
-
-
 
 #%% Se reportan los errores en el cálculo
 error_en_u      = maximum(abs.(u_exacta(x)- first.(sol.u)))
@@ -91,9 +84,6 @@ fig_despla  =  plot(x, u_exacta, label = "Solución exacta", #etiqueta
                     color = :red)
 
 
-
-
-
 #se dibuja la solución BVProblem en la variable fig_despla
 fig_despla  =  scatter!(x, first.(sol.u),             # ! == hold on MATLAB 
                     label = "Solución por BVProblem", #etiqueta
@@ -102,8 +92,6 @@ fig_despla  =  scatter!(x, first.(sol.u),             # ! == hold on MATLAB
                     title = "Comparación de la solución analítica vs BVProblem para el desplazamiento",
                     titlefont=font(10,"Computer Modern"),
                     shape = :star5, color = :blue)
-
-
 
 
 # 2) grafico la carga axial de la barra
