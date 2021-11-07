@@ -141,7 +141,7 @@ display(a)
 println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 println("                                                                            ")
 for e = 1:nb # para cada barra
-   # me falta implementar la impresión bonita y ordenada
+   
    qe_coord_glob = Ke[e]*a[idx[e]] - fe[e];
    print("Fuerzas internas para barra $e en coord. globales   ")
    display(qe_coord_glob)
