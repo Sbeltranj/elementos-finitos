@@ -55,13 +55,15 @@ gdl = reshape(hcat(gdl...)',4,3)
 figure(1)
 #
 for e = 1:nbar
+        
     plot(xnod[LaG[e,:],X], xnod[LaG[e,:],Y], color = :blue, linewidth = 0.5)
+    # Calculo la posición del centro de gravedad de la barra
     cgx = (xnod[LaG[e,NL1],X] + xnod[LaG[e,NL2],X])/2
     cgy = (xnod[LaG[e,NL1],Y] + xnod[LaG[e,NL2],Y])/2
     q = string(e)
     text(cgx, cgy, "$q", color = :red)
 end
-   # Calculo la posición del centro de gravedad de la barra
+   
 
 grid()
 for n = 1:nno
@@ -71,12 +73,6 @@ for n = 1:nno
 end
 
 gcf()
-
-
-
-
-
-
 
 
 
