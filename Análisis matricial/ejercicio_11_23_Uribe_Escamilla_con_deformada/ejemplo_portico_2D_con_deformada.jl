@@ -242,14 +242,14 @@ for e = 1:nbar
      L =  hypot(x2-x1, y2-y1)
 
      dibujar_deformada_portico(E[mat[e]],A[mat[e]],I[mat[e]],L,x1,x2,y1,y2,qxloc[e],qyloc[e],
-                       T[e]*a[idx[e]],qe_loc, esc_def, esc_faxial, esc_V, esc_M)
+                       T[e]*a[idx[e]],qe_loc[e], esc_def, esc_faxial, esc_V, esc_M)
 
 end
 
 display(figure(1))
 display(figure(2))
 display(figure(3))
-display(figure(4))
+
 
 gcf() #ver en vscode
                                          
