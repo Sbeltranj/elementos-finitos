@@ -51,6 +51,35 @@ gdl  = [ [1:3:ngdl]' [2:3:ngdl]' [3:3:ngdl]' ] # nodos vs gdl
 gdl = reshape(hcat(gdl...)',4,3)
 
 
+
+figure(1)
+#
+for e = 1:nbar
+    plot(xnod[LaG[e,:],X], xnod[LaG[e,:],Y], color = :blue, linewidth = 0.5)
+    cgx = (xnod[LaG[e,NL1],X] + xnod[LaG[e,NL2],X])/2
+    cgy = (xnod[LaG[e,NL1],Y] + xnod[LaG[e,NL2],Y])/2
+    q = string(e)
+    text(cgx, cgy, "$q", color = :red)
+end
+   # Calculo la posición del centro de gravedad de la barra
+
+grid()
+for n = 1:nno
+  q = string(n)
+  text(xnod[n,X], xnod[n,Y], "$q")
+  
+end
+
+gcf()
+
+
+
+
+
+
+
+
+
 #%% cargas aplicadas (gdl carga)
 cargas_aplica = [ 1.5 ]
 dofs_cargados = cargas_aplica[:,1][1];
@@ -214,22 +243,22 @@ esc_faxial = 0.2           # escalamiento del diagrama de axiales
 esc_V      = 0.3           # escalamiento del diagrama de cortantes
 esc_M      = 0.3           # escalamiento del diagrama de momentos
 
-figure(1)
+figure(2)
 title("Deformada")
 xlabel("x, m")
 ylabel("y, m")
 
-figure(2)
+figure(3)
 title("Fuerza axial [ton]")
 xlabel("x, m")
 ylabel("y, m")
 
-figure(3)
+figure(4)
 title("Fuerza cortante [ton]")
 xlabel("x, m")
 ylabel("y, m")
 
-figure(4)
+figure(5)
 title("Momento flector [ton-m]")
 xlabel("x, m")
 ylabel("y, m")
@@ -249,6 +278,8 @@ end
 display(figure(1))
 display(figure(2))
 display(figure(3))
+display(figure(4))
+display(figure(5))
 
 
 gcf() #ver en vscode
