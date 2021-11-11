@@ -1,8 +1,9 @@
 using DifferentialEquations
-using Plots
+using PyPlot
 
 
-function dibujar_deformada(E,A,I,L,x1,x2,y1,y2,qxloc,qyloc,ae)
+function dibujar_deformada_portico(E,A,I,L,x1,x2,y1,y2,qxloc,qyloc,ae,qe, esc_def,
+                                    esc_faxial, esc_V, esc_M)
 
 #algunas constantes para facilitar la interpretación del código:
 
@@ -11,6 +12,8 @@ X1 = 1; Y1 = 2; M1 = 3; X2 = 4; Y2 = 5; M2   = 6;
 v_ = 1; t_ = 2; M_ = 3; V_ = 4; u_ = 5; fax_ = 6;
 u1 = 1; v1 = 2; t1 = 3; u2 = 4; v2 = 5; t2   = 6;
 
+#qxloc(x) =-2.8*sin(ang1)*cos(ang1)
+#qyloc(x) =-2.8*cos(ang1)^2
 
 function diffeq1!(dydx,y,x,p)
     #=
@@ -23,22 +26,22 @@ function diffeq1!(dydx,y,x,p)
     E = E
     I = Ix local
     (x1,y1) y (x2,y2) son las coordenadas de los puntos iniciales
-    qxloc = lambda x : x**2 # carga en la dir. del eje x local (function handle)
-    qyloc = lambda x : 0    # carga en la dir. del eje y local (function handle)
-    qe = np.array(
+    qxloc = ->    x^2  # carga en la dir. del eje x local (function handle)
+    qyloc = ->    0    # carga en la dir. del eje y local (function handle)
+    qe = 
          [ 0.01,        # U1, V1, M1 reacciones del nodo 1 en coord. locales
           -0.01,
            0.04,
           -0.01,        # U2, V2, M2 reacciones del nodo 2 en coord. locales
            0.02,
-          -0.07 ])
-    ae = np.array(
+          -0.07 ]
+    ae =
          [ 0.01,        # u1, v1, t1 desplazamientos nodo 1 en coord. locales
           -0.01,
            0.04,
           -0.01,        # u2, v2, t2 desplazamientos nodo 2 en coord. locales
            0.02,
-          -0.07 ])
+          -0.07 ]
     esc_def    = 10     # escalamiento de la deformada
     esc_faxial = 10     # escalamiento del diagrama de axiales
     esc_V      = 10     # escalamiento del diagrama de cortantes
@@ -63,7 +66,7 @@ function diffeq1!(dydx,y,x,p)
     dydx[M_]   = y[V_]          # = V
     dydx[V_]   = qyloc(x)       # = qyloc
     dydx[u_]   = y[fax_]/(A*E)  # = u
-    dydx[fax_] = qxloc(x)       # = faxial
+    dydx[fax_] = -qxloc(x)      # = faxial
 
 end
 
@@ -103,6 +106,7 @@ momento  = sol1[:,3]        # Momento flector [kN/m]
 u        = sol1[:,5]        # Desplazamiento horizontal de la viga [m]
 v        = sol1[:,1]        # Desplazamiento vertical de la viga [m]
 
+
 #%% rotacion de la solucion antes de dibujar
 ang = atan(y2-y1, x2-x1)
 
@@ -112,51 +116,55 @@ T   = [ cos(ang)  -sin(ang)    # matriz de rotacion
 
 #%% Dibujar de deformada
 
-pos = T*[ s +  10*u, 10*v ]; # escalamiento del diagrama
-
+pos = T*[ s +  esc_def*u, esc_def*v ]; # escalamiento del diagrama
 
 xx =  x1 .+ hcat(pos[1,:]...)
 yy =  y1 .+ hcat(pos[2,:]...)
 
-p1 = plot(1)
-p1 = plot(xx,yy)
-p1 = plot!([x1, x2], [y1, y2])
+figure(1)
+plot(xx,yy,color = :red)
+plot([x1, x2], [y1, y2],color = :blue)
+
 
 
 #%% Dibujar los diagramas de fuerza axial 
-pos = T*[ s,   -10*axial ]; # escalamiento del diagrama
+pos = T*[ s,   esc_faxial*axial ]; # escalamiento del diagrama
 
 ss = x1 .+ hcat(pos[1,:]...)
 aa = y1 .+ hcat(pos[2,:]...)
 
 
+figure(2)
+plot([x1, x2], [y1, y2],color = :blue)
+plot([x1; ss; x2], [y1; aa; y2],color = :red)
 
-p2 = plot([x1, x2], [y1, y2])
-p2 = plot!([x1; ss; x2], [y1; aa; y2])
-
+i = string(qe[3][1])
+text(ss[ 1], aa[ 1], "-$i")
+i = string(qe[1][4])
+text(ss[end], aa[end], "$i" )
 
 #%% Dibujar los diagramas de fuerza cortante
-pos = T*[ s,  cortante]; # escalamiento del diagrama
+pos = T*[ s,  esc_V*cortante]; # escalamiento del diagrama
 
 ss = x1 .+ hcat(pos[1,:]...)
 vv = y1 .+ hcat(pos[2,:]...)
 
-
-p3 = plot([x1, x2], [y1, y2])
-p3 = plot!([x1; ss; x2], [y1; vv; y2])
+figure(3)
+plot([x1, x2], [y1, y2],color = :blue)
+plot([x1; ss; x2], [y1; vv; y2],color = :red)
 
 
 
 #%% Dibujar los diagramas de momento flector
-pos = T*[ s, momento ]; # escalamiento del diagrama
+pos = T*[ s, esc_M*momento ]; # escalamiento del diagrama
 
 ss = x1 .+ hcat(pos[1,:]...)
 mm = y1 .+ hcat(pos[2,:]...)
 
+figure(4)
+plot([x1, x2], [y1, y2],color = :blue)
+plot([x1; ss; x2], [y1; mm; y2],color = :red)
 
-p4 = plot([x1, x2], [y1, y2])
-p4 = plot!([x1; ss; x2], [y1; mm; y2])
-
-
+gcf()
 
 end
