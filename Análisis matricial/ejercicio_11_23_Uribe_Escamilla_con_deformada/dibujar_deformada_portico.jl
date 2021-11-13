@@ -122,7 +122,7 @@ pos = T*[ s +  esc_def*u, esc_def*v ]; # escalamiento del diagrama
 xx =  x1 .+ hcat(pos[1,:]...)
 yy =  y1 .+ hcat(pos[2,:]...)
 
-figure(1)
+figure(2)
 plot(xx,yy,color = :red)
 plot([x1, x2], [y1, y2],color = :blue)
 
@@ -136,11 +136,12 @@ aa = y1 .+ hcat(pos[2,:]...)
 
 
 
-figure(2)
+figure(3)
 plot([x1, x2], [y1, y2],color = :blue)
 plot([x1; ss; x2], [y1; aa; y2],color = :red)
 
-ubic = string(qe[X1]); ubic1 = string(qe[X2])
+ubic  = string(round.(qe[X1], digits = 3)); 
+ubic1 = string(round.(qe[X2], digits = 3))
 text(ss[ 1], aa[ 1], "-$ubic")
 text(ss[end], aa[end], "$ubic1" )
 
@@ -150,12 +151,13 @@ pos = T*[ s,  esc_V*cortante]; # escalamiento del diagrama
 ss = x1 .+ hcat(pos[1,:]...)
 vv = y1 .+ hcat(pos[2,:]...)
 
-figure(3)
+figure(4)
 plot([x1, x2], [y1, y2],color = :blue)
 plot([x1; ss; x2], [y1; vv; y2],color = :red)
 
-ubic = string(qe[Y1]); ubic1 = string(qe[Y2])
-text(ss[ 1], vv[ 1], "$ubic")
+ubic  = string(round.(qe[Y1], digits = 3)); 
+ubic1 = string(round.(qe[Y2], digits = 3));
+text(ss[ 1], vv[ 1],    "$ubic")
 text(ss[end], vv[end], "-$ubic1" )
 
 #%% Dibujar los diagramas de momento flector
@@ -164,12 +166,13 @@ pos = T*[ s, esc_M*momento ]; # escalamiento del diagrama
 ss = x1 .+ hcat(pos[1,:]...)
 mm = y1 .+ hcat(pos[2,:]...)
 
-figure(4)
+figure(5)
 plot([x1, x2], [y1, y2],color = :blue)
 plot([x1; ss; x2], [y1; mm; y2],color = :red)
 
-ubic = string(qe[M1]); ubic1 = string(qe[M2])
-text(ss[ 1], mm[ 1], "$ubic")
+ubic  = string(round.(qe[M1], digits = 3)); 
+ubic1 = string(round.(qe[M2], digits = 3)); 
+text(ss[ 1],  mm[ 1], "$ubic")
 text(ss[end], mm[end], "-$ubic1" )
 
 gcf()
