@@ -9,7 +9,7 @@ using PyPlot
 Y   = EF             = nodo       = 1
 NL1 = TH             = direccion  = nodos = 2
 NL2 = desplazamiento = fuerza_pun = 3
-E_  = 4; I_ = 5; G_ = 6; Aas      = 7
+E_  = 4; I_ = 5; G_  = 6; Aas     = 7
 
 
 #Nombre archivo EXCEL
