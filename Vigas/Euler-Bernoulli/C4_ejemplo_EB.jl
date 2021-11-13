@@ -21,7 +21,7 @@ columns, labels = XLSX.readtable(filename, "xnod")
 # %%Se lee la posición de los nodos
 T    = hcat(columns...)  
 xnod = T[:,nodos]                       # Posición de los nodos
-L    = diff(xnod)                      # Longitud de cada EF
+L    = diff(xnod)                       # Longitud de cada EF
 
 
 nno  = length(xnod);                   # número de nodos
@@ -44,7 +44,7 @@ E     = T[ :,E_];            # módulo de elasticidad E del EF
 I     = T[ :,I_];            # momento de inercia Iz del EF
 G     = T[ :,G_];            # módulo de rigidez (para viga de Timoshenko)
 Aast  = T[ :,Aas];           # área de cortante (para viga de Timoshenko)
-fz    = T[:,8:9];        # relación de las cargas distribuidas
+fz    = T[:,8:9];            # relación de las cargas distribuidas
 fz = coalesce.(fz, 0.0)      # reemplazo los missing con ceros
 
 #%%Relación de los apoyos
@@ -80,7 +80,7 @@ fp      = T[:,fuerza_pun];; # desplazamientos conocidos
 
 # %%Se colocan las fuerzas/momentos nodales en el vector de fuerzas nodales
 # equivalentes global "f"
-f_ini = zeros(ngdl,1);   # vector de fuerzas nodales equivalentes global
+f_ini = zeros(ngdl,1);      # vector de fuerzas nodales equivalentes global
 
 for i = 1:length(idxNODO)
    f_ini[gdl[idxNODO[i], dirfp[i]]] = fp[i];
