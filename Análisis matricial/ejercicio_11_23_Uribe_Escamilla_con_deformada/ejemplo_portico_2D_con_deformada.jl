@@ -1,5 +1,6 @@
 #JULIA 1.6.3 
 
+using Printf
 
 #Se cargan las funciones
 include("dibujar_deformada_portico.jl")
@@ -46,35 +47,31 @@ ngdl = 3*nno;        # número de grados de libertad (tres por nodo)
 #% fila = nodo
 #% col1 = gdl en dirección x
 #% col2 = gdl en dirección y
-#$% col3 = gdl en dirección ángular antihoraria
+#% col3 = gdl en dirección ángular antihoraria
 gdl  = [ [1:3:ngdl]' [2:3:ngdl]' [3:3:ngdl]' ] # nodos vs gdl
-gdl = reshape(hcat(gdl...)',4,3)
+gdl  = reshape(hcat(gdl...)',4,3)
 
 
 
 figure(1)
 #
 for e = 1:nbar
-        
     plot(xnod[LaG[e,:],X], xnod[LaG[e,:],Y], color = :blue, linewidth = 0.5)
-    # Calculo la posición del centro de gravedad de la barra
     cgx = (xnod[LaG[e,NL1],X] + xnod[LaG[e,NL2],X])/2
     cgy = (xnod[LaG[e,NL1],Y] + xnod[LaG[e,NL2],Y])/2
-    q = string(e)
+    local q  = string(e)
     text(cgx, cgy, "$q", color = :red)
 end
-   
+   # Calculo la posición del centro de gravedad de la barra
 
 grid()
 for n = 1:nno
-  q = string(n)
+  local  q  = string(n)
   text(xnod[n,X], xnod[n,Y], "$q")
   
 end
 
 gcf()
-
-
 
 #%% cargas aplicadas (gdl carga)
 cargas_aplica = [ 1.5 ]
@@ -107,7 +104,7 @@ fe= Array{Array{Float64}}(undef, nbar,1)
 for e = 1:nbar
     x1 = xnod[LaG[e,NL1], X];  x2 = xnod[LaG[e,NL2], X]
     y1 = xnod[LaG[e,NL1], Y];  y2 = xnod[LaG[e,NL2], Y]
-    L = hypot(x2-x1, y2-y1)
+    L  = hypot(x2-x1, y2-y1)
 
     fe[e] = calc_fuerzas_nodales_equivalentes(
          A[mat[e]], E[mat[e]], I[mat[e]], x1,x2, y1,y2, qxloc[e],qyloc[e],L)
@@ -128,8 +125,8 @@ for e = 1:nbar  # para cada barra
    x1 = xnod[LaG[e,NL1], X];  x2 = xnod[LaG[e,NL2], X]
    y1 = xnod[LaG[e,NL1], Y];  y2 = xnod[LaG[e,NL2], Y]
 
-   L =  hypot(x2-x1, y2-y1)
-   c = (x2-x1)/L;   s = (y2-y1)/L;  # seno y coseno de la inclinación
+   L  =  hypot(x2-x1, y2-y1)
+   c  = (x2-x1)/L;   s = (y2-y1)/L;  # seno y coseno de la inclinación
 
    # matriz de transformación de coordenadas para la barra e
    #c = cosd(theta[e]); s = sind(theta[e]);
@@ -206,9 +203,6 @@ a = zeros(ngdl,1);  q = zeros(ngdl,1);  # separó la memoria
 a[c] = ac;       q[c] = qd;
 a[d] = ad;      #q[d] = qc = 0
 
-println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-println("Desplazamientos:")
-display(a)
 
 #%% imprimo las fuerzas internas en cada barra referidas a las coordenadas
 #% globales
@@ -229,7 +223,42 @@ for e = 1:nbar # para cada barra
 
 end
 
-vect_mov = reshape(a,nno,3) # vector de movimientos
+vect_mov = reshape(a,3,nno)' # matrix 3x4
+
+println("Desplazamientos nodales")
+println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+for i = 1:nno
+
+   u = round(1000*vect_mov[i,1], digits = 3)
+   v = round(1000*vect_mov[i,2], digits = 3)
+
+   @printf("Node %d: u = %10.3f mm v = %10.3f mm theta = %10.3f rad \n",
+            i, u, v, vect_mov[i,3]) 
+end
+
+println("                                                                                    ")
+
+qq = reshape(q,3,nno)' # matrix 3x4
+
+
+println("Fuerzas nodales de equilibrio (solo imprimo los diferentes de cero)")
+println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+for i = 1:nno
+
+   if qq[i] != 0 && qq[i,2] != 0  && qq[i,3]  != 0
+
+      q1 = round(qq[i,1], digits = 3)
+      q2 = round(qq[i,2], digits = 3)
+      @printf("Node %d: qx = %10.3f ton qy = %10.3f ton mom = %10.3f ton*m \n",
+               i, q1, q2, qq[i,3]) 
+      
+   else
+
+   end
+
+end
 
 
 #%% Dibujar la estructura y su deformada
@@ -264,7 +293,7 @@ ylabel("y, m")
 for e = 1:nbar
      x1 = xnod[LaG[e,NL1], X];  x2 = xnod[LaG[e,NL2], X]
      y1 = xnod[LaG[e,NL1], Y];  y2 = xnod[LaG[e,NL2], Y]
-     L =  hypot(x2-x1, y2-y1)
+     L  =  hypot(x2-x1, y2-y1)
 
      dibujar_deformada_portico(E[mat[e]],A[mat[e]],I[mat[e]],L,x1,x2,y1,y2,qxloc[e],qyloc[e],
                        T[e]*a[idx[e]],qe_loc[e], esc_def, esc_faxial, esc_V, esc_M)
