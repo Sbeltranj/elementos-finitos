@@ -1,15 +1,17 @@
 #JULIA 1.6.3
+
 import XLSX
 using SparseArrays
 using PyPlot
+using Printf
 
 # Programa para el cálculo de vigas de Euler-Bernoulli.
 
 # %%Defino las constantes y variables
 Y   = EF             = nodo       = 1
-NL1 = TH             = direccion  = nodos = 2
-NL2 = desplazamiento = fuerza_pun = 3
-E_  = 4; I_ = 5; G_  = 6; Aas     = 7
+NL1 = TH  = tipo     = direccion  = nodos = 2
+NL2 = desplazamiento = fuerza_pun = k_    = 3
+E_  = 4; I_ = 5;  G_ = 6; Aas     = 7
 
 
 #Nombre archivo EXCEL
@@ -21,7 +23,7 @@ columns, labels = XLSX.readtable(filename, "xnod")
 # %%Se lee la posición de los nodos
 T    = hcat(columns...)  
 xnod = T[:,nodos]                       # Posición de los nodos
-L    = diff(xnod)                       # Longitud de cada EF
+L    = diff(xnod)                      # Longitud de cada EF
 
 
 nno  = length(xnod);                   # número de nodos
@@ -44,7 +46,7 @@ E     = T[ :,E_];            # módulo de elasticidad E del EF
 I     = T[ :,I_];            # momento de inercia Iz del EF
 G     = T[ :,G_];            # módulo de rigidez (para viga de Timoshenko)
 Aast  = T[ :,Aas];           # área de cortante (para viga de Timoshenko)
-fz    = T[:,8:9];            # relación de las cargas distribuidas
+fz    = T[:,8:9];        # relación de las cargas distribuidas
 fz = coalesce.(fz, 0.0)      # reemplazo los missing con ceros
 
 #%%Relación de los apoyos
@@ -80,11 +82,29 @@ fp      = T[:,fuerza_pun];; # desplazamientos conocidos
 
 # %%Se colocan las fuerzas/momentos nodales en el vector de fuerzas nodales
 # equivalentes global "f"
-f_ini = zeros(ngdl,1);      # vector de fuerzas nodales equivalentes global
+f_ini = zeros(ngdl,1);   # vector de fuerzas nodales equivalentes global
 
 for i = 1:length(idxNODO)
    f_ini[gdl[idxNODO[i], dirfp[i]]] = fp[i];
 end
+
+#%% relación de los resortes
+columns, labels = XLSX.readtable(filename, "resortes")
+T       = hcat(columns...)
+
+idxNODO = T[:,nodo]
+tipores = T[:,tipo]; # Y=1 (vertical), TH=2 (rotacional)
+kres    = T[:,  k_]; # constante del resorte
+
+#%% grados de libertad del desplazamiento conocidos y desconocidos
+K_ini = spzeros(ngdl,ngdl);   # matriz de rigidez global
+n_resortes = length(idxNODO);
+
+for i = 1:n_resortes
+   idx = gdl[idxNODO[i], tipores[i]];
+   K_ini[idx,idx] = kres[i];
+end
+
 
 # %%VIGA DE EULER-BERNOULLI:
 # Con el programa "func_forma_euler_bernoulli.m" se calcularon:
@@ -99,10 +119,10 @@ end
 
 
 # %%Grados de libertad del desplazamiento conocidos y desconocidos
-K_ini = spzeros(ngdl,ngdl); 
-K = K_ini
-f = f_ini
-idx = Array{Array{Int64}}(undef, nef,1)      # grados de libertad del elemento e
+
+K     = K_ini
+f     = f_ini
+idx   = Array{Array{Int64}}(undef, nef,1)      # grados de libertad del elemento e
 
 for e = 1:nef  # Ciclo sobre todos los elementos finitos
 
@@ -190,7 +210,7 @@ end
 
 #%% se calculan los desplazamientos al interior de cada EF
 nint = 10;           # número de puntos donde se interpolara dentro del EF
-xi = collect(LinRange(-1,1,nint)); # coordenadas naturales
+xi   = collect(LinRange(-1,1,nint)); # coordenadas naturales
 
 
 xx = Array{Array{Float64}}(undef, nef,1) # Interpol de posiciones (geometria) en el elemento
@@ -232,6 +252,44 @@ end
 
 
 
+
+# %%Imprimo los resultados
+println("Desplazamientos nodales")
+println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+vect_mov = reshape(a,2,nno)' 
+for i = 1:nno
+
+   w = round(1000*vect_mov[i,1], digits = 3)
+   t = round(1000*vect_mov[i,2], digits = 3)
+
+   @printf("Node %d: w = %10.3f m  t = %10.3f rad  \n",
+            i, w, t) 
+end
+
+println("                                                                                    ")
+
+qq = reshape(q,2,nno)' # matrix 3x4
+
+
+println("Fuerzas nodales de equilibrio (solo imprimo los diferentes de cero)")
+println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+
+for i = 1:nno
+
+   if qq[i] != 0 
+
+      q1 = round(qq[i,1], digits = 3)
+      q2 = round(qq[i,2], digits = 3)
+      @printf("Node %3d: Ry = %10.3f KN Mz = %10.3f kN-m  \n",
+               i, q1, q2) 
+      
+   else
+
+   end
+
+end
+
 #%% Gráfico la solución analítica y la solución por el MEF
 # %%1) grafico los desplazamientos de la viga
 
@@ -253,6 +311,7 @@ end
 #%% 2) Gráfico de los ángulos de giro
 subplot(212)
 grid("on")
+tight_layout()
 title("Solución con el MEF para el giro ", fontsize = 12)
 ylabel("Giro (rad)")             # Título del eje Y
 xlabel("Eje x [m]")              # Título del eje X
@@ -264,7 +323,7 @@ end
 
 #%% 3) gráfico los momentos
 figure(2)                        # cree un nuevo lienzo
-subplot(212)
+subplot(211)
 
 grid("on")                       # retícula
 xlabel("Eje x [m]")              # Título del eje X
@@ -275,7 +334,7 @@ plot(xmom[:], mom[:], color = :blue )
 
 
 #%% 4) Gráfico de la fuerza cortante
-subplot(211)
+subplot(212)
 
 grid("on")
 xlabel("Eje x [m]")             # Título del eje X
@@ -295,4 +354,4 @@ display(figure(2))
 
 gcf()
 
-#%%Fin #falta agregar comparación por MAXIMA, e impresión bonita.
+#%%Fin #falta agregar comparación por MAXIMA.
