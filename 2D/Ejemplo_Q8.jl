@@ -190,9 +190,9 @@ end
 
 ## Se definen las cargas distribuidas
 if MALLA == 1
-    carga_distr = Array{Float64}(0,6)
+    carga_distr = Array{Float64}(undef,0,6)
 elseif MALLA == 2
-    carga_distr = Array{Float64}(0,6)
+    carga_distr = Array{Float64}(undef,0,6)
 elseif MALLA == 3
  #  elem lado  tix   tiy   tjx    tjy  tkx  tky
     carga_distr = [
