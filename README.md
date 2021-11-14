@@ -1,2 +1,2 @@
 # Elementos_Finitos
-Códigos traducidos de PYTHON y MATLAB al lenguaje de programación JULIA (https://julialang.org/). (ver: https://github.com/diegoandresalvarez/elementosfinitos)
+Códigos de análisis estructural por elementos finitos, traducidos de PYTHON y MATLAB (ver: https://github.com/diegoandresalvarez/elementosfinitos) al lenguaje de programación JULIA (https://julialang.org/). 
