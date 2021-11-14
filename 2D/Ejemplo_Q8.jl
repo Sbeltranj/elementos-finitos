@@ -655,8 +655,8 @@ ang  = 0.5*atan.(2*txy, sx-sy) # angulo de inclinacion de s1
 #println([(1:nno)'  s1  s2  tmax  ang])
 
 ## s1, s2, taumax
-plot_def_esf_ang(xnod, LaG, s1,   [ang],                L"\sigma_1(x,y) [Pa]")
-plot_def_esf_ang(xnod, LaG, s2,   [ang.+pi/2],           L"\sigma_2(x,y) [Pa]")
+plot_def_esf_ang(xnod, LaG, s1,   [ang],                  L"\sigma_1(x,y) [Pa]")
+plot_def_esf_ang(xnod, LaG, s2,   [ang.+pi/2],            L"\sigma_2(x,y) [Pa]")
 plot_def_esf_ang(xnod, LaG, tmax, [ang.+pi/4, ang.-pi/4], L"\tau_{max}(x,y) [Pa]")
 
 ## Calculo de los esfuerzos de von Mises
