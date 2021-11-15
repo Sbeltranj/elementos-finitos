@@ -553,10 +553,13 @@ function fill_EF8(x,y,z,minmaxz)
      #https://matplotlib.org/stable/gallery/images_contours_and_fields/tripcolor_demo.html
 
 
-     tripcolor([x; x9], [y; y9], triangles, [z; z9], 
+     tricontour([x; x9], [y; y9], triangles, [z; z9], 
                 norm=my_colors.Normalize(vmax=minmaxz[end], vmin=minmaxz[1]),
-                cmap=ColorMap("jet"),shading="gouraud")
-     
+                cmap=ColorMap("jet"))
+
+     tripcolor([x; x9], [y; y9], triangles, [z; z9], 
+      norm=my_colors.Normalize(vmax=minmaxz[end], vmin=minmaxz[1]),
+      cmap=ColorMap("jet"),shading="gouraud")
     # triplot(x,y,triangles, "ko-") # Utilicelo con mallas triangulares
     return
 #=
