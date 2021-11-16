@@ -24,13 +24,13 @@ using PyCall
 close("all")  # close all de MATLAB (función de PyPlot)
 
 ## ------------------------------------------------------------------------
-## NOTA: este codigo SOLO es apropiado para TENSION PLANA usando elementos
+## NOTA: este código SOLO es apropiado para tensión PLANA usando elementos
 ## rectangulares serendipitos de 8 nodos
 ## ------------------------------------------------------------------------
 
 ## definición del problema
 # Calcule los desplazamientos y las reacciones en los empotramiento, las
-# deformaciones y los esfuerzos de la estructura en TENSION PLANA mostrada
+# deformaciones y los esfuerzos de la estructura en tensión PLANA mostrada
 # en la figura adjunta
 
 
@@ -82,7 +82,7 @@ function t2ft_R89(xnod, lado, carga, espesor)
     ## Se definen algunas constantes
     X = 1; Y = 2
  
-    ## Parametros de la cuadratura de Gauss-Legendre
+    ## párametros de la cuadratura de Gauss-Legendre
     n_gl = 5                        # orden de la cuadratura de Gauss-Legendre
     x_gl, w_gl = gausslegendre_quad(n_gl)
  
@@ -140,37 +140,37 @@ function t2ft_R89(xnod, lado, carga, espesor)
 
 ## defino las variables/constantes
 X    = 1             # un par de constantes que ayudaran en la
-Y    = 2             # lectura del codigo
-Ee   = 200.0e9       # modulo de elasticidad del solido (Pa) = 200 GPa
+Y    = 2             # lectura del código
+Ee   = 200.0e9       # módulo de elasticidad del solido (Pa) = 200 GPa
 nue  = 0.30          # coeficiente de Poisson
 te   = 0.01          # espesor del solido (m)
 rhoe = 7850.0        # densidad (kg/m^3)
-g    = 9.81          # aceleracion de la gravedad (m/s^2)
+g    = 9.81          # aceleración de la gravedad (m/s^2)
 be = [0; -rhoe*g]    # vector de fuerzas masicas del elemento
 
-MALLA = 3            # MALLA=1 grafico, MALLA=2 la generada con ANSYS
+MALLA = 2           # MALLA=1 grafico, MALLA=2 la generada con ANSYS
 
 ## cargar
-# xnod - posicion de los nodos
+# xnod - posición de los nodos
 # LaG  - definicion de elementos finitos con respecto a nodos
-if     MALLA == 1    #include("malla1.jl")
-elseif MALLA == 2    #include("malla2.jl")
+if     MALLA == 1    include("malla1.jl")
+elseif MALLA == 2    include("malla2.jl")
 elseif MALLA == 3    include("malla3.jl")
 else                 error("Malla no especificada")
 end
 
 
-nno  = size(xnod,1)  # numero de nodos (numero de filas de xnod)
-ngdl = 2*nno         # numero de grados de libertad (dos por nodo)
+nno  = size(xnod,1)  # número de nodos (número de filas de xnod)
+ngdl = 2*nno         # número de grados de libertad (dos por nodo)
 gdl  = [1:2:ngdl   2:2:ngdl] # nodos vs grados de libertad
-nef = size(LaG,1)    # numero de EFs (numero de filas de LaG)
+nef = size(LaG,1)    # número de EFs (número de filas de LaG)
 
 ## Se definen las restricciones
-ngdl_res = size(restricciones,1) # numero de grados de libertad restringidos
+ngdl_res = size(restricciones,1) # número de grados de libertad restringidos
 restric  = zeros(ngdl_res, 2)#Array{Array{Float64}}(undef, ngdl_res,2)
 
 for i = 1:ngdl_res
-   #                    nodo                     direccion                desplazamiento
+   #                    nodo                     dirección                desplazamiento
    restric[i,:] = [ gdl[Int(restricciones[i,1]), Int(restricciones[i,2])] restricciones[i,3] ]
 end
 
@@ -210,7 +210,7 @@ else
     error("Malla no especificada")
 end
 
-nlcd = size(carga_distr,1) # numero de lados con carga distribuida
+nlcd = size(carga_distr,1) # número de lados con carga distribuida
 
 
 
@@ -220,7 +220,7 @@ for e = 1:nef
    plot(xnod[LaG[e,[1:8; 1]],X], xnod[LaG[e,[1:8; 1]],Y],
          color="k", linestyle="-")
 
-   # Calculo la posicion del centro de gravedad del triangulo
+   # Calculo la posición del centro de gravedad del triangulo
    cg[e,:] = [ mean(xnod[LaG[e,[1 3 5 7]],X]) mean(xnod[LaG[e,[1 3 5 7]],Y]) ]
 
    text(cg[e, X], cg[e, Y], "$e", fontsize=5, color=[1,0,0],
@@ -270,9 +270,9 @@ dN_deta(xi,eta) = [
       -((xi - 1)*(2*eta - xi))/4                   # dN7_deta
       eta*(xi - 1)                             ]   # dN8_deta
 
-## Parametros de la cuadratura de Gauss-Legendre
-# se asumira aqui el mismo orden de la cuadratura tanto en la direccion de
-# xi como en la direccion de eta
+## párametros de la cuadratura de Gauss-Legendre
+# se asumira aqui el mismo orden de la cuadratura tanto en la dirección de
+# xi como en la dirección de eta
 n_gl = 2    # orden de la cuadratura de Gauss-Legendre
 
 
@@ -301,7 +301,7 @@ K = spzeros(ngdl,ngdl)        # matriz de rigidez global como RALA (sparse)
 N = Array{Any}(undef,nef,n_gl,n_gl) # contenedor para las matrices de forma
 B = Array{Any}(undef,nef,n_gl,n_gl) # contenedor para las matrices de deformacion
 
-# matriz constitutiva del elemento para TENSION PLANA
+# matriz constitutiva del elemento para tensión PLANA
 De = [ Ee/(1-nue^2)     Ee*nue/(1-nue^2)  0
        Ee*nue/(1-nue^2) Ee/(1-nue^2)      0
        0                0                 Ee/(2*(1+nue)) ]
@@ -326,12 +326,12 @@ for e = 1:nef  # ciclo sobre todos los elementos finitos
          xi_gl  = x_gl[p]
          eta_gl = x_gl[q]
 
-         # Se evaluan las funciones de forma en los puntos de integracion
+         # Se evaluan las funciones de forma en los puntos de integración
          # de Gauss-Legendre
          NNforma = Nforma(xi_gl, eta_gl)
 
          # Se evaluan las derivadas de las funciones de forma en los puntos
-         # de integracion de Gauss-Legendre
+         # de integración de Gauss-Legendre
          ddN_dxi  = dN_dxi( xi_gl, eta_gl);     xe = xnod[LaG[e,:],X]
          ddN_deta = dN_deta(xi_gl, eta_gl);     ye = xnod[LaG[e,:],Y]
 
@@ -437,7 +437,7 @@ q = zeros(ngdl);  q[c] = qd;  q[d] = qc   # fuerzas nodales equivalentes
 delta = reshape(a,2,nno)'
 
 escala = 50000                # factor de escalamiento de la deformada
-xdef = xnod + escala*delta    # posicion de la deformada
+xdef = xnod + escala*delta    # posición de la deformada
 figure(3)
 for e = 1:nef
    plot(xnod[LaG[e,[1:8;1]],X], xnod[LaG[e,[1:8;1]],Y], color="r", linestyle="-")   # original
@@ -445,7 +445,7 @@ for e = 1:nef
 end
 axis("tight")
 axis("equal")
-legend(["Posicion original","Posicion deformada"], loc="lower right")
+legend(["posición original","posición deformada"], loc="lower right")
 title("Deformada escalada $escala veces")
 
 
@@ -467,7 +467,7 @@ for e = 1:nef
 end
 
 ## Se extrapolan los esfuerzos y las deformaciones a los nodos
-num_elem_ady = zeros(nno)  # numero de elementos adyacentes
+num_elem_ady = zeros(nno)  # número de elementos adyacentes
 sx  = zeros(nno)
 sy  = zeros(nno)
 sz  = zeros(nno)
@@ -528,122 +528,114 @@ sx  =  sx./num_elem_ady;  ex  =  ex./num_elem_ady
 sy  =  sy./num_elem_ady;  ey  =  ey./num_elem_ady
 txy = txy./num_elem_ady;  gxy = gxy./num_elem_ady
 
-## Se calculan las deformacion ez en tension plana
+## Se calculan las deformacion ez en tensión plana
 ez  = -(nue/Ee)*(sx+sy)
 
 
 # Ver: http://stackoverflow.com/questions/29443369/how-to-make-a-custom-colormap-using-pyplot-not-matplotlib-proper
 @pyimport matplotlib.colors as my_colors
 
-function fill_EF8(x,y,z,minmaxz)
-    x9 = mean(x)
-    y9 = mean(y)
-    z9 = mean(z)
-    
-    triangles = [  [ 1, 7, 0 ],        
-                   [ 1, 8, 7 ],        
-                   [ 1, 3, 8 ],        
-                   [ 1, 2, 3 ],        
-                   [ 3, 4, 8 ],        
-                   [ 4, 5, 8 ],       
-                   [ 5, 6, 8 ],       
-                   [ 6, 7, 8 ] ]    
-                                       
-     #Actualizando a tripcolor:
-     #https://matplotlib.org/stable/gallery/images_contours_and_fields/tripcolor_demo.html
+function plot_def_esf_ang(xnod,esfdef, angulos, lab)
+
+   X,Y = 1,2
+
+   NL1, NL2, NL3, NL4, NL5, NL6, NL7, NL8 = 1,2,3,4,5,6,7,8
+   triangle = Vector{Vector{Int64}}(undef, 6*nef)
 
 
-     tricontour([x; x9], [y; y9], triangles, [z; z9], 
-                norm=my_colors.Normalize(vmax=minmaxz[end], vmin=minmaxz[1]),
-                cmap=ColorMap("jet"))
 
-     tripcolor([x; x9], [y; y9], triangles, [z; z9], 
-      norm=my_colors.Normalize(vmax=minmaxz[end], vmin=minmaxz[1]),
-      cmap=ColorMap("jet"),shading="gouraud")
-    # triplot(x,y,triangles, "ko-") # Utilicelo con mallas triangulares
-    return
-#=
-El código anterior se basó en:
-http://matplotlib.org/examples/pylab_examples/triinterp_demo.html
-using PyPlot
-# Create triangulation.
-x = [0, 1, 2, 3, 0.5, 1.5, 2.5, 1, 2, 1.5]
-y = [0, 0, 0, 0, 1.0, 1.0, 1.0, 2, 2, 3.0]
-triangles = [[0, 1, 4], [1, 2, 5], [2, 3, 6], [1, 5, 4], [2, 6, 5], [4, 5, 7],
-             [5, 6, 8], [5, 8, 7], [7, 8, 9]]
-z = cos(1.5*x).*cos(1.5*y)
-figure()
-tricontourf(x,y,triangles, z)
-triplot(x,y,triangles, "ko-")
-title("Triangular grid")
-=#
+       # Para propósitos de graficación el EF se divide en 6 triángulos así: 
+    #     
+    #                             7 -------6--------5
+    #                             |       /|\       |
+    #                             | EFT6 / | \ EFT3 |
+    #                             |     /  |  \     |
+    #                             |    /   |   \    |
+    #                             |   /    |    \   |
+    #                             |  /     |     \  |
+    #                             | /      |      \ |
+    #                             8/  EFT5 | EFT4  \4
+    #                             |\       |       /|
+    #                             | \      |      / |
+    #                             |  \     |     /  |
+    #                             |   \    |    /   |
+    #                             |    \   |   /    |
+    #                             |     \  |  /     |
+    #                             | EFT1 \ | / EFT2 |
+    #                             |       \|/       |
+    #                             1--------2--------3
+
+   for e = 1:nef
+
+      # se arma la matriz de correspondencia (LaG) de la nueva malla triangular
+      triangle[6*e - 5] = LaG[e, [NL1, NL2, NL8]] .- 1
+      triangle[6*e - 4] = LaG[e, [NL2, NL3, NL4]] .- 1
+      triangle[6*e - 3] = LaG[e, [NL4, NL5, NL6]] .- 1
+      triangle[6*e - 2] = LaG[e, [NL2, NL4, NL6]] .- 1
+      triangle[6*e - 1] = LaG[e, [NL2, NL6, NL8]] .- 1
+      triangle[6*e - 0] = LaG[e, [NL6, NL7, NL8]] .- 1
+
+   end
+
+   #Actualizando a tripcolor:
+   #https://matplotlib.org/stable/gallery/images_contours_and_fields/tripcolor_demo.html
+
+      val_max = maximum(abs.(esfdef))
+      fig, ax = subplots()
+       # se grafica la malla de EFS, los colores en cada triángulo y las curvas 
+       # de nivel
+      for e = 1:nef
+         # se dibujan las aristas
+         nod_ef = LaG[e, [NL1, NL2, NL3, NL4, NL5, NL6, NL7, NL8, NL1]]
+                plot(xnod[nod_ef, X], xnod[nod_ef, Y], lw = 0.5, color = "gray")
+      end
+
+      im = ax.tripcolor(xnod[:, X], xnod[:, Y], triangle, esfdef,  cmap = "bwr",
+                        shading = "gouraud", vmin = -val_max, vmax = val_max)
+
+      ax.tricontour(xnod[:, X], xnod[:, Y], triangle, esfdef, 20)
+
+      fig.colorbar(im, ax = ax, format = "%6.3g")
+
+      if ~isempty(angulos)
+         # Grafique lineas que indican las direcciones principales de sigma_1
+         norma = 2 # = esf si quiere proporcional
+   
+         for ang in angulos
+            quiver(xnod[:,X],xnod[:,Y],              # En el nodo grafique una línea
+                   norma.*cos.(ang),norma.*sin.(ang),# indicando la dirección
+                   headlength=0,
+                   headwidth = 0,
+                   headaxislength = 0,
+                   pivot="middle")
+         end
+         # scatter(xnod[:,X],xnod[:,Y], color="k", s=1)  # para poner el punto
+         # http://matplotlib.org/examples/pylab_examples/quiver_demo.html
+      end
+      ylabel(lab)
+      axis("equal") # tight
+   return
+
 end
 
-function plot_def_esf_ang(xnod, LaG, esfdef, angulos, lab)
 
-    X = 1; Y = 2
-    nef = size(LaG,1)
-    
-    
-    esfdefminmax = extrema(esfdef)
-    min = minimum(esfdef)
-    max = maximum(esfdef)
-
-    figure()
-    for e = 1:nef
-       fill_EF8(xnod[LaG[e,:],X], xnod[LaG[e,:],Y], esfdef[LaG[e,:]], esfdefminmax)
-    end
- 
-    clim(min, max)
-    colorbar()
- 
-    if ~isempty(angulos)
-       # Grafique lineas que indican las direcciones principales de sigma_1
-       norma = 2 # = esf si quiere proporcional
- 
-       for ang in angulos
-          quiver(xnod[:,X],xnod[:,Y],            # En el nodo grafique una línea
-                 norma.*cos.(ang),norma.*sin.(ang),# indicando la direccion
-                 headlength=0,
-                 headwidth = 0,
-                 headaxislength = 0,
-                 pivot="middle")
-       end
-       # scatter(xnod[:,X],xnod[:,Y], color="k", s=1)  # para poner el punto
-       # http://matplotlib.org/examples/pylab_examples/quiver_demo.html
-    end
- 
-    ylabel(lab)
-    axis("equal") # tight
- 
-    # NOTA: con
-    # http://matplotlib.org/examples/pylab_examples/tricontour_smooth_user.html
-    # se podria hacer un dibujo mejor con una sola interpolación
-    return
- end
- 
-
-
-## Se imprimen y grafican las deformaciones en los nodos
-#println("Deformaciones: (Nodo,ex,ey,ez,gxy) = ")
-#println([(1:nno)'  ex  ey  ez  gxy])
-plot_def_esf_ang(xnod, LaG, ex,  [], L"\epsilon_x(x,y)")
-plot_def_esf_ang(xnod, LaG, ey,  [], L"\epsilon_y(x,y)")
-plot_def_esf_ang(xnod, LaG, ez,  [], L"\epsilon_z(x,y)")
-plot_def_esf_ang(xnod, LaG, gxy, [], L"\gamma_{xy}(x,y)")
+plot_def_esf_ang(xnod, ex,  [], L"\epsilon_x(x,y)")
+plot_def_esf_ang(xnod, ey,  [], L"\epsilon_y(x,y)")
+plot_def_esf_ang(xnod, ez,  [], L"\epsilon_z(x,y)")
+plot_def_esf_ang(xnod, gxy, [], L"\gamma_{xy}(x,y)")
 
 ## Se imprimen y grafican los esfuerzos en los nodos
 #println("Esfuerzos (Pa):  (Nodo,sx,sy,txy) = ")
 #println([(1:nno)'  sx  sy  txy])
-plot_def_esf_ang(xnod, LaG, sx,  [], L"\sigma_x(x,y) [Pa]")
-plot_def_esf_ang(xnod, LaG, sy,  [], L"\sigma_y(x,y) [Pa]")
-plot_def_esf_ang(xnod, LaG, txy, [], L"\tau_{xy}(x,y) [Pa]")
+plot_def_esf_ang(xnod, sx,  [], L"\sigma_x(x,y) [Pa]")
+plot_def_esf_ang(xnod, sy,  [], L"\sigma_y(x,y) [Pa]")
+plot_def_esf_ang(xnod, txy, [], L"\tau_{xy}(x,y) [Pa]")
 
 ## Se calculan y grafican para cada elemento los esfuerzos principales y
 ## sus direcciones
-# NOTA: esto solo es valido para el caso de TENSION PLANA).
+# NOTA: esto solo es válido para el caso de TENSIÓN PLANA).
 # En caso de DEFORMACION PLANA se deben calcular los valores y vectores
-# propios de la matriz de tensiones de Cauchy
+# propios de la matriz de tensiónes de Cauchy
 #   [dirppales{e}, esfppales{e}] = eig([sx  txy 0    # matriz de esfuerzos
 #                                       txy sy  0    # de Cauchy
 #                                       0   0   0]);
@@ -658,9 +650,9 @@ ang  = 0.5*atan.(2*txy, sx-sy) # angulo de inclinacion de s1
 #println([(1:nno)'  s1  s2  tmax  ang])
 
 ## s1, s2, taumax
-plot_def_esf_ang(xnod, LaG, s1,   [ang],                  L"\sigma_1(x,y) [Pa]")
-plot_def_esf_ang(xnod, LaG, s2,   [ang.+pi/2],            L"\sigma_2(x,y) [Pa]")
-plot_def_esf_ang(xnod, LaG, tmax, [ang.+pi/4, ang.-pi/4], L"\tau_{max}(x,y) [Pa]")
+plot_def_esf_ang(xnod, s1,   [ang],                  L"\sigma_1(x,y) [Pa]")
+plot_def_esf_ang(xnod, s2,   [ang.+pi/2],            L"\sigma_2(x,y) [Pa]")
+plot_def_esf_ang(xnod, tmax, [ang.+pi/4, ang.-pi/4], L"\tau_{max}(x,y) [Pa]")
 
 ## Calculo de los esfuerzos de von Mises
 s3 = zeros(size(s1))   # s3 = zeros(size(s1)) de MATLAB
@@ -668,7 +660,7 @@ sv = sqrt.(((s1-s2).^2 + (s2-s3).^2 + (s1-s3).^2)/2)
 
 #println("Nodo,Esfuerzos de von Mises (Pa) = ")
 #println([(1:nno)'  sv]);
-plot_def_esf_ang(xnod, LaG, sv, [], L"\sigma_v(x,y) [Pa]")
+plot_def_esf_ang(xnod, sv, [], L"\sigma_v(x,y) [Pa]")
 title("Esfuerzos de von Mises (Pa)")
 
 
@@ -681,4 +673,5 @@ end
 
 gcf()
 
-#Fin - falta revisar algoritmo de matplotlib tripcontourf, y ortografía
+
+#Fin 
