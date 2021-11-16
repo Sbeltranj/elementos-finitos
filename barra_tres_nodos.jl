@@ -7,7 +7,7 @@ de la viga mostrada
 |->->->->->->->->->->->->->->->->
 |====*====*====*====....====*====o-> P (carga puntual P en nodo nno)
 1    2    3    4          nno-1  nno
-|<----longitud L de la barra---->|   el area transversal de la barra es A
+|<----longitud L de la barra---->|   el área transversal de la barra es A
 =#
 
 
