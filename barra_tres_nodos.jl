@@ -1,22 +1,49 @@
+#JULIA 1.6.3
+## DEFINICIÓN DEL PROBLEMA
+#=
+Calcule los desplazamientos y las reacciones en el empotramiento
+de la viga mostrada
+| b (carga distribuida de magnitud b)
+|->->->->->->->->->->->->->->->->
+|====*====*====*====....====*====o-> P (carga puntual P en nodo nno)
+1    2    3    4          nno-1  nno
+|<----longitud L de la barra---->|   el area transversal de la barra es A
+=#
+
+
+# PROGRAMA ELABORADO POR: 
+# Diego Andrés Alvarez Marín
+# daalvarez@unal.edu.co
+
+# Actualizando la versión 0.5.1 a 1.6.3
+# Santiago Beltrán Jaramillo
+# sbeltran@unal.edu.co
+
+#Cargamos paquetes:
 
 using Plots
 using Polynomials
 
+# -----------------------------------------------------------------
+# Se usaron tres elementos isoparametricos lagrangianos cuadraticos
+# -----------------------------------------------------------------
 
-nef  = 3
-nno  = 2*nef + 1;
+## defino las variables
+
+E = 200e9;    # Pa               # módulo de elasticidad de la barra
+A = (0.01)^2; # m^2              # área transversal de la barra
+L = 2                            # m                # longitud de la barra
+b = 1000                         # N/m              # fuerza axial aplicada sobre cada EF
+P = 250                          # carga nodal al final de la barra
+ 
+nef  = 3                         # nÚmero de elementos finitos (EF)
+nno  = 2*nef + 1;                # nÚmero de nodos
 ngdl = nno;
-E = 200e9;
-A = (0.01)^2;
-L = 2
-b = 1000
-P = 250
+xnod = LinRange(0,L,nno)         # posición de los nodos
 
-xnod = LinRange(0,L,nno)
+le = repeat([L/nef],nef)         # longitud de cada EF
 
-le = repeat([L/nef],nef)
-
-LaG = [1 2 3                  # definición de EFs con respecto a nodos
+LaG = [1 2 3                     # definición de EFs con respecto a nodos
        3 4 5
        5 6 7];
 
@@ -67,8 +94,9 @@ x_gl, w_gl = gausslegendre_quad(n_int_gl)
 # x_gl = [  -0.861136311594054; -0.339981043584857; 0.339981043584856; 0.861136311594053 ];
 # w_gl = [   0.347854845137453;  0.652145154862547; 0.652145154862547; 0.347854845137453 ];
 
-f      = zeros(ngdl)
-f[nno] = P 
+## Relacion de cargas puntuales
+f      = zeros(ngdl)  # vector de fuerzas nodales equivalentes global
+f[nno] = P            # relaciono la carga puntual en el nodo "nno"
 
 #%% ensamblo la matriz de rigidez global y el vector de fuerzas nodales
 #%  equivalentes global
@@ -221,11 +249,3 @@ display(fig_despla)
 display(fig_axial)
 
 #Fin
-
-
-
-
-
-
-
-
