@@ -30,7 +30,7 @@ close("all")  # close all de MATLAB (función de PyPlot)
 
 ## definición del problema
 # Calcule los desplazamientos y las reacciones en los empotramiento, las
-# deformaciones y los esfuerzos de la estructura en tensión PLANA mostrada
+# deformaciones y los esfuerzos dela estructura en tensión PLANA mostrada
 # en la figura adjunta
 
 
