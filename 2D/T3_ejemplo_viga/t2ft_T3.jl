@@ -1,3 +1,4 @@
+
 function t2ft_T3(xnod_EF, lado, carga, espesor)
 
     #=Convierte las fuerzas superficiales aplicadas a un EF triangular de 3
@@ -90,3 +91,134 @@ ds_dxi = L31/2;
 f31 = int(res31*ds_dxi, xi, -1 ,1)
 '''
 =#
+
+function plot_def_esf_ang(xnod,esfdef, angulos, lab)
+
+    #Actualizando a tripcolor:
+    #https://matplotlib.org/stable/gallery/images_contours_and_fields/tripcolor_demo.html
+       fig, ax = subplots()
+ 
+       X, Y = 1,2
+       NL1, NL2, NL3 = 1, 2, 3
+ 
+       triangles = Vector{Vector{Int64}}(undef, nef)
+ 
+       for e = 1:nef
+ 
+         # se arma la matriz de correspondencia (LaG) de la nueva malla triangular
+         triangles[e] = LaG[e, [NL1, NL2, NL3]] .- 1
+   
+       end
+
+       #Visitar :https://github.com/diegoandresalvarez/elementosfinitos/blob/master/diapositivas/05a_EF_2D_T3_y_Q4.pdf
+ 
+ 
+     #                                     2
+     #                                    / \       
+     #                                   /   \      
+     #                                  /     \     
+     #                                 /       \   
+     #                                /         \   
+     #                               /           \  
+     #                              /             \ 
+     #                            3/  ---- | ----  \1
+ 
+ 
+         # se grafica la malla de EFS, los colores en cada triángulo y las curvas
+         # de nivel
+ 
+         ax.triplot(xnod[:,X], xnod[:,Y],  lw=0.5, color="gray")
+ 
+         # se promedian los esfuerzos y las deformaciones en los nodos de modo
+         # que en la variable "var" se encuentren los valores alisados del
+         # esfuerzo o de la deformación a graficar
+         
+         num_elem_ady = zeros(nno)
+ 
+ 
+         for e = 1:nef
+             num_elem_ady[LaG[e,:]] .+= 1
+         end
+ 
+         var = zeros(nno)
+         for e = 1:nef
+             var[LaG[e,:]] .+= esfdef[e]
+         end
+         
+     
+         var  = var./num_elem_ady
+ 
+         # se encuentra el máximo en valor absoluto para ajustar el colorbar()
+         val_max = maximum(var)
+
+         
+ 
+         im = ax.tripcolor(xnod[:, X], xnod[:, Y],  var,  cmap = "bwr",
+                          shading = "gouraud", vmin = -val_max, vmax = val_max)
+ 
+         fig.colorbar(im, ax = ax, format = "%6.3g")
+         ax.tricontour(xnod[:, X], xnod[:, Y], triangles, var, 20)
+         axis("equal")
+ 
+         ##%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ 
+ 
+       if ~isempty(angulos)
+          # Grafique lineas que indican las direcciones principales de sigma_1
+          norma = 1 
+    
+          for ang in angulos
+             quiver(cgx[:,X],cgy[:,X],                 # En el nodo grafique una línea
+                    norma.*cos.(ang), norma.*sin.(ang),# indicando la dirección
+                    headlength=0,
+                    headwidth = 0,
+                    headaxislength = 0,
+                    pivot="middle")
+          end
+          # scatter(xnod[:,X],xnod[:,Y], color="k", s=1)  # para poner el punto
+          # http://matplotlib.org/examples/pylab_examples/quiver_demo.html
+       end
+       ylabel(lab)
+       ax.set_aspect("equal")
+       ax.autoscale(tight=true)
+    return
+ 
+ end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
