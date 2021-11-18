@@ -1,3 +1,5 @@
+#JULIA 1.6.3
+
 import XLSX
 using Polynomials
 using PyPlot
@@ -6,23 +8,27 @@ using Statistics
 using SparseArrays
 using PyCall
 
-# %%Defino las constantes y variables
+include("t2ft_T3.jl") #Para las fuerzas superficiales y dibujar los
+                      #diferentes gráficos.
 
 
+close("all")          #cerrar ventanas
+
+
+# %%Defino las constantes y variables, para hacer el código mas legible
 X   = EF  = nodo      =  elemento = material = 1
 x_  = NL1 = direccion      = lado = E  = Y   = 2
 NL2 = y_  = desplazamiento = tix  = fpuntual = nu = 3
 NL3 = tiy = rho = 4
 tjx = espesor   = 5
 tjy = 6
-
+g   = 9.81
 
 #Nombre archivo EXCEL
 filename = "malla_refinada_v1.xlsx"
 
 #se carga el libro.xlsx, con el nombre de la hoja "xnod"
 columns, labels = XLSX.readtable(filename, "xnod")
-
 # %%Se lee la posición de los nodos
 T    = hcat(columns...)  
 
@@ -41,9 +47,9 @@ T = hcat(columns...)
 
 LaG   = T[:,NL1:NL3]        # Definición de EFs respecto a nodos
 nef   = size(LaG,1)
+
 # %% definición de los materiales
 mat   = T[:,5]
-
 columns, labels = XLSX.readtable(filename, "prop_mat")
 T  = hcat(columns...)
 
@@ -53,16 +59,15 @@ rhoe = T[:, rho]     # [kg/m³]  densidad
 te   = T[:, espesor] # [m]      espesor
 nmat = size(Ee,1)
 
-
 # %% Relación de cargas puntuales
 
 columns, labels = XLSX.readtable(filename, "carga_punt")
 T  = hcat(columns...)
 
-ncp = size(T,1)
+ncp     = size(T,1)
 idxNODO = T[:,nodo]
 dirfp   = T[:,direccion];
-fp      = T[:,fpuntual];; # desplazamientos conocidos
+fp      = T[:,fpuntual];
 
 f = zeros(ngdl,1);   # vector de fuerzas nodales equivalentes global
 
@@ -71,9 +76,10 @@ for i = 1:length(idxNODO)
 end
 
 
-NL1, NL2, NL3 = 1, 2, 3
+NL1, NL2, NL3 = 1, 2, 3  # Definición de los EF triangulares por ndo
 
 figure(1)
+
 cgx = zeros(nef, 2) 
 cgy = zeros(nef, 2) # almacena el centro de gravedad
 for e = 1:nef
@@ -86,20 +92,17 @@ for e = 1:nef
     cgx[e] = (xnod[LaG[e,1],X] + xnod[LaG[e,2],X] + xnod[LaG[e,3],X])/3;
     cgy[e] = (xnod[LaG[e,1],Y] + xnod[LaG[e,2],Y] + xnod[LaG[e,3],Y])/3; 
 
-   # Calculo la posicion del centro de gravedad del triangulo
-   #cg[e,:] = [ mean(xnod[LaG[:]]) mean(xnod[LaG[e,[1 3 5 7]],Y]) ]
-
+   # Calculo la posición del centro de gravedad del triangulo
    text(cgx[e], cgy[e], "$e", fontsize=5, color=[1,0,0],
          horizontalalignment = "center", verticalalignment="center")
 end
 plot(xnod[:,X], xnod[:,Y], "b.")
-# text(xnod[:,X], xnod[:,Y], num2str((1:nno)'), fontsize=16)
 axis("equal") # falta tight
 title("Malla de elementos finitos")
 
 # %% ensamblo la matriz de rigidez global y el vector de fuerzas nodales
 # equivalentes global
-g = 9.81
+
 
 K   = spzeros(ngdl,ngdl)        # matriz de rigidez global como RALA (sparse)
 N   = Array{Any}(undef,nef) # contenedor para las matrices de forma
@@ -112,7 +115,8 @@ De = [ Ee/(1 .-nue.^2)       Ee.*nue/(1 .-nue.^2)  0
        0                     0                     Ee/(2 .*(1 .+nue)) ];
 
 for e = 1:nef      # ciclo sobre todos los elementos finitos
- #% Calculo de la matriz de rigidez del elemento e
+
+    #% Cálculo de la matriz de rigidez del elemento e
 
     local x1, x2, x3, y1, y2, y3, Ae, b1, c1, b2, c2, b3, c3, Ke, fbe
 
@@ -133,8 +137,8 @@ for e = 1:nef      # ciclo sobre todos los elementos finitos
     b3 = y1-y2;        c3 = x2-x1;
 
     B[e] = (1/(2*Ae))*[ b1    0      b2    0      b3    0 
-                        0    c1      0    c2      0    c3
-                        c1   b1      c2   b2      c3   b3 ];
+                        0    c1      0    c2      0     c3
+                        c1   b1      c2   b2      c3    b3 ];
 
     #% Calculo de la matriz de rigidez del EF e
     Ke = te[mat[e]].*B[e]'*De*B[e].*Ae;
@@ -153,7 +157,6 @@ figure(2)
 spy(K)
 title("Los puntos representan los elementos diferentes de cero")
 
-include("t2ft_T3.jl")
 # %% Relación de cargas puntuales
 
 columns, labels = XLSX.readtable(filename, "carga_distr")
@@ -162,25 +165,22 @@ T    = hcat(columns...)
 idxNODO = T[:,nodo]
 nlcd = size(Ee,1)
 
-
-ft = zeros(ngdl)   # fuerzas nodales equivalentes de cargas superficiales
-
 el    = T[:,elemento];
-lados = T[:,   2];
+lados = T[:, 2];
 tix   = T[:, tix];
 tiy   = T[:, tiy];
 tjx   = T[:, tjx];
 tjy   = T[:, tjy];
 
 for i = 1:2
-
-   #te    = 0.1
+   local lado
    e     = el[i,1]
    lado  = lados[i,1]
-
+   
+   #cargamos la función t2ft_T3
    carga = [tix[i] tiy[i] tjx[i] tjy[i]]
    fte   = t2ft_T3(xnod[LaG[i,: ],:], lado, carga, te[mat[e]])
-   ft[idx[i]] += fte
+   f[idx[i]] += fte
 
 end
 
@@ -226,12 +226,28 @@ Kdc = K[d,c]; Kdd = K[d,d]; fc = f[d]
 #qc = round.(Int, qc)
 # es lo mismo que qc = zeros(size(d)); de MATLAB
 
-## resuelvo el sistema de ecuaciones
-ad = Kdd \ (fc-Kdc*ac)        # calculo desplazamientos desconocidos
-qd = Kcc*ac + Kcd*ad - fd     # calculo fuerzas de equilibrio desconocidas
-a = zeros(ngdl);  a[c] = ac;  a[d] = ad   # desplazamientos
-q = zeros(ngdl);  q[c] = qd;  #q[d] = qc   # fuerzas nodales equivalentes
+qc = zeros(size(d))  # cargas de equilibrio en nodos libres ( = 0 siempre)
+qc = round.(Int, qc)
 
+## resuelvo el sistema de ecuaciones
+ad = Kdd \ ((fc + qc)-Kdc*ac)     # cálculo desplazamientos desconocidos
+qd = Kcc*ac + Kcd*ad - fd         # cálculo fuerzas de equilibrio desconocidas
+a  = zeros(ngdl);  a[c] = ac;  a[d] = ad   # desplazamientos
+q  = zeros(ngdl);  q[c] = qd;  q[d] = qc   # fuerzas nodales equivalentes
+
+
+delta  = reshape(a, 2, nno)'
+escala = 20000                  # factor de escalamiento de la deformada
+xdef   = xnod + escala*delta    # posición de la deformada
+
+figure(3)
+
+for e = 1:nef
+    nod_ef = LaG[e, [NL1, NL2, NL3, NL1]]
+    plot(xnod[nod_ef, X], xnod[nod_ef, Y], color = "r")
+    plot(xdef[nod_ef, X], xdef[nod_ef, Y], color = "b") 
+         
+end
 
 deform = zeros(3,nef)
 esfuer = zeros(3,nef)
@@ -241,7 +257,52 @@ for e = 1:nef
    deform[:,e] = B[e]*ae                # calculo las deformaciones
    esfuer[:,e] = De[mat[e]]*deform[:,e] # calculo los esfuerzos
 end
+
 sx = esfuer[1,:];  sy = esfuer[2,:];  txy = esfuer[3,:]
-ex = deform[2,:];  ey = deform[2,:];  gxy = deform[3,:]
-#ez = -(nue/Ee)*(sx+sy)          # deformaciones ez en tensión plana
-#FALTA IMPLEMENTAR COMANDOS DE GRAFICACIÓN POR MATPLOTLIB
+ex = deform[1,:];  ey = deform[2,:];  gxy = deform[3,:]
+ez = -(nue/Ee).*(sx+sy)        
+
+s1   = (sx+sy)/2 + sqrt.(((sx-sy)/2).^2+txy.^2) # esfuerzo normal maximo
+s2   = (sx+sy)/2 - sqrt.(((sx-sy)/2).^2+txy.^2) # esfuerzo normal minimo
+tmax = (s1-s2)/2                                # esfuerzo cortante maximo
+ang  = 0.5*atan.(2*txy, sx-sy) # angulo de inclinacion de s1
+
+
+plot_def_esf_ang(xnod, ex,  [], L"\epsilon_x(x,y)")
+plot_def_esf_ang(xnod, ey,  [], L"\epsilon_y(x,y)")
+plot_def_esf_ang(xnod, ez,  [], L"\epsilon_z(x,y)")
+plot_def_esf_ang(xnod, gxy, [], L"\gamma_{xy}(x,y)")
+
+## Se dibujan los resultados
+plot_def_esf_ang(xnod, sx,  [], L"\sigma_x(x,y) [Pa]")
+plot_def_esf_ang(xnod, sy,  [], L"\sigma_y(x,y) [Pa]")
+plot_def_esf_ang(xnod, txy, [], L"\tau_{xy}(x,y) [Pa]")
+
+## Se calculan y grafican para cada elemento los esfuerzos principales y
+## sus direcciones
+
+
+## imprimo los resultados
+#println("Nodo,s1(Pa),s2(Pa),tmax(Pa),angulo(rad) = ")
+#println([(1:nno)'  s1  s2  tmax  ang])
+
+## s1, s2, taumax
+plot_def_esf_ang(xnod, s1,   [ang],                  L"\sigma_1(x,y) [Pa]")
+plot_def_esf_ang(xnod, s2,   [ang.+pi/2],            L"\sigma_2(x,y) [Pa]")
+plot_def_esf_ang(xnod, tmax, [ang.+pi/4, ang.-pi/4], L"\tau_{max}(x,y) [Pa]")
+
+## Calculo de los esfuerzos de von Mises
+s3 = zeros(size(s1))   # s3 = zeros(size(s1)) de MATLAB
+sv = sqrt.(((s1-s2).^2 + (s2-s3).^2 + (s1-s3).^2)/2)
+
+plot_def_esf_ang(xnod, sv, [], L"\sigma_v(x,y) [Pa]")
+title("Esfuerzos de von Mises (Pa)")
+
+
+for i = 1:14
+
+   display(figure(i))
+
+end
+
+gcf()
