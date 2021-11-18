@@ -183,42 +183,5 @@ function plot_def_esf_ang(xnod,esfdef, angulos, lab)
        ax.autoscale(tight=true)
     return
  
- end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+end
+#%% Fin 
