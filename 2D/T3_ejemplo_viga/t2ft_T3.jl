@@ -127,7 +127,7 @@ function plot_def_esf_ang(xnod,esfdef, angulos, lab)
          # se grafica la malla de EFS, los colores en cada triángulo y las curvas
          # de nivel
  
-         ax.triplot(xnod[:,X], xnod[:,Y],  lw=0.5, color="gray")
+         ax.triplot(xnod[:,X], xnod[:,Y], triangles,  lw=0.5, color="gray")
  
          # se promedian los esfuerzos y las deformaciones en los nodos de modo
          # que en la variable "var" se encuentren los valores alisados del
@@ -153,7 +153,7 @@ function plot_def_esf_ang(xnod,esfdef, angulos, lab)
 
          
  
-         im = ax.tripcolor(xnod[:, X], xnod[:, Y],  var,  cmap = "bwr",
+         im = ax.tripcolor(xnod[:, X], xnod[:, Y], triangles, var,  cmap = "bwr",
                           shading = "gouraud", vmin = -val_max, vmax = val_max)
  
          fig.colorbar(im, ax = ax, format = "%6.3g")
