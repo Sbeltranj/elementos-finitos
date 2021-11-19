@@ -178,7 +178,7 @@ columns, labels = XLSX.readtable(filename, "carga_distr")
 T    = hcat(columns...)
 
 idxNODO = T[:,nodo]
-nlcd = size(Ee,1)
+#nlcd = size(Ee,1)
 
 el    = T[:,elemento];
 lados = T[:, 2];      # número de lados con carga distribuída
@@ -188,14 +188,15 @@ tjx   = T[:, tjx];
 tjy   = T[:, tjy];
 
 for i = 1:2
-   local lado
+
+   local carga, lado, e
    e     = el[i,1]
    lado  = lados[i,1]
    
    #cargamos la función t2ft_T3
    carga = [tix[i] tiy[i] tjx[i] tjy[i]]
-   fte   = t2ft_T3(xnod[LaG[i,: ],:], lado, carga, te[mat[e]])
-   f[idx[i]] += fte
+   fte   = t2ft_T3(xnod[LaG[e,: ],:], lado, carga, te[mat[e]])
+   f[idx[e]] += fte
 
 end
 
@@ -276,12 +277,40 @@ end
 
 sx = esfuer[1,:];  sy = esfuer[2,:];  txy = esfuer[3,:]
 ex = deform[1,:];  ey = deform[2,:];  gxy = deform[3,:]
-ez = -(nue/Ee).*(sx+sy)        
+ez = -(nue/Ee).*(sx+sy) 
+
+
 
 s1   = (sx+sy)/2 + sqrt.(((sx-sy)/2).^2+txy.^2) # esfuerzo normal maximo
 s2   = (sx+sy)/2 - sqrt.(((sx-sy)/2).^2+txy.^2) # esfuerzo normal minimo
 tmax = (s1-s2)/2                                # esfuerzo cortante maximo
 ang  = 0.5*atan.(2*txy, sx-sy)                  # ángulo de inclinacion de s1
+
+
+# %% imprimo los resultados de los desplazamientos (a), las fuerzas nodales
+# equivalentes (f) y nodales de equilibrio (q)
+#%% Reportamos los resultados a un libro EXCEL.
+
+XLSX.openxlsx("resultados_T3.xlsx", mode="w") do xf
+   sheet = xf[1]
+   XLSX.rename!(sheet, "Desplazamientos")
+   sheet["A1"] = ["Nodo ", "ux [m]", "uy [m]", "fx [N]", "fy [N]", "qx [N]", "qy [N]"]
+
+   #Desplazamientos:
+   a_ = reshape(a, 2, nno)'
+   sheet["A2", dim=1] = collect(1:nno)
+   sheet["B2", dim=1] = a_[:,1] 
+   sheet["C2", dim=1] = a_[:,2] 
+
+   f_ = reshape(f, 2, nno)'
+   sheet["D2", dim=1] = f_[:,1] 
+   sheet["E2", dim=1] = f_[:,2] 
+
+   q_ = reshape(q, 2, nno)'
+   sheet["F2", dim=1] = q_[:,1] 
+   sheet["G2", dim=1] = q_[:,2] 
+
+end
 
 
 #se carga la función para graficar "plot_def_esf_ang" desde t2ft_T3
