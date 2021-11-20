@@ -12,15 +12,6 @@ de la viga mostrada
 |<----longitud L de la barra---->|   el área transversal de la barra es A
 =#
 
-
-# PROGRAMA ELABORADO POR: 
-# Diego Andrés Alvarez Marín
-# daalvarez@unal.edu.co
-
-# Actualizando la versión 0.5.1 a 1.6.3
-# Santiago Beltrán Jaramillo
-# sbeltran@unal.edu.co
-
 #Cargamos paquetes:
 
 using Plots
