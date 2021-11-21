@@ -262,7 +262,10 @@ for e = 1:nef
     plot(xdef[nod_ef, X], xdef[nod_ef, Y], color = "b") 
          
 end
-
+title("Estructura deformada escalada ")
+xlabel("x [m]")
+ylabel("y [m]")
+tight_layout()
 
 # %% Se calcula para cada elemento las deformaciones y los esfuerzos
 #separó memoria:
@@ -285,33 +288,6 @@ s1   = (sx+sy)/2 + sqrt.(((sx-sy)/2).^2+txy.^2) # esfuerzo normal maximo
 s2   = (sx+sy)/2 - sqrt.(((sx-sy)/2).^2+txy.^2) # esfuerzo normal minimo
 tmax = (s1-s2)/2                                # esfuerzo cortante maximo
 ang  = 0.5*atan.(2*txy, sx-sy)                  # ángulo de inclinacion de s1
-
-
-# %% imprimo los resultados de los desplazamientos (a), las fuerzas nodales
-# equivalentes (f) y nodales de equilibrio (q)
-#%% Reportamos los resultados a un libro EXCEL.
-
-XLSX.openxlsx("resultados_T3.xlsx", mode="w") do xf
-   sheet = xf[1]
-   XLSX.rename!(sheet, "Desplazamientos")
-   sheet["A1"] = ["Nodo ", "ux [m]", "uy [m]", "fx [N]", "fy [N]", "qx [N]", "qy [N]"]
-
-   #Desplazamientos:
-   a_ = reshape(a, 2, nno)'
-   sheet["A2", dim=1] = collect(1:nno)
-   sheet["B2", dim=1] = a_[:,1] 
-   sheet["C2", dim=1] = a_[:,2] 
-
-   f_ = reshape(f, 2, nno)'
-   sheet["D2", dim=1] = f_[:,1] 
-   sheet["E2", dim=1] = f_[:,2] 
-
-   q_ = reshape(q, 2, nno)'
-   sheet["F2", dim=1] = q_[:,1] 
-   sheet["G2", dim=1] = q_[:,2] 
-
-end
-
 
 #se carga la función para graficar "plot_def_esf_ang" desde t2ft_T3
 
@@ -339,6 +315,63 @@ sv = sqrt.(((s1-s2).^2 + (s2-s3).^2 + (s1-s3).^2)/2)
 
 plot_def_esf_ang(xnod, sv, [], L"\sigma_v(x,y) [Pa]")
 title("Esfuerzos de von Mises (Pa)")
+
+# %% imprimo los resultados de los desplazamientos (a), las fuerzas nodales
+# equivalentes (f) y nodales de equilibrio (q)
+#%% Reportamos los resultados a un libro EXCEL.
+
+XLSX.openxlsx("resultados_T3.xlsx", mode="w") do xf
+   sheet = xf[1]
+   XLSX.rename!(sheet, "Desplazamientos")
+   sheet["A1"] = ["Nodo ", "ux [m]", "uy [m]", "fx [N]", "fy [N]", "qx [N]", "qy [N]"]
+
+   #Desplazamientos:
+   a_ = reshape(a, 2, nno)'
+   sheet["A2", dim=1] = collect(1:nno)
+   sheet["B2", dim=1] = a_[:,1] 
+   sheet["C2", dim=1] = a_[:,2] 
+
+   f_ = reshape(f, 2, nno)'
+   sheet["D2", dim=1] = f_[:,1] 
+   sheet["E2", dim=1] = f_[:,2] 
+
+   q_ = reshape(q, 2, nno)'
+   sheet["F2", dim=1] = q_[:,1] 
+   sheet["G2", dim=1] = q_[:,2] 
+
+   XLSX.addsheet!(xf, "Esfuerzos_sx_sy_sxy")
+   sheet = xf[2]     # EDIT: this works if there was only 1 sheet before. 
+                     # If there were already 2 or more sheets: see comments below.
+
+   sheet["A1"] = ["Nodo ", "sx [Pa]", "sy [Pa]", "txy [Pa]"]
+   sheet["A2", dim=1] = collect(1:nef)
+   sheet["B2", dim=1] = sx
+   sheet["C2", dim=1] = sy 
+   sheet["D2", dim=1] = txy
+
+   XLSX.addsheet!(xf, "Deformaciones_ex_ey_gxy")
+   sheet = xf[3]     # EDIT: this works if there was only 1 sheet before. 
+                     # If there were already 2 or more sheets: see comments below.
+
+   sheet["A1"] = ["Nodo ", "ex", "ey", "gxy"]
+   sheet["A2", dim=1] = collect(1:nef)
+   sheet["B2", dim=1] = ex
+   sheet["C2", dim=1] = ey 
+   sheet["D2", dim=1] = gxy
+
+   XLSX.addsheet!(xf, "s1_s2_tmax_sv_theta")
+   sheet = xf[4]     # EDIT: this works if there was only 1 sheet before. 
+                     # If there were already 2 or more sheets: see comments below.
+
+   sheet["A1"] = ["Nodo ", "s1[Pa]", "s2[Pa]", "tmax[Pa]", "sv[Pa]","theta[rad]"]
+   sheet["A2", dim=1] = collect(1:nef)
+   sheet["B2", dim=1] = s1
+   sheet["C2", dim=1] = s2 
+   sheet["D2", dim=1] = tmax
+   sheet["E2", dim=1] = sv
+   sheet["E2", dim=1] = ang
+
+end
 
 # se muestran los gráficos.
 for i = 1:14
