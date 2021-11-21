@@ -282,12 +282,13 @@ sx = esfuer[1,:];  sy = esfuer[2,:];  txy = esfuer[3,:]
 ex = deform[1,:];  ey = deform[2,:];  gxy = deform[3,:]
 ez = -(nue/Ee).*(sx+sy) 
 
+## Se calculan y grafican para cada elemento los esfuerzos principales y
+## sus direcciones
 
-
-s1   = (sx+sy)/2 + sqrt.(((sx-sy)/2).^2+txy.^2) # esfuerzo normal maximo
-s2   = (sx+sy)/2 - sqrt.(((sx-sy)/2).^2+txy.^2) # esfuerzo normal minimo
-tmax = (s1-s2)/2                                # esfuerzo cortante maximo
-ang  = 0.5*atan.(2*txy, sx-sy)                  # ángulo de inclinacion de s1
+s1   = (sx+sy)/2 + sqrt.(((sx-sy)/2).^2+txy.^2) # esfuerzo normal máximo
+s2   = (sx+sy)/2 - sqrt.(((sx-sy)/2).^2+txy.^2) # esfuerzo normal mínimo
+tmax = (s1-s2)/2                                # esfuerzo cortante máximo
+ang  = 0.5*atan.(2*txy, sx-sy)                  # ángulo de inclinación de s1
 
 #se carga la función para graficar "plot_def_esf_ang" desde t2ft_T3
 
