@@ -581,7 +581,7 @@ function plot_def_esf_ang(xnod,esfdef, angulos, lab)
    #https://matplotlib.org/stable/gallery/images_contours_and_fields/tripcolor_demo.html
 
       val_max = maximum(abs.(esfdef))
-      fig, ax = subplots(figsize=(6, 6))
+      fig, ax = subplots(figsize=(7, 7))
        # se grafica la malla de EFS, los colores en cada triángulo y las curvas 
        # de nivel
       for e = 1:nef
