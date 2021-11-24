@@ -70,7 +70,7 @@ for e = 1:5
 
 end
 
-
+## introduciendo los soportes inclinados
 Tg = sparse(1.0I, 8, 8)
 Tg[3:4,3:4] = [ cosd(30) sind(30); -sind(30) cosd(30) ];
 K = Tg*Kg*Tg';
