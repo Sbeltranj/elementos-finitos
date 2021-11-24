@@ -8,17 +8,12 @@
 #Tener instalada la librería de matplotlib (PYTHON-pip install matplotlib)
 #además Pkg.add("PyPlot") en consola de JULIA
 
-using PyPlot
+function plot_mom_Q_ang(xnod, mom_Q, ang_mf1, ang_mf2, ang_mt, lab)
 
-function plot_def_esf_ang(xnod,esfdef, lab)
-    
-    #Constantes para facilitar el código
     X,Y = 1,2
-    
-    # EF MZC de 4 nodos.
+ 
     NL1, NL2, NL3, NL4 = 1,2,3,4
-
-    #separó memoria para el triángulo de graficación.
+    
     triangles = Vector{Vector{Int64}}(undef, 2*nef)
 
     for e = 1:nef
@@ -41,70 +36,106 @@ function plot_def_esf_ang(xnod,esfdef, lab)
     #                             |       \|
     #                             1--------2
        
-      
-     fig, ax = subplots(figsize=(10, 10))
+       fig, ax = subplots(figsize=(10, 10))
 
-     for e = 1:length(esfdef)
+       for e = 1:length(mom_Q)
             
             if e == 1
-
-                #creo un subplot de 2f, 3col.
                 subplot(231)
-
-                #se hace la interpolación en los triángulos.
-                tripcolor(xnod[:, X] , xnod[:, Y], triangles, esfdef[e],  cmap = "bwr",
+                tripcolor(xnod[:, X] , xnod[:, Y], triangles, mom_Q[e],  cmap = "jet",
                           shading = "gouraud")
-                
-                #algunos ajustes a la gráfica.
                 xlim(0, 2); ylim(0, 4); tight_layout()
-                colorbar() #barra de colores
+                colorbar()
                 title(lab[e])
 
+                if ~isempty(ang_mf1)
+
+                    # Grafique lineas que indican las direcciones principales
+                    norma = 1
+
+                    for ang1 in ang_mf1
+                        quiver(xnod[:,X],xnod[:,Y],                   # En el nodo grafique una línea
+                                norma.*cos.(ang1), norma.*sin.(ang1), # indicando la dirección
+                                headlength=0,
+                                headwidth = 0,
+                                headaxislength = 0,
+                                scale = 8, pivot="middle")
+                    end
+
+                end
+               
+                # se dibujan las aristas
                 for e = 1:nef
-                    # se dibujan las aristas
                     nod_ef = LaG[e, [NL1, NL2, NL3, NL4, NL1]]
                            plot(xnod[nod_ef, X], xnod[nod_ef, Y], lw = 0.15, color = "gray")
                  end
 
             elseif e == 2
-
-                #creo un subplot de 2f, 3col.
                 subplot(232)
-
-                #se hace la interpolación en los triángulos.
-                tripcolor(xnod[:, X] , xnod[:, Y], triangles, esfdef[e],  cmap = "bwr",
+                
+                tripcolor(xnod[:, X] , xnod[:, Y], triangles, mom_Q[e],  cmap = "jet",
                           shading = "gouraud")
                 xlim(0, 2); ylim(0, 4); tight_layout()
                 colorbar()
                 title(lab[e])
 
+                if ~isempty(ang_mf2)
+                    # Grafique lineas que indican las direcciones principales 
+                    norma = 2
+            
+                    for ang2 in ang_mf2
+                        quiver(xnod[:,X],xnod[:,Y],                  # En el nodo grafique una línea
+                                norma.*cos.(ang2), norma.*sin.(ang2), # indicando la dirección
+                                headlength=0,
+                                headwidth = 0,
+                                headaxislength = 0,
+                                scale = 8, pivot="middle")
+                    end
+
+                end
+
                 for e = 1:nef
                     # se dibujan las aristas
                     nod_ef = LaG[e, [NL1, NL2, NL3, NL4, NL1]]
                            plot(xnod[nod_ef, X], xnod[nod_ef, Y], lw = 0.15, color = "gray")
-                 end
+                end
 
             elseif e == 3
-
                 subplot(233)
-                #se hace la interpolación en los triángulos.
-                tripcolor(xnod[:, X] , xnod[:, Y], triangles, esfdef[e],  cmap = "bwr",
+                tripcolor(xnod[:, X] , xnod[:, Y], triangles, mom_Q[e],  cmap = "jet",
                           shading = "gouraud")
                 xlim(0, 2); ylim(0, 4); tight_layout()
                 colorbar()
                 title(lab[e])
 
+                if ~isempty(ang_mt)
+
+                    # Grafique lineas que indican las direcciones principales 
+                    norma = 2
+            
+                    for ang3 in ang_mt
+                        quiver(xnod[:,X],xnod[:,Y],                 # En el nodo grafique una línea
+                                norma.*cos.(ang3), norma.*sin.(ang3),# indicando la dirección
+                                headlength=0,
+                                headwidth = 0,
+                                headaxislength = 0,
+                                scale = 8, pivot="middle")
+                    end
+
+                end
+
                 for e = 1:nef
                     # se dibujan las aristas
                     nod_ef = LaG[e, [NL1, NL2, NL3, NL4, NL1]]
                            plot(xnod[nod_ef, X], xnod[nod_ef, Y], lw = 0.15, color = "gray")
-                 end
+                end
+
+
             else 
-                error("                                      ")
+                
                 
             end
-
-       end
+        end
 
     return
  
