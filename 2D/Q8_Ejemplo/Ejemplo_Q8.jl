@@ -148,7 +148,7 @@ rhoe = 7850.0        # densidad (kg/m^3)
 g    = 9.81          # aceleración de la gravedad (m/s^2)
 be = [0; -rhoe*g]    # vector de fuerzas masicas del elemento
 
-MALLA = 2           # MALLA=1 grafico, MALLA=2 la generada con ANSYS
+MALLA = 3           # MALLA=1 grafico, MALLA=2 la generada con ANSYS
 
 ## cargar
 # xnod - posición de los nodos
@@ -581,7 +581,7 @@ function plot_def_esf_ang(xnod,esfdef, angulos, lab)
    #https://matplotlib.org/stable/gallery/images_contours_and_fields/tripcolor_demo.html
 
       val_max = maximum(abs.(esfdef))
-      fig, ax = subplots()
+      fig, ax = subplots(figsize=(6, 6))
        # se grafica la malla de EFS, los colores en cada triángulo y las curvas 
        # de nivel
       for e = 1:nef
@@ -590,7 +590,7 @@ function plot_def_esf_ang(xnod,esfdef, angulos, lab)
                 plot(xnod[nod_ef, X], xnod[nod_ef, Y], lw = 0.5, color = "gray")
       end
 
-      im = ax.tripcolor(xnod[:, X], xnod[:, Y], triangle, esfdef,  cmap = "bwr",
+      im = ax.tripcolor(xnod[:, X], xnod[:, Y], triangle, esfdef,  cmap = "jet",
                         shading = "gouraud", vmin = -val_max, vmax = val_max)
 
       ax.tricontour(xnod[:, X], xnod[:, Y], triangle, esfdef, 20)
@@ -599,7 +599,7 @@ function plot_def_esf_ang(xnod,esfdef, angulos, lab)
 
       if ~isempty(angulos)
          # Grafique lineas que indican las direcciones principales de sigma_1
-         norma = 2 # = esf si quiere proporcional
+         norma = 1 # = esf si quiere proporcional
    
          for ang in angulos
             quiver(xnod[:,X],xnod[:,Y],              # En el nodo grafique una línea

@@ -9,3 +9,6 @@ https://matplotlib.org/stable/.
 
 Además, de instalar los paquetes desde la consola de JULIA, para hacer los llamados a estos backend: `import Pkg` `Pkg.add("PyCall")`, `Pkg.add("PyPlot")`.
 https://github.com/JuliaPy/PyPlot.jl#readme.
+
+[![img.png](https://i.postimg.cc/zXmWpFND/img.png)](https://postimg.cc/Yj3hCgjT)
+
