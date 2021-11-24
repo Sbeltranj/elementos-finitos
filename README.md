@@ -11,4 +11,4 @@ Además, de instalar los paquetes desde la consola de JULIA, para hacer los llam
 https://github.com/JuliaPy/PyPlot.jl#readme.
 
 
-[![git.png](https://i.postimg.cc/Y9HKbPdf/git.png)](https://postimg.cc/5HnRtsd6)
+[![img.png](https://i.postimg.cc/zXmWpFND/img.png)](https://postimg.cc/Yj3hCgjT)
