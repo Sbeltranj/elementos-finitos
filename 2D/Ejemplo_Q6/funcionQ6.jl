@@ -1,15 +1,26 @@
 include("gauss_legendre.jl")
-function t2ft_T3(xnod_, lado, carga, espesor)
+function t2ft_Q4(xnod_, lado, carga, espesor)
 
-    #=Convierte las fuerzas superficiales aplicadas a un EF triangular de 3
-    nodos a sus correspondientes cargas nodales equivalentes ft
-    xnod__EF =          ([[x1e, y1e]
-                        [x2e, y2e]
-                        [x3e, y3e]])
-    lado = 12, 23, 31
-    carga = [ t1x, t1y, t2x, t2y ]   # si la carga se aplica sobre el lado 12
-            [ t2x, t2y, t3x, t3y ]   # si la carga se aplica sobre el lado 23
-            [ t3x, t3y, t1x, t1y ]   # si la carga se aplica sobre el lado 31
+    #=Función que convierte las fuerzas superficiales aplicadas a un elemento
+    finito rectangular de 4 nodos a sus correspondientes cargas nodales 
+    equivalentes ft
+    
+    Recibe:
+        xnod:  coordenadas nodales del elemento finito de 4 nodos
+          xnod = [ x1e y1e
+                   x2e y2e
+                   x3e y3e
+                   x4e y4e ]
+        lado:  arista en la que se aplica la carga, puede tomar los siguientes
+               valores: 12, 23, 34, 41
+        carga: fuerza distribuida en los nodos
+        
+               [ t1x t1y t2x t2y ]; % si carga se aplica sobre lado 12
+               [ t2x t2y t3x t3y ]; % si carga se aplica sobre lado 23
+               [ t3x t3y t4x t4y ]; % si carga se aplica sobre lado 34
+               [ t4x t4y t1x t1y ]; % si carga se aplica sobre lado 41
+    
+        espesor: espesor del elemento
     =#
     if     lado == 12   idx_ = [ 1 2 ]
     elseif lado == 23   idx_ = [ 2 3 ]

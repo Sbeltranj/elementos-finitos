@@ -277,7 +277,7 @@ for i = 1:nlcd
     
     #cargamos la función t2ft_T3
     carga = [tix[i] tiy[i] tjx[i] tjy[i]]
-    fte   = t2ft_T3(xnod[LaG[e,: ],:], lado, carga, te)
+    fte   = t2ft_Q4(xnod[LaG[e,: ],:], lado, carga, te)
     f[idx[e]] += fte
  
 end
