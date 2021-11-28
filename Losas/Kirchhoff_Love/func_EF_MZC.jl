@@ -36,12 +36,12 @@ function plot_mom_Q_ang(xnod, mom_Q, ang_mf1, ang_mf2, ang_mt, lab)
     #                             |       \|
     #                             1--------2
        
-       fig, ax = subplots(figsize=(10, 10))
+       fig, ax = subplots()
 
        for e = 1:length(mom_Q)
             
             if e == 1
-                subplot(231)
+                subplot(131)
                 tripcolor(xnod[:, X] , xnod[:, Y], triangles, mom_Q[e],  cmap = "jet",
                           shading = "gouraud")
                 xlim(0, 2); ylim(0, 4); tight_layout()
@@ -71,7 +71,7 @@ function plot_mom_Q_ang(xnod, mom_Q, ang_mf1, ang_mf2, ang_mt, lab)
                  end
 
             elseif e == 2
-                subplot(232)
+                subplot(132)
                 
                 tripcolor(xnod[:, X] , xnod[:, Y], triangles, mom_Q[e],  cmap = "jet",
                           shading = "gouraud")
@@ -101,7 +101,7 @@ function plot_mom_Q_ang(xnod, mom_Q, ang_mf1, ang_mf2, ang_mt, lab)
                 end
 
             elseif e == 3
-                subplot(233)
+                subplot(133)
                 tripcolor(xnod[:, X] , xnod[:, Y], triangles, mom_Q[e],  cmap = "jet",
                           shading = "gouraud")
                 xlim(0, 2); ylim(0, 4); tight_layout()

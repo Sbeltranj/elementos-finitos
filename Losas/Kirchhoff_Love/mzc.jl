@@ -2,7 +2,6 @@
 #Santiago Beltrán Jaramillo
 #sbeltran@unal.edu.co
 
-
 ## Este código hace uso de la librería MatPlotlib (Python)
 ## instale dicha librería : https://matplotlib.org/stable/
 
@@ -12,6 +11,9 @@ using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall
 
 include("func_EF_MZC.jl")  #para los gráficos
 close("all")          #cerrar ventanas
+
+ENV["MPLBACKEND"]="qt5agg"
+pygui(true)
 
 ## Defino las constantes y variables, para hacer el código mas legible
 X   = EF  = nodo      =  elemento = material = 1
@@ -27,18 +29,19 @@ filename = "losa_rectangular_libro_solidos_efQ4.xlsx"
 
 #se carga el libro.xlsx, con el nombre de la hoja "xnod"
 columns, labels = XLSX.readtable(filename, "xnod")
+
 ## Se lee la posición de los nodos
 T    = hcat(columns...)  
-xnod = T[:,x_:y_]
+xnod = T[:,x_:y_] 
 xnod = xnod .*1.0   
-nno  = length(xnod[:,1])
+nno  = length(xnod[:,1]) #nno número de nodos
 
-# %% definición de los grados de libertad
+## definición de los grados de libertad
 ngdl = 3*nno  
 gdl  = [[1:3:ngdl]' [2:3:ngdl]' [3:3:ngdl]']    # grados de libertad
 gdl  = reshape(hcat(gdl...)',nno,3)
 
-##  definición de elementos finitos con respecto a nodos
+## definición de elementos finitos con respecto a nodos de la hoja LaG_fz
 # LaG: fila=número del elemento, columna=número del nodo local
 columns, labels = XLSX.readtable(filename, "LaG_fz")
 T = hcat(columns...)
@@ -49,15 +52,15 @@ fz    = T[:,fz];                # relación de las cargas distribuidas
 fz    = coalesce.(fz, 0.0)      # reemplazo los missing con ceros
 
 
-## definición de las restricciones:
+## definición de las restricciones (hoja: restric): 
 columns, labels = XLSX.readtable(filename, "restric")
 T = hcat(columns...)
 idxNODO = T[:,nodo]
-dirdesp = T[:,direccion];
+dirdesp = T[:,direccion];      #dirección desplzamiento
 ac      = T[:,desplazamiento]; # desplazamientos conocidos
 ac      = ac.*0.0
 
-# %%Grados de libertad del desplazamiento conocidos y desconocidos
+## Grados de libertad del desplazamiento conocidos y desconocidos
 n_apoyos = length(idxNODO);  
 c = zeros(n_apoyos, 1);        # GDL conocidos    
 
@@ -73,7 +76,7 @@ d = setdiff(1:ngdl,c);         # GDL desconocidos
 columns, labels = XLSX.readtable(filename, "carga_punt")
 T       = hcat(columns...)
 idxNODO = T[:,nodo]
-dirfp   = T[:,direccion];
+dirfp   = T[:,direccion]; # dirección carga
 fp      = T[:,fpuntual];; # desplazamientos conocidos
 
 ##  Se colocan las fuerzas/momentos nodales en el vector de fuerzas nodales
@@ -95,7 +98,7 @@ t          = T[4,2]  # espesor de la losa
 
 peso_propio = rho*g*t;  # peso propio por unidad de área
 
-#%% Se dibuja la malla de elementos finitos. 
+## Se dibuja la malla de elementos finitos. 
 figure(1)
 cg = zeros(nef, 2) # almacena el centro de gravedad
 for e = 1:nef
@@ -115,11 +118,10 @@ end
 title("Malla de elementos finitos")
 plot(xnod[:,X], xnod[:,Y], "b.")
 
-
-#%% se prepara memoria para los cálculos:
-#%% ensamblo la matriz de rigidez global y el vector de fuerzas nodales
-#%  equivalentes global
-K   = spzeros(ngdl,ngdl)        # matriz de rigidez global como RALA (sparse)
+## se prepara memoria para los cálculos:
+# ensamblo la matriz de rigidez global y el vector de fuerzas nodales
+#  equivalentes global
+K   = spzeros(ngdl,ngdl)                 # matriz de rigidez global como RALA (sparse)
 idx = Array{Array{Int64}}(undef, nef,1) 
 a_e = zeros(nef,1);  b_e = zeros(nef,1); # a y b de cada elemento (ancho y alto)
 
@@ -127,7 +129,6 @@ a_e = zeros(nef,1);  b_e = zeros(nef,1); # a y b de cada elemento (ancho y alto)
 De = (E/(1-nu^2)) * [ 1  nu 0
                       nu 1  0
                       0  0  (1-nu)/2 ];
-
 
 Dbe = (t^3/12)*De         # matriz constitutiva de flexión generalizada   
 D = E*t^3/(12*(1-nu^2))   # rigidez a flexión de la placa  
@@ -145,6 +146,8 @@ for e = 1:nef      # ciclo sobre todos los elementos finitos
      
     # Calculo la matriz de rigidez Ke
     # Ke se calculo con el programa func_forma_MZC.m
+    #https://github.com/diegoandresalvarez/elementosfinitos/blob/master/codigo/losas/Kirchhoff_Love/func_forma_MZC.m
+
     Ke = D/(a*b)*[ 
         b^2/a^2 - nu/5 + a^2/b^2 + 7/10          (2*nu)/5 + b^2/a^2 + 1/10          (2*nu)/5 + a^2/b^2 + 1/10     nu/5 - b^2/a^2 + a^2/(2*b^2) - 7/10             b^2/a^2 - nu/10 + 1/10      a^2/(2*b^2) - (2*nu)/5 - 1/10 7/10 - b^2/(2*a^2) - a^2/(2*b^2) - nu/5         nu/10 + b^2/(2*a^2) - 1/10         nu/10 + a^2/(2*b^2) - 1/10     nu/5 + b^2/(2*a^2) - a^2/b^2 - 7/10      b^2/(2*a^2) - (2*nu)/5 - 1/10             a^2/b^2 - nu/10 + 1/10
               (2*nu)/5 + b^2/a^2 + 1/10 (4*b^2)/(3*a^2) - (4*nu)/15 + 4/15                                 nu                  nu/10 - b^2/a^2 - 1/10     nu/15 + (2*b^2)/(3*a^2) - 1/15                                  0              1/10 - b^2/(2*a^2) - nu/10         b^2/(3*a^2) - nu/15 + 1/15                                  0           b^2/(2*a^2) - (2*nu)/5 - 1/10 (4*nu)/15 + (2*b^2)/(3*a^2) - 4/15                                  0
@@ -204,9 +207,34 @@ qd = Kcc*ac + Kcd*ad - fd         # cálculo fuerzas de equilibrio desconocidas
 aa = zeros(ngdl);  aa[c] = ac;  aa[d] = ad   # desplazamientos
 q  = zeros(ngdl);  q[c]  = qd;   q[d] = qc   # fuerzas nodales equivalentes
 
+## Dibujo las reacciones
+qq_ = reshape(q,3,nno)'
+z = qq_
+z_    = zeros(nno,3)
 
-#%% Se calcula para cada elemento el vector de momentos en los puntos
-#%% de Gauss
+for i = 1:nno*3
+    if z[i]!= 0
+      z_[i] = z[i]
+    elseif z[i] == 0
+          z_[i]  = NaN
+    end
+end    
+
+fig = figure()
+ax = fig.add_subplot(1, 3, 1, projection="3d")
+ax.stem(xnod[:,1], xnod[:,2], z_[:,1]*0.5, basefmt="None")
+title("Reacciones Fz[kN]")
+
+ax = fig.add_subplot(1, 3, 2, projection="3d")
+ax.stem(xnod[:,1], xnod[:,2], z_[:,2]*80, basefmt="None")
+title("Reacciones Mx[kN m]")
+
+ax = fig.add_subplot(1, 3, 3, projection="3d")
+ax.stem(xnod[:,1], xnod[:,2], z_[:,3]*60, basefmt="None")
+title("Reacciones My[kN m]")
+
+## Se calcula para cada elemento el vector de momentos en los puntos
+## de Gauss
 n_gl = 2;                          # orden de la cuadratura
 x_gl = [ -sqrt(1/3); +sqrt(1/3) ]; # raices del polinomio de Legendre
 sigma_b = Array{Any}(undef,nef,n_gl,n_gl)
@@ -239,7 +267,7 @@ xi = 0; eta = 0;     # centro del EF (punto de Gauss)
 for e = 1:nef
     a = a_e[e]; b = b_e[e]
     
-    #% QQ se calculo con el programa func_forma_MZC.m
+    ## QQ se calculo con el programa func_forma_MZC.m
     QQ = [ 
           -((3*eta)/4 - 3/4)/a^3 - (3*eta)/(4*a*b^2)   -(3*eta - 3)/(4*a^3) -(3*eta - 1)/(4*a*b^2) ((3*eta)/4 - 3/4)/a^3 + (3*eta)/(4*a*b^2)  -(3*eta - 3)/(4*a^3) (3*eta - 1)/(4*a*b^2) -((3*eta)/4 + 3/4)/a^3 - (3*eta)/(4*a*b^2)  (3*eta + 3)/(4*a^3) (3*eta + 1)/(4*a*b^2) ((3*eta)/4 + 3/4)/a^3 + (3*eta)/(4*a*b^2)  (3*eta + 3)/(4*a^3) -(3*eta + 1)/(4*a*b^2)
            -((3*xi)/4 - 3/4)/b^3 - (3*xi)/(4*a^2*b)    -(3*xi - 1)/(4*a^2*b)    -(3*xi - 3)/(4*b^3)   ((3*xi)/4 + 3/4)/b^3 + (3*xi)/(4*a^2*b) -(3*xi + 1)/(4*a^2*b)    (3*xi + 3)/(4*b^3)   -((3*xi)/4 + 3/4)/b^3 - (3*xi)/(4*a^2*b) (3*xi + 1)/(4*a^2*b)    (3*xi + 3)/(4*b^3)   ((3*xi)/4 - 3/4)/b^3 + (3*xi)/(4*a^2*b) (3*xi - 1)/(4*a^2*b)    -(3*xi - 3)/(4*b^3) ];
@@ -319,8 +347,10 @@ plot_mom_Q_ang(xnod,[ Mf1_xy, Mf2_xy, Mt_max], [ang_], [ang_.+pi/2], [ang_.+pi/4
 plot_mom_Q_ang(xnod,[Qx, Qy, Q_max], [],[],[ang],
                 [L"Q_x(kN/m)", L"Q_y(kN/m)",  L"Q_{max}(kN/m)"])
 
+
+
 #Dibujar deformada:
-#= aa_ =  reshape(aa,3,nno)'
+#= qq_ =  reshape(qq,3,nno)'
 fig = figure()
 ax = fig.add_subplot(projection="3d")
 ax.plot_trisurf(xnod[:,1], xnod[:,2],aa_[:,1], 
@@ -328,10 +358,3 @@ ax.plot_trisurf(xnod[:,1], xnod[:,2],aa_[:,1],
                 antialiased=false, shade=false)
 title("deformada")
 xlim(0, 2); ylim(0, 4); tight_layout() =#
-
-
-for i = 1:5
-
-    display(figure(i))
-end
-gcf()
