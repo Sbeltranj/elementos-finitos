@@ -8,12 +8,7 @@
 
 ## cargamos paquetes:
 import XLSX
-using Polynomials
-using PyPlot
-using LinearAlgebra
-using Statistics
-using SparseArrays
-using PyCall
+using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall
 
 include("func_EF_MZC.jl")  #para los gráficos
 close("all")          #cerrar ventanas
@@ -326,13 +321,11 @@ plot_mom_Q_ang(xnod,[Qx, Qy, Q_max], [],[],[ang],
 
 #Dibujar deformada:
 #= aa_ =  reshape(aa,3,nno)'
-
 fig = figure()
 ax = fig.add_subplot(projection="3d")
 ax.plot_trisurf(xnod[:,1], xnod[:,2],aa_[:,1], 
                 linewidth=0, cmap = "jet", 
                 antialiased=false, shade=false)
-
 title("deformada")
 xlim(0, 2); ylim(0, 4); tight_layout() =#
 
