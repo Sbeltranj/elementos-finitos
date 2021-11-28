@@ -146,6 +146,7 @@ function plot_def_esf_ang(xnod,esfdef, angulos, lab)
                          shading = "gouraud", vmin = -val_max, vmax = val_max)
  
        ax.tricontour(xnod[:, X], xnod[:, Y], triangles, esfdef, 20)
+       ax.tricontour(xnod[:, X], xnod[:, Y], triangles, esfdef, levels=[0], linewidths=3)
  
        fig.colorbar(im, ax = ax, format = "%6.3g")
  
