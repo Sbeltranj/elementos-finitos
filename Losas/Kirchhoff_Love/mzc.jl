@@ -348,13 +348,34 @@ plot_mom_Q_ang(xnod,[Qx, Qy, Q_max], [],[],[ang],
                 [L"Q_x(kN/m)", L"Q_y(kN/m)",  L"Q_{max}(kN/m)"])
 
 
-
 #Dibujar deformada:
-#= qq_ =  reshape(qq,3,nno)'
-fig = figure()
+#aa_ =  reshape(aa,3,nno)'
+#a_ = aa_[:,1]*10
+#= NL1, NL2, NL3, NL4 = 1,2,3,4
+@pyimport matplotlib.tri as mtri
+triangles = Vector{Vector{Int64}}(undef, 2*nef)
+for e = 1:nef
+
+    # se arma la matriz de correspondencia (LaG) de la malla
+    triangles[2*e - 1] = LaG[e, [NL1, NL2, NL4]] .- 1
+    triangles[2*e - 0] = LaG[e, [NL2, NL3, NL4]] .- 1
+ end
+ triang = mtri.Triangulation(xnod[:,1], xnod[:,2], triangles=triangles) =#
+
+#fig = figure()
+#ax = fig.add_subplot(projection="3d")
+
+#= NL1, NL2, NL3, NL4 = 1,2,3,4
+
 ax = fig.add_subplot(projection="3d")
-ax.plot_trisurf(xnod[:,1], xnod[:,2],aa_[:,1], 
-                linewidth=0, cmap = "jet", 
-                antialiased=false, shade=false)
-title("deformada")
-xlim(0, 2); ylim(0, 4); tight_layout() =#
+ax.plot_trisurf(triang, a_, cmap="jet")
+ax.set_xlabel("X[m]")
+ax.set_ylabel("Y[m]")
+ax.autoscale(tight=true)
+arq = [0,1,2,3]
+ax.set_xticks(arq)
+ax.set_yticks(arq)
+tight_layout() =#
+
+
+
