@@ -4,6 +4,8 @@ ENV["MPLBACKEND"]="qt5agg"
 pygui(true)
 close("all")          #cerrar ventanas
 
+
+## Aquí se utiliza nullspace(K) para calcular el espacio nulo de esta.
 ## Programa para calcular los modos de energía nula de los EFs rectangulares
 #  serendipitos de 4 y 8 nodos
 
@@ -66,14 +68,14 @@ elseif nno == 8
 
     ## Funciones de forma N(xi,eta)
     N(xi, eta) = [ 
-      -((eta - 1)*(xi - 1)*(eta + xi + 1))/4;   # = N1
-       ((xi^2 - 1)*(eta - 1))/2;                # = N2
-       ((eta - 1)*(xi + 1)*(eta - xi + 1))/4;   # = N3
-      -((eta^2 - 1)*(xi + 1))/2;                # = N4
-       ((eta + 1)*(xi + 1)*(eta + xi - 1))/4;   # = N5
-      -((xi^2 - 1)*(eta + 1))/2;                # = N6
-       ((eta + 1)*(xi - 1)*(xi - eta + 1))/4;   # = N7
-       ((eta^2 - 1)*(xi - 1))/2; ];             # = N8
+      -((eta - 1)*(xi - 1)*(eta + xi + 1))/4   # = N1
+       ((xi^2 - 1)*(eta - 1))/2                # = N2
+       ((eta - 1)*(xi + 1)*(eta - xi + 1))/4   # = N3
+      -((eta^2 - 1)*(xi + 1))/2                # = N4
+       ((eta + 1)*(xi + 1)*(eta + xi - 1))/4   # = N5
+      -((xi^2 - 1)*(eta + 1))/2                # = N6
+       ((eta + 1)*(xi - 1)*(xi - eta + 1))/4   # = N7
+       ((eta^2 - 1)*(xi - 1))/2 ];             # = N8
 
     ## Derivadas de N con respecto a xi
     dN_dxi(xi, eta) =  [ 
@@ -183,17 +185,14 @@ for p = 1:n_gl
 ## eig
 K = (K+K')/2; 
 
-## Se calculan los valores y vectores propios de la matriz K y se eliminan 
-## de los modos de energía nula los componentes relacionados con la rotación 
-## y el desplazamiento rígido, por lo que quedan graficadas los mecanismos
-#val, vec = eigen(K, sortby = x -> -abs(x))
-val, vec = eigen(K)
+## Se calcula el espacio nulo de la matrix (contiene los vectores que generan dicho espacio)
+null  = nullspace(K)
+null_ = size(nullspace(K))
 
 num_MEN = sum(val .< 1e-5)
-idx = collect(1:1:nno*2)
-
-Q, R = qr([mdrrr vec[:,idx]]);
-vec[:,1:num_MEN] = Q[:,1:num_MEN]
+idx = collect(1:1:null_[2])
+Q, R = qr([mdrrr null[:,idx]]);
+null[:,1:num_MEN] = Q[:,1:num_MEN]
 
 ## Se imprimen los vectores propios (recuerde que los modos de energia nula
 ## son aquellos para los cuales los valores propios son cero
@@ -207,11 +206,11 @@ modo = Array{Any}(undef,2*nno,1)
 fig = plt.figure()
 fig.suptitle("Puntos de integración = $(n_gl) x $(n_gl) MEN $(num_MEN)")
 
-if     nno == 8 gs = fig.add_gridspec(ncols=4, nrows=4)
-elseif nno == 4 gs = fig.add_gridspec(ncols=4, nrows=2)
+if     nno == 8 gs = fig.add_gridspec(ncols=2, nrows=2)
+elseif nno == 4 gs = fig.add_gridspec(ncols=3, nrows=1)
 end
 
-for i = 1:2*nno
+for i = 1:null_[2]
 
     fig.add_subplot(gs[i])
     xlim(-2, 2); ylim(-2, 2);
@@ -220,7 +219,7 @@ for i = 1:2*nno
 
     a = @sprintf("%.4E", val[i])
     title("λ$(i) = $(a)")
-    modo[i] = reshape(vec[:,i],2,nno)' + xnod;
+    modo[i] = xnod + reshape(null[:,i][1:nno*2],2,nno)';
 
     scatter(xnod[[ collect(1:nno)' 1],X],xnod[[ collect(1:nno)' 1],Y],
                 label = nothing,color = :blue, marker = "*")
