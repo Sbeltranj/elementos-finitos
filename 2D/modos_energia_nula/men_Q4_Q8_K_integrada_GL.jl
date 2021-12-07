@@ -7,7 +7,6 @@ close("all")          #cerrar ventanas
 ## Programa para calcular los modos de energía nula de los EFs rectangulares
 #  serendipitos de 4 y 8 nodos
 
-
 X  = 1;
 Y  = 2;
 E  = 200;     # [GPa] módulo de elasticidad del elemento
