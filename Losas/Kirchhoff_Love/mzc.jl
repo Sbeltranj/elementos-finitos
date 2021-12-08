@@ -210,7 +210,7 @@ q  = zeros(ngdl);  q[c]  = qd;   q[d] = qc   # fuerzas nodales equivalentes
 
 ## Dibujar deformada:
 aa_ =  reshape(aa,3,nno)'
-a_ = aa_[:,1]
+a_ = aa_[:,1]*1000
 NL1, NL2, NL3, NL4 = 1,2,3,4
 
 @pyimport matplotlib.tri as mtri
@@ -231,8 +231,8 @@ ax = fig.add_subplot(projection="3d")
 ax = fig.add_subplot(projection="3d")
 ax.set_box_aspect((2, 4, esc)) 
 ax.plot_trisurf(triang, a_, cmap="jet")
-ax.set_xlabel("X[m]")
-ax.set_ylabel("Y[m]")
+#ax.set_xlabel("X[m]")
+#ax.set_ylabel("Y[m]")
 tight_layout() 
 
 
