@@ -412,4 +412,3 @@ end
 println("Observe que al comparar ambos métodos los errores relativos máximos son:")
 println(maximum(filter(!isnan,err)))
 println("Es decir son extremadamente pequeños !!")
-

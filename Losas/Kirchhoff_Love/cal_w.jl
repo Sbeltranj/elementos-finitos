@@ -92,27 +92,3 @@ function  calc_w(x, y, E, nu, t, a, b, p, u, v, xi, eta)
     return w # bye bye
 
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
