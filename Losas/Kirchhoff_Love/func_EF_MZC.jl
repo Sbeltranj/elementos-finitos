@@ -45,6 +45,7 @@ function plot_mom_Q_ang(xnod, mom_Q, ang_mf1, ang_mf2, ang_mt, lab)
                 tripcolor(xnod[:, X] , xnod[:, Y], triangles, mom_Q[e],  cmap = "jet",
                           shading = "gouraud")
                 xlim(0, 2); ylim(0, 4); tight_layout()
+                plt.gca().set_aspect("equal", adjustable="box")
                 colorbar()
                 title(lab[e])
 
@@ -76,6 +77,7 @@ function plot_mom_Q_ang(xnod, mom_Q, ang_mf1, ang_mf2, ang_mt, lab)
                 tripcolor(xnod[:, X] , xnod[:, Y], triangles, mom_Q[e],  cmap = "jet",
                           shading = "gouraud")
                 xlim(0, 2); ylim(0, 4); tight_layout()
+                plt.gca().set_aspect("equal", adjustable="box")
                 colorbar()
                 title(lab[e])
 
@@ -105,6 +107,7 @@ function plot_mom_Q_ang(xnod, mom_Q, ang_mf1, ang_mf2, ang_mt, lab)
                 tripcolor(xnod[:, X] , xnod[:, Y], triangles, mom_Q[e],  cmap = "jet",
                           shading = "gouraud")
                 xlim(0, 2); ylim(0, 4); tight_layout()
+                plt.gca().set_aspect("equal", adjustable="box")
                 colorbar()
                 title(lab[e])
 

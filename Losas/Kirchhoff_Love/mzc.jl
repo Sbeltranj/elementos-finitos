@@ -136,6 +136,7 @@ D = E*t^3/(12*(1-nu^2))   # rigidez a flexión de la placa
 ## Calculo de Ke y fe
 for e = 1:nef      # ciclo sobre todos los elementos finitos
 
+    local a,b
     # Calculo de la matriz de rigidez del elemento e    
     x1 = xnod[LaG[e,1],X]
     x2 = xnod[LaG[e,2],X];   y2 = xnod[LaG[e,2],Y];
@@ -207,6 +208,34 @@ qd = Kcc*ac + Kcd*ad - fd         # cálculo fuerzas de equilibrio desconocidas
 aa = zeros(ngdl);  aa[c] = ac;  aa[d] = ad   # desplazamientos
 q  = zeros(ngdl);  q[c]  = qd;   q[d] = qc   # fuerzas nodales equivalentes
 
+## Dibujar deformada:
+aa_ =  reshape(aa,3,nno)'
+a_ = aa_[:,1]
+NL1, NL2, NL3, NL4 = 1,2,3,4
+
+@pyimport matplotlib.tri as mtri
+triangles = Vector{Vector{Int64}}(undef, 2*nef)
+
+for e = 1:nef
+    # se arma la matriz de correspondencia (LaG) de la malla
+    triangles[2*e - 1] = LaG[e, [NL1, NL2, NL4]] .- 1
+    triangles[2*e - 0] = LaG[e, [NL2, NL3, NL4]] .- 1
+ end
+
+triang = mtri.Triangulation(xnod[:,1], xnod[:,2], triangles=triangles) 
+
+fig = figure()
+esc = 0.8  #escala diagrama 
+title("Estructura deformada $(esc) veces")
+ax = fig.add_subplot(projection="3d")
+ax = fig.add_subplot(projection="3d")
+ax.set_box_aspect((2, 4, esc)) 
+ax.plot_trisurf(triang, a_, cmap="jet")
+ax.set_xlabel("X[m]")
+ax.set_ylabel("Y[m]")
+tight_layout() 
+
+
 ## Dibujo las reacciones
 qq_ = reshape(q,3,nno)'
 z = qq_
@@ -215,6 +244,7 @@ z_    = zeros(nno,3)
 for i = 1:nno*3
     if z[i]!= 0
       z_[i] = z[i]
+
     elseif z[i] == 0
           z_[i]  = NaN
     end
@@ -240,6 +270,7 @@ x_gl = [ -sqrt(1/3); +sqrt(1/3) ]; # raices del polinomio de Legendre
 sigma_b = Array{Any}(undef,nef,n_gl,n_gl)
 
 for e = 1:nef
+    local a,b
     a = a_e[e]; b = b_e[e];
    
     for i = 1:n_gl
@@ -265,6 +296,8 @@ QxQy = Array{Array{Float64}}(undef, nef,1) ;  # cortantes
 xi = 0; eta = 0;     # centro del EF (punto de Gauss)
 
 for e = 1:nef
+
+    local a,b
     a = a_e[e]; b = b_e[e]
     
     ## QQ se calculo con el programa func_forma_MZC.m
@@ -348,34 +381,35 @@ plot_mom_Q_ang(xnod,[Qx, Qy, Q_max], [],[],[ang],
                 [L"Q_x(kN/m)", L"Q_y(kN/m)",  L"Q_{max}(kN/m)"])
 
 
-#Dibujar deformada:
-#aa_ =  reshape(aa,3,nno)'
-#a_ = aa_[:,1]*10
-#= NL1, NL2, NL3, NL4 = 1,2,3,4
-@pyimport matplotlib.tri as mtri
-triangles = Vector{Vector{Int64}}(undef, 2*nef)
-for e = 1:nef
+#calculos wood_armer
+#= include("wood_armer.jl")
+Mxast_sup, Myast_sup, Mxast_inf, Myast_inf = WoodArmer(Mx, My, Mxy)
 
-    # se arma la matriz de correspondencia (LaG) de la malla
-    triangles[2*e - 1] = LaG[e, [NL1, NL2, NL4]] .- 1
-    triangles[2*e - 0] = LaG[e, [NL2, NL3, NL4]] .- 1
- end
- triang = mtri.Triangulation(xnod[:,1], xnod[:,2], triangles=triangles) =#
-
-#fig = figure()
-#ax = fig.add_subplot(projection="3d")
-
-#= NL1, NL2, NL3, NL4 = 1,2,3,4
-
-ax = fig.add_subplot(projection="3d")
-ax.plot_trisurf(triang, a_, cmap="jet")
-ax.set_xlabel("X[m]")
-ax.set_ylabel("Y[m]")
-ax.autoscale(tight=true)
-arq = [0,1,2,3]
-ax.set_xticks(arq)
-ax.set_yticks(arq)
-tight_layout() =#
+#Diseño de wood y armer:
+dibujar_wood_armer(xnod,[Mxast_sup, Myast_sup, Mxast_inf, Myast_inf],
+                [L"M_x(kN/m)", L"Q_y(kN/m)",  L"Q_{max}(kN/m)", L"Q_{max}(kN/m)"]) =#
 
 
+## comparación solución analítica
+u = 0.5; v = 1; xi = 1.25; eta = 1.5;
+qdist = -10;
+err = zeros(nno,1);
+MEF = zeros(nno,1);
+analitica = zeros(nno,1);
+ww = 1;
+
+include("cal_w.jl")
+for i = 1:nno
+    MEF[i] = aa_[i,ww];
+    analitica[i] = calc_w(xnod[i,X], xnod[i,Y], E, nu, t, 2, 4, qdist, u, v, xi, eta);
+    err[i] = abs((MEF[i]-analitica[i])/analitica[i]);
+
+    if err[i] == NaN
+        global err
+        err[i] = 0
+    end
+end
+println("Observe que al comparar ambos métodos los errores relativos máximos son:")
+println(maximum(filter(!isnan,err)))
+println("Es decir son extremadamente pequeños !!")
 
