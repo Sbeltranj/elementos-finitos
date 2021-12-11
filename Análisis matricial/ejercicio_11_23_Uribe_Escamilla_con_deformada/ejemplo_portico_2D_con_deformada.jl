@@ -1,6 +1,10 @@
 #JULIA 1.6.3 
 
 using Printf
+ENV["MPLBACKEND"]="qt5agg"
+
+pygui(true)
+close("all")          #cerrar ventanas
 
 #Se cargan las funciones
 include("dibujar_deformada_portico.jl")
@@ -300,13 +304,4 @@ for e = 1:nbar
 
 end
 
-display(figure(1))
-display(figure(2))
-display(figure(3))
-display(figure(4))
-display(figure(5))
-
-
-gcf() #ver en vscode
-                                         
-#%%Fin
+#Fin
