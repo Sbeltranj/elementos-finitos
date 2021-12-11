@@ -382,12 +382,12 @@ plot_mom_Q_ang(xnod,[Qx, Qy, Q_max], [],[],[ang],
 
 
 #calculos wood_armer
-#= include("wood_armer.jl")
+ include("wood_armer.jl")
 Mxast_sup, Myast_sup, Mxast_inf, Myast_inf = WoodArmer(Mx, My, Mxy)
 
 #Diseño de wood y armer:
 dibujar_wood_armer(xnod,[Mxast_sup, Myast_sup, Mxast_inf, Myast_inf],
-                [L"M_x(kN/m)", L"Q_y(kN/m)",  L"Q_{max}(kN/m)", L"Q_{max}(kN/m)"]) =#
+                [L"M_x(kN/m)", L"Q_y(kN/m)",  L"Q_{max}(kN/m)", L"Q_{max}(kN/m)"]) 
 
 
 ## comparación solución analítica
@@ -403,11 +403,6 @@ for i = 1:nno
     MEF[i] = aa_[i,ww];
     analitica[i] = calc_w(xnod[i,X], xnod[i,Y], E, nu, t, 2, 4, qdist, u, v, xi, eta);
     err[i] = abs((MEF[i]-analitica[i])/analitica[i]);
-
-    if err[i] == NaN
-        global err
-        err[i] = 0
-    end
 end
 println("Observe que al comparar ambos métodos los errores relativos máximos son:")
 println(maximum(filter(!isnan,err)))

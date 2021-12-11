@@ -4,11 +4,9 @@ ENV["MPLBACKEND"]="qt5agg"
 pygui(true)
 close("all")          #cerrar ventanas
 
-
 ## Aquí se utiliza nullspace(K) para calcular el espacio nulo de esta.
 ## Programa para calcular los modos de energía nula de los EFs rectangulares
 #  serendipitos de 4 y 8 nodos
-
 
 X  = 1;
 Y  = 2;
@@ -17,7 +15,7 @@ nu = 0.33;    #       coeficiente de Poisson
 t  = 0.10;    # [m]   espesor del elemento
 
 ## se selecciona el tipo de EF a analizar
-nno = 8; # 4 u 8     # números de nodos del EF
+nno = 4; # 4 u 8     # números de nodos del EF
 
 if nno == 4
     ## Coordenadas del elemento
@@ -189,6 +187,8 @@ K = (K+K')/2;
 null  = nullspace(K)
 null_ = size(nullspace(K))
 
+val, vec  = eigen(K)
+#val = round.(val, digits = 3)
 num_MEN = sum(val .< 1e-5)
 idx = collect(1:1:null_[2])
 Q, R = qr([mdrrr null[:,idx]]);

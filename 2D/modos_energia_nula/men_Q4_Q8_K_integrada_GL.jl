@@ -3,7 +3,7 @@ using LinearAlgebra, PyPlot, PyCall, Printf
 ENV["MPLBACKEND"]="qt5agg"
 pygui(true)
 close("all")          #cerrar ventanas
-
+## Traducido de: https://github.com/diegoandresalvarez/elementosfinitos/tree/master/codigo/2D/modos_energia_nula
 ## Programa para calcular los modos de energía nula de los EFs rectangulares
 #  serendipitos de 4 y 8 nodos
 
@@ -14,7 +14,7 @@ nu = 0.33;    #       coeficiente de Poisson
 t  = 0.10;    # [m]   espesor del elemento
 
 ## se selecciona el tipo de EF a analizar
-nno = 8; # 4 u 8     # números de nodos del EF
+nno = 4; # 4 u 8     # números de nodos del EF
 
 if nno == 4
     ## Coordenadas del elemento
