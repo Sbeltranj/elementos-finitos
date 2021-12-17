@@ -4,7 +4,7 @@ ENV["MPLBACKEND"]="qt5agg"
 pygui(true)
 close("all")          #cerrar ventanas
 
-## Aquí se utiliza nullspace(K) para calcular el espacio nulo de esta.
+## Aquí se utiliza nullspace(K) para calcular el espacio nulo de la matrix.
 ## Programa para calcular los modos de energía nula de los EFs rectangulares
 #  serendipitos de 4 y 8 nodos
 
