@@ -10,17 +10,9 @@
 
 #Cargamos paquetes:
 
-using Polynomials
-using PyPlot
-using LinearAlgebra
-using Statistics
-using SparseArrays
-using PyCall
-
-
-# NOTA: si activo workspace y close all, se bloquea el JULIA
-# workspace()   # = clear de MATLAB
-# clc           # El equivalente es dar en la consola Ctrl+L
+using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall
+ENV["MPLBACKEND"]="qt5agg"
+pygui(true)
 close("all")  # close all de MATLAB (función de PyPlot)
 
 ## ------------------------------------------------------------------------
@@ -148,7 +140,7 @@ rhoe = 7850.0        # densidad (kg/m^3)
 g    = 9.81          # aceleración de la gravedad (m/s^2)
 be = [0; -rhoe*g]    # vector de fuerzas masicas del elemento
 
-MALLA = 3           # MALLA=1 grafico, MALLA=2 la generada con ANSYS
+MALLA = 1           # MALLA=1 grafico, MALLA=2 la generada con ANSYS
 
 ## cargar
 # xnod - posición de los nodos
@@ -594,6 +586,7 @@ function plot_def_esf_ang(xnod,esfdef, angulos, lab)
                         shading = "gouraud", vmin = -val_max, vmax = val_max)
 
       ax.tricontour(xnod[:, X], xnod[:, Y], triangle, esfdef, 20)
+      ax.tricontour(xnod[:, X], xnod[:, Y], triangle, esfdef, levels=[0], linewidths=3)
 
       fig.colorbar(im, ax = ax, format = "%6.3g")
 
@@ -662,16 +655,3 @@ sv = sqrt.(((s1-s2).^2 + (s2-s3).^2 + (s1-s3).^2)/2)
 #println([(1:nno)'  sv]);
 plot_def_esf_ang(xnod, sv, [], L"\sigma_v(x,y) [Pa]")
 title("Esfuerzos de von Mises (Pa)")
-
-
-for i = 1:14
-
-   display(figure(i))
-
-end
-
-
-gcf()
-
-
-#Fin 

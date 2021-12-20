@@ -14,7 +14,7 @@ nu = 0.33;    #       coeficiente de Poisson
 t  = 0.10;    # [m]   espesor del elemento
 
 ## se selecciona el tipo de EF a analizar
-nno = 4; # 4 u 8     # números de nodos del EF
+nno = 8; # 4 u 8     # números de nodos del EF
 
 if nno == 4
     ## Coordenadas del elemento
