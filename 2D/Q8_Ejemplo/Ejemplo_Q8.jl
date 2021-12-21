@@ -11,6 +11,8 @@
 #Cargamos paquetes:
 
 using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall
+
+#Instale matplotlib de Python
 ENV["MPLBACKEND"]="qt5agg"
 pygui(true)
 close("all")  # close all de MATLAB (función de PyPlot)
@@ -140,7 +142,7 @@ rhoe = 7850.0        # densidad (kg/m^3)
 g    = 9.81          # aceleración de la gravedad (m/s^2)
 be = [0; -rhoe*g]    # vector de fuerzas masicas del elemento
 
-MALLA = 1           # MALLA=1 grafico, MALLA=2 la generada con ANSYS
+MALLA = 3           # MALLA=1 grafico, MALLA=2 la generada con ANSYS
 
 ## cargar
 # xnod - posición de los nodos
@@ -471,15 +473,15 @@ ex  = zeros(nno)
 ey  = zeros(nno)
 gxy = zeros(nno)
 
-A = reshape([
-     3^(1/2)/2 + 1,            -1/2,            -1/2,   1 - 3^(1/2)/2,
-   3^(1/2)/4 + 1/4, 1/4 - 3^(1/2)/4, 3^(1/2)/4 + 1/4, 1/4 - 3^(1/2)/4,
-              -1/2,   1 - 3^(1/2)/2,   3^(1/2)/2 + 1,            -1/2,
-   1/4 - 3^(1/2)/4, 1/4 - 3^(1/2)/4, 3^(1/2)/4 + 1/4, 3^(1/2)/4 + 1/4,
-     1 - 3^(1/2)/2,            -1/2,            -1/2,   3^(1/2)/2 + 1,
-   1/4 - 3^(1/2)/4, 3^(1/2)/4 + 1/4, 1/4 - 3^(1/2)/4, 3^(1/2)/4 + 1/4,
-              -1/2,   3^(1/2)/2 + 1,   1 - 3^(1/2)/2,            -1/2,
-   3^(1/2)/4 + 1/4, 3^(1/2)/4 + 1/4, 1/4 - 3^(1/2)/4, 1/4 - 3^(1/2)/4 ]', (8,4))
+A = [
+     3^(1/2)/2 + 1             -1/2             -1/2   1 - 3^(1/2)/2
+   3^(1/2)/4 + 1/4  1/4 - 3^(1/2)/4  3^(1/2)/4 + 1/4 1/4 - 3^(1/2)/4
+              -1/2    1 - 3^(1/2)/2    3^(1/2)/2 + 1            -1/2
+   1/4 - 3^(1/2)/4  1/4 - 3^(1/2)/4  3^(1/2)/4 + 1/4 3^(1/2)/4 + 1/4
+     1 - 3^(1/2)/2             -1/2             -1/2   3^(1/2)/2 + 1
+   1/4 - 3^(1/2)/4  3^(1/2)/4 + 1/4  1/4 - 3^(1/2)/4 3^(1/2)/4 + 1/4
+              -1/2    3^(1/2)/2 + 1    1 - 3^(1/2)/2            -1/2
+   3^(1/2)/4 + 1/4  3^(1/2)/4 + 1/4  1/4 - 3^(1/2)/4 1/4 - 3^(1/2)/4 ];
 
 for e = 1:nef
    sx[LaG[e,:],:] = sx[LaG[e,:],:]   .+ A * [ esf[e,1,1][1]
@@ -573,7 +575,7 @@ function plot_def_esf_ang(xnod,esfdef, angulos, lab)
    #https://matplotlib.org/stable/gallery/images_contours_and_fields/tripcolor_demo.html
 
       val_max = maximum(abs.(esfdef))
-      fig, ax = subplots(figsize=(7, 7))
+      fig, ax = subplots()
        # se grafica la malla de EFS, los colores en cada triángulo y las curvas 
        # de nivel
       for e = 1:nef
@@ -605,7 +607,10 @@ function plot_def_esf_ang(xnod,esfdef, angulos, lab)
          # scatter(xnod[:,X],xnod[:,Y], color="k", s=1)  # para poner el punto
          # http://matplotlib.org/examples/pylab_examples/quiver_demo.html
       end
-      ylabel(lab)
+      #ylabel(lab)
+      ax.set_xlabel("x [m]")
+      ax.set_ylabel("y [m]")
+      ax.set_title(lab, fontsize=20)
       axis("equal") # tight
    return
 
