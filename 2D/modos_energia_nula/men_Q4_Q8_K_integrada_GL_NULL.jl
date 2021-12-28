@@ -1,4 +1,14 @@
-##JULIA 1.6.3
+# Programa elaborado en JULIA 1.7.1
+
+# Diego Andrés Alvarez Marín
+# daalvarez@unal.edu.co
+# https://github.com/diegoandresalvarez/elementosfinitos/tree/master/codigo/2D/modos_energia_nula
+
+# Traducido por:
+# Santiago Beltrán Jaramillo
+# sbeltran@unal.edu.co
+
+
 using LinearAlgebra, PyPlot, PyCall, Printf
 ENV["MPLBACKEND"]="qt5agg"
 pygui(true)

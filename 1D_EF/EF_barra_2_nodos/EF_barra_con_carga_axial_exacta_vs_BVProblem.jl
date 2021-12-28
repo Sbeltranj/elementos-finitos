@@ -1,4 +1,12 @@
-#JULIA 1.6.3
+# Programa elaborado en JULIA 1.7.1
+
+# Diego Andrés Alvarez Marín
+# daalvarez@unal.edu.co
+# https://github.com/diegoandresalvarez/elementosfinitos/tree/master/codigo/1D/EF_barra_2_nodos
+
+# Traducido por:
+# Santiago Beltrán Jaramillo
+# sbeltran@unal.edu.co
 
 #se cargan paquetes:
 using DifferentialEquations

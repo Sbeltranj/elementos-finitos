@@ -1,7 +1,11 @@
-##Programa elaborado en JULIA 1.6.3
+# Programa elaborado en JULIA 1.7.1
 
-#Santiago Beltrán Jaramillo
-#sbeltran@unal.edu.co
+# Diego Andrés Alvarez Marín
+# daalvarez@unal.edu.co
+
+# Traducido por:
+# Santiago Beltrán Jaramillo
+# sbeltran@unal.edu.co
 
 #adaptado y/o traducido:
 #https://github.com/diegoandresalvarez/elementosfinitos/tree/master/codigo/2D/isoparametrico

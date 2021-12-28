@@ -1,8 +1,14 @@
-# Programa elaborado en JULIA 1.6.3
+# Programa elaborado en JULIA 1.7.1
+
+# Diego Andrés Alvarez Marín
+# daalvarez@unal.edu.co
+# https://github.com/diegoandresalvarez/elementosfinitos/tree/master/codigo/2D/ejemplo_Q6
+
+# Traducido por:
 # Santiago Beltrán Jaramillo
+# sbeltran@unal.edu.co
 
 
-# Visitar: https://github.com/diegoandresalvarez/elementosfinitos/tree/master/codigo/2D/ejemplo_Q6
 #=
 -------------------------------------------------------------------------------
 NOTA: este código SOLO es apropiado para TENSION PLANA usando elementos
@@ -371,11 +377,11 @@ txz = zeros(nno); tyz = zeros(nno); ex  = zeros(nno); ey  = zeros(nno)
 gxy = zeros(nno)
 
 # matriz de extrapolación
-A = reshape([
-      3^(1/2)/2 + 1,             -1/2,             -1/2,   1 - 3^(1/2)/2,
-                -1/2,   1 - 3^(1/2)/2,   3^(1/2)/2 + 1,             -1/2,
-      1 - 3^(1/2)/2,             -1/2,             -1/2,   3^(1/2)/2 + 1,
-                -1/2,   3^(1/2)/2 + 1,   1 - 3^(1/2)/2,             -1/2],(4,4))'
+A = [
+      3^(1/2)/2 + 1             -1/2             -1/2   1 - 3^(1/2)/2
+                -1/2   1 - 3^(1/2)/2   3^(1/2)/2 + 1             -1/2
+      1 - 3^(1/2)/2             -1/2             -1/2   3^(1/2)/2 + 1
+                -1/2   3^(1/2)/2 + 1   1 - 3^(1/2)/2            -1/2]
 
 # se hace la extrapolación de los esfuerzos y las deformaciones en cada elemento
 # a partir de las lecturas en los puntos de Gauss

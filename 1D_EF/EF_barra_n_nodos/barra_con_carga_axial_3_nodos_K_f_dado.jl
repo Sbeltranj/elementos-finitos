@@ -1,6 +1,14 @@
-#Julia 1.6.3
+# Programa elaborado en JULIA 1.7.1
 
-#JULIA 1.6.3
+# Diego Andrés Alvarez Marín
+# daalvarez@unal.edu.co
+# https://github.com/diegoandresalvarez/elementosfinitos/tree/master/codigo/1D/EF_barra_n_nodos
+
+# Traducido por:
+# Santiago Beltrán Jaramillo
+# sbeltran@unal.edu.co
+
+
 ## DEFINICIÓN DEL PROBLEMA
 #=
 Calcule los desplazamientos y las reacciones en el empotramiento

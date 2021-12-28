@@ -1,4 +1,12 @@
-#Programa elaborado en Julia 1.6.3
+# Programa elaborado en JULIA 1.7.1
+
+# Diego Andrés Alvarez Marín
+# daalvarez@unal.edu.co
+# https://github.com/diegoandresalvarez/elementosfinitos/tree/master/codigo/repaso_matricial/cercha_2d
+
+# Traducido por:
+# Santiago Beltrán Jaramillo
+# sbeltran@unal.edu.co
 
 #cargamos paquetes:
 using SparseArrays, LinearAlgebra

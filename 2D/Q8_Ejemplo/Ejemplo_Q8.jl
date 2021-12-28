@@ -1,10 +1,10 @@
-#JULIA 1.6.3
+#JULIA 1.7.1
 
 # PROGRAMA ELABORADO POR: 
 # Diego Andrés Alvarez Marín
 # daalvarez@unal.edu.co
 
-# Actualizando la versión 0.5.1 a 1.6.3
+# Actualizando la versión 0.5.1 a 1.7.1
 # Santiago Beltrán Jaramillo
 # sbeltran@unal.edu.co
 

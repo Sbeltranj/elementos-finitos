@@ -1,4 +1,14 @@
-#JULIA 1.6.3
+# Programa elaborado en JULIA 1.7.1
+
+# Diego Andrés Alvarez Marín
+# daalvarez@unal.edu.co
+# https://github.com/diegoandresalvarez/elementosfinitos/tree/master/codigo/1D/EF_barra_n_nodos
+
+# Traducido por:
+# Santiago Beltrán Jaramillo
+# sbeltran@unal.edu.co
+
+
 ## DEFINICIÓN DEL PROBLEMA
 #=
 Calcule los desplazamientos y las reacciones en el empotramiento
@@ -21,7 +31,7 @@ de la viga mostrada
 
 #Cargamos paquetes:
 
-using Plots
+using Plotly
 using Polynomials
 
 # -----------------------------------------------------------------
@@ -204,7 +214,7 @@ x = collect(LinRange(0,L,30))             # 30 puntos unif/ distrib. entre 0 y L
 fig_despla = plot()
 fig_despla = scatter(x, uexacto, label = "Solución analítica",
                     title = "Comparación de la solución analÍtica con el MEF para el desplazamiento ",
-                    titlefont=font(10,"Computer Modern"),
+                    #titlefont=font(10,"Computer Modern"),
                     color = :blue, 
                     xaxis = "Eje X (m)",              #nombre al eje x
                     yaxis = "Desplazamiento (m)", shape = :star5)   #nombre al eje y)

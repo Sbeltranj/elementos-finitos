@@ -1,8 +1,13 @@
-# Programa elaborado en JULIA 1.6.3
+# Programa elaborado en JULIA 1.7.1
+
+# Diego Andrés Alvarez Marín
+# daalvarez@unal.edu.co
+# https://github.com/diegoandresalvarez/elementosfinitos/tree/master/codigo/2D/ejemplo_Q6
+
+# Traducido por:
 # Santiago Beltrán Jaramillo
+# sbeltran@unal.edu.co
 
-
-# Visitar: https://github.com/diegoandresalvarez/elementosfinitos/tree/master/codigo/2D/ejemplo_Q6
 #=
 -------------------------------------------------------------------------------
 NOTA: este código SOLO es apropiado para TENSION PLANA usando elementos

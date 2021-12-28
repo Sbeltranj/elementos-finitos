@@ -1,7 +1,13 @@
-##Programa elaborado en JULIA 1.6.3
+# Programa elaborado en JULIA 1.7.1
 
-#Santiago Beltrán Jaramillo
-#sbeltran@unal.edu.co
+# Diego Andrés Alvarez Marín
+# daalvarez@unal.edu.co
+# https://github.com/diegoandresalvarez/elementosfinitos/tree/master/codigo/losas/Kirchhoff_Love
+
+# Traducido por:
+# Santiago Beltrán Jaramillo
+# sbeltran@unal.edu.co
+
 
 #Función para dibujar los diferentes gráficos del EF MZC,
 #para la losa de Kirchhoff_Love
