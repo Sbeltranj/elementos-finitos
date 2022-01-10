@@ -18,7 +18,7 @@ import XLSX
 using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall
 
 ENV["MPLBACKEND"]="qt5agg"
-include("gauss_legendre.jl")
+include("gausslegendre_quad.jl")
 include("funcion_axisimetrico.jl")
 pygui(true)
 close("all")          #cerrar ventanas

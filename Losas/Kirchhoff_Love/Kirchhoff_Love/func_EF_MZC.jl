@@ -4,7 +4,7 @@
 # daalvarez@unal.edu.co
 # https://github.com/diegoandresalvarez/elementosfinitos/tree/master/codigo/losas/Kirchhoff_Love
 
-# Traducido por:
+# Traduciendo a JULIA por:
 # Santiago Beltrán Jaramillo
 # sbeltran@unal.edu.co
 
@@ -13,6 +13,8 @@
 #para la losa de Kirchhoff_Love
 #Tener instalada la librería de matplotlib (PYTHON-pip install matplotlib)
 #además Pkg.add("PyPlot") en consola de JULIA
+
+using PyPlot,PyCall
 
 function plot_mom_Q_ang(xnod, mom_Q, ang_mf1, ang_mf2, ang_mt, lab)
 
@@ -48,11 +50,12 @@ function plot_mom_Q_ang(xnod, mom_Q, ang_mf1, ang_mf2, ang_mt, lab)
             
             if e == 1
                 subplot(131)
-                tripcolor(xnod[:, X] , xnod[:, Y], triangles, mom_Q[e],  cmap = "jet",
+                plt.tripcolor(xnod[:, X] , xnod[:, Y], triangles, mom_Q[e],  cmap = "bwr",
                           shading = "gouraud")
+
                 xlim(0, 2); ylim(0, 4); tight_layout()
                 plt.gca().set_aspect("equal", adjustable="box")
-                colorbar()
+                colorbar(shrink=0.79)
                 title(lab[e])
 
                 if ~isempty(ang_mf1)
@@ -61,7 +64,7 @@ function plot_mom_Q_ang(xnod, mom_Q, ang_mf1, ang_mf2, ang_mt, lab)
                     norma = 1
 
                     for ang1 in ang_mf1
-                        quiver(xnod[:,X],xnod[:,Y],                   # En el nodo grafique una línea
+                        plt.quiver(xnod[:,X],xnod[:,Y],                   # En el nodo grafique una línea
                                 norma.*cos.(ang1), norma.*sin.(ang1), # indicando la dirección
                                 headlength=0,
                                 headwidth = 0,
@@ -74,17 +77,17 @@ function plot_mom_Q_ang(xnod, mom_Q, ang_mf1, ang_mf2, ang_mt, lab)
                 # se dibujan las aristas
                 for e = 1:nef
                     nod_ef = LaG[e, [NL1, NL2, NL3, NL4, NL1]]
-                           plot(xnod[nod_ef, X], xnod[nod_ef, Y], lw = 0.15, color = "gray")
+                           plt.plot(xnod[nod_ef, X], xnod[nod_ef, Y], lw = 0.15, color = "gray")
                  end
 
             elseif e == 2
                 subplot(132)
                 
-                tripcolor(xnod[:, X] , xnod[:, Y], triangles, mom_Q[e],  cmap = "jet",
+                plt.tripcolor(xnod[:, X] , xnod[:, Y], triangles, mom_Q[e],  cmap = "bwr",
                           shading = "gouraud")
                 xlim(0, 2); ylim(0, 4); tight_layout()
                 plt.gca().set_aspect("equal", adjustable="box")
-                colorbar()
+                colorbar(shrink=0.79)
                 title(lab[e])
 
                 if ~isempty(ang_mf2)
@@ -92,7 +95,7 @@ function plot_mom_Q_ang(xnod, mom_Q, ang_mf1, ang_mf2, ang_mt, lab)
                     norma = 2
             
                     for ang2 in ang_mf2
-                        quiver(xnod[:,X],xnod[:,Y],                  # En el nodo grafique una línea
+                        plt.quiver(xnod[:,X],xnod[:,Y],                  # En el nodo grafique una línea
                                 norma.*cos.(ang2), norma.*sin.(ang2), # indicando la dirección
                                 headlength=0,
                                 headwidth = 0,
@@ -105,16 +108,16 @@ function plot_mom_Q_ang(xnod, mom_Q, ang_mf1, ang_mf2, ang_mt, lab)
                 for e = 1:nef
                     # se dibujan las aristas
                     nod_ef = LaG[e, [NL1, NL2, NL3, NL4, NL1]]
-                           plot(xnod[nod_ef, X], xnod[nod_ef, Y], lw = 0.15, color = "gray")
+                    plot(xnod[nod_ef, X], xnod[nod_ef, Y], lw = 0.15, color = "gray")
                 end
 
             elseif e == 3
                 subplot(133)
-                tripcolor(xnod[:, X] , xnod[:, Y], triangles, mom_Q[e],  cmap = "jet",
+                plt.tripcolor(xnod[:, X] , xnod[:, Y], triangles, mom_Q[e],  cmap = "bwr",
                           shading = "gouraud")
                 xlim(0, 2); ylim(0, 4); tight_layout()
                 plt.gca().set_aspect("equal", adjustable="box")
-                colorbar()
+                colorbar(shrink=0.79)
                 title(lab[e])
 
                 if ~isempty(ang_mt)
@@ -123,7 +126,7 @@ function plot_mom_Q_ang(xnod, mom_Q, ang_mf1, ang_mf2, ang_mt, lab)
                     norma = 2
             
                     for ang3 in ang_mt
-                        quiver(xnod[:,X],xnod[:,Y],                 # En el nodo grafique una línea
+                        plt.quiver(xnod[:,X],xnod[:,Y],                 # En el nodo grafique una línea
                                 norma.*cos.(ang3), norma.*sin.(ang3),# indicando la dirección
                                 headlength=0,
                                 headwidth = 0,
@@ -136,16 +139,13 @@ function plot_mom_Q_ang(xnod, mom_Q, ang_mf1, ang_mf2, ang_mt, lab)
                 for e = 1:nef
                     # se dibujan las aristas
                     nod_ef = LaG[e, [NL1, NL2, NL3, NL4, NL1]]
-                           plot(xnod[nod_ef, X], xnod[nod_ef, Y], lw = 0.15, color = "gray")
+                    plt.plot(xnod[nod_ef, X], xnod[nod_ef, Y], lw = 0.15, color = "gray")
                 end
+            else
 
-
-            else 
-                
-                
             end
+
         end
 
     return
- 
 end

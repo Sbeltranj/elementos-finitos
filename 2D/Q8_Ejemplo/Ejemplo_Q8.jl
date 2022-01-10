@@ -443,8 +443,6 @@ legend(["posición original","posición deformada"], loc="lower right")
 title("Deformada escalada $escala veces")
 
 
-
-
 ## Se calcula para cada elemento las deformaciones y los esfuerzos
 def = Array{Any}(undef,nef,n_gl,n_gl)
 esf = Array{Any}(undef,nef,n_gl,n_gl)

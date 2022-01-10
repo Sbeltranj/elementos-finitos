@@ -1,4 +1,4 @@
-include("gauss_legendre.jl")
+include("gausslegendre_quad.jl")
 function t2ft_Q4(xnod_, lado, carga, espesor)
 
     #=Función que convierte las fuerzas superficiales aplicadas a un elemento

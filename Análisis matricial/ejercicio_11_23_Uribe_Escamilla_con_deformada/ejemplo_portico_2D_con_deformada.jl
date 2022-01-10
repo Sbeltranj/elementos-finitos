@@ -8,7 +8,7 @@
 # Santiago Beltrán Jaramillo
 # sbeltran@unal.edu.co
 
-using Printf
+using Printf, PyPlot
 ENV["MPLBACKEND"]="qt5agg"
 
 pygui(true)

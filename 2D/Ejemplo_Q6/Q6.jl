@@ -11,7 +11,7 @@
 
 #=
 -------------------------------------------------------------------------------
-NOTA: este código SOLO es apropiado para TENSION PLANA usando elementos
+NOTA: este código SOLO es apropiado para TENSIÓN PLANA usando elementos
       rectangulares de 4 nodos con modos incompatibles
 -------------------------------------------------------------------------------
 DEFINICIÓN DEL PROBLEMA:
@@ -25,7 +25,7 @@ import XLSX
 using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall
 
 ENV["MPLBACKEND"]="qt5agg"
-include("gauss_legendre.jl")
+include("gausslegendre_quad.jl")
 include("funcionQ6.jl")
 
 pygui(true)
@@ -159,7 +159,7 @@ K       = spzeros(ngdl, ngdl)         # matriz de rigidez global
 inv_Kee = zeros(4, 4, nef)
 Ker     = zeros(4,8, nef)
 
-## separó memoria para los calculos
+## separó memoria para los cálculos
 N     = Array{Any}(undef,nef,n_gl,n_gl) # matriz de forma en cada punto de GL
 B     = Array{Any}(undef,nef,n_gl,n_gl) # matriz de deformaciones en cada punto de GL
 idx   = Array{Array{Int64}}(undef, nef,1) 
@@ -269,7 +269,7 @@ idxNODO = T[:,nodo]
 nlcd = size(idxNODO,1)
 
 el    = T[:,elemento];
-lados = T[:, 2];      # número de lados con carga distribuída
+lados = T[:, 2];      # número de lados con carga distribuida
 tix   = T[:, tix];    # componentes de carga en las diferentes
 tiy   = T[:, tiy];    # direcciones: tix, tiy, tjx, tjy
 tjx   = T[:, tjx];

@@ -130,7 +130,7 @@ mdrrr = [a1 a2 a3];
 # xi como en la dirección de eta
 n_gl = 2;   # orden de la cuadratura de Gauss-Legendre
 
-include("gauss_legendre.jl")
+include("gausslegendre_quad.jl")
 
 x_gl, w_gl = gausslegendre_quad(n_gl);
 

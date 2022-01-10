@@ -31,7 +31,7 @@ de la viga mostrada
 
 #Cargamos paquetes:
 
-using Plotly
+using Plots
 using Polynomials
 
 # -----------------------------------------------------------------

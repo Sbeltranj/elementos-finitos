@@ -38,8 +38,8 @@ LaG = [ 1 3  # (s lee la barra x va del nodo i al nodo j)
 
 # gdl: grados de libertad
 gdl = [ 1 2  # fila = nodo
-        3 4  # col1 = gdl en direccion x
-        5 6  # col2 = gdl en direccion y
+        3 4  # col1 = gdl en dirección x
+        5 6  # col2 = gdl en dirección y
         7 8]
 
 
@@ -107,7 +107,7 @@ a = zeros(8,1);  q = zeros(8,1);  # separo la memoria
 a[c] = ac;       q[c] = qd;
 a[d] = ad;       #q[d] = qc = 0
 
-#%% calculo las fuerzas axiales (fax) en cada barra
+## calculo las fuerzas axiales (fax) en cada barra
 
 fax = Array{Array{Float64}}(undef, 5,1)
 
@@ -127,4 +127,4 @@ println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 println("Fuerza axial:")
 display(fax)
 
-#%%Fin
+##Fin

@@ -27,7 +27,7 @@ function  calc_w(x, y, E, nu, t, a, b, p, u, v, xi, eta)
     #    |                           a
     #  y V
     #
-    # Aqui:
+    # Aquí:
     # x,y      coordenadas del punto
     # E,nu     modulo de elasticidad, coeficiente de Poisson
     # t        espesor de la placa
@@ -36,13 +36,13 @@ function  calc_w(x, y, E, nu, t, a, b, p, u, v, xi, eta)
     # u,v      ancho carga (dir x), ancho carga (dir y)
     # xi,eta   centro de la carga
     #
-    # La solucion teorica se encuentra en:
+    # La solución teórica se encuentra en:
     # Eduard Ventsel and Theodor Krauthammer (2001)
     # Thin plates and shells: theory, analysis and applications.
     # Marcel Dekker : New York
     # paginas 53 y 54.
     #
-    #  La deformacion teorica en la placa esta dada por:
+    #  La deformación teórica en la placa esta dada por:
     #  \begin{equation}
     #    w(x,y) = \frac{1}{\pi^4 D}\sum_{m=1}^\infty \sum_{n=1}^\infty
     #    \frac{p_{mn}}{\left(\frac{m^2}{a^2} + \frac{n^2}{b^2}\right)^2}
@@ -61,17 +61,17 @@ function  calc_w(x, y, E, nu, t, a, b, p, u, v, xi, eta)
     # Nota: las formulas en
     # S. Timoshenko y S. Woinowsky-Krieger (1959). Theory of plates and shells
     # Mc-Graw Hill : New York.
-    # Seccion 29: ecuacion 130 y pag 111 ecuacion a ESTAN MALAS!!!.
+    # Sección 29: ecuación 130 y pag 111 ecuación a ESTÁN MALAS!!!.
     # La diferencia entre ambos libros es que:
     # p_{mn} = \frac{16 p}{\pi^2 m n}
     # lo escriben como:
     # p_{mn} = \frac{16 p}{\pi^2 m n u v}
     
     # Por:
-    # Diego Andres Alvarez Marin daalvarez@unal.edu.co
+    # Diego Andrés Alvarez Marín daalvarez@unal.edu.co
     
-    D = (E*t^3)/(12*(1 - nu^2)); # rigidez a la flexion de la placa
-    nterm = 20; # numero de terminos de la serie a tener en cuenta
+    D = (E*t^3)/(12*(1 - nu^2)); # rigidez a la flexión de la placa
+    nterm = 20; # numero de términos de la serie a tener en cuenta
     
     s = 0;
     for m = 1:nterm

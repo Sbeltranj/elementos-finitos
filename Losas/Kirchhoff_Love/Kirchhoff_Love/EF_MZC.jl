@@ -26,7 +26,6 @@ NL2 = y_  = desplazamiento = fpuntual  = nu  = 3
 NL3 = rho = 4
 espesor   = NL4 = 5
 fz  = 6
-g   = 9.81
 
 #Nombre archivo EXCEL
 filename = "losa_rectangular_libro_solidos_efQ4.xlsx"
@@ -52,6 +51,7 @@ T = hcat(columns...)
 LaG   = T[:,NL1:NL4]             # Definición de EFs respecto a nodos
 LaG   = LaG*1         
 nef   = size(LaG,1)
+
 fz    = T[:,fz];                # relación de las cargas distribuidas
 fz    = coalesce.(fz, 0.0)      # reemplazo los missing con ceros
 
@@ -108,13 +108,13 @@ cg = zeros(nef, 2) # almacena el centro de gravedad
 for e = 1:nef
     nod_ef = LaG[e, [1, 2, 3, 4, 1]]
     
-    plot(xnod[nod_ef,X], xnod[nod_ef,Y],
+    plt.plot(xnod[nod_ef,X], xnod[nod_ef,Y],
           color="k", linestyle="-")
 
     # Cálculo de la posición del centro de gravedad 
     cg[e,:] = [ mean(xnod[nod_ef,X]) mean(xnod[nod_ef,Y]) ]
 
-    text(cg[e, X], cg[e, Y], "$e", fontsize=5, color=[1,0,0],
+    plt.text(cg[e, X], cg[e, Y], "$e", fontsize=5, color=[1,0,0],
         horizontalalignment="center", verticalalignment="center")
 
 end
@@ -181,7 +181,7 @@ for e = 1:nef      # ciclo sobre todos los elementos finitos
     f[idx[e],:]      +=  fe;
 end
 
-#%% Muestro la configuracion de la matriz K (K es rala)
+#%% Muestro la configuración de la matriz K (K es rala)
 figure(2)
 spy(K)
 title("Los puntos representan los elementos diferentes de cero")
@@ -232,24 +232,18 @@ fig = figure()
 esc = 0.8  #escala diagrama 
 title("Estructura deformada $(esc) veces")
 ax = fig.add_subplot(projection="3d")
-ax = fig.add_subplot(projection="3d")
 ax.set_box_aspect((2, 4, esc)) 
-ax.plot_trisurf(triang, a_, cmap="jet")
-#ax.set_xlabel("X[m]")
-#ax.set_ylabel("Y[m]")
+ax.plot_trisurf(triang, a_, cmap="bwr")
 tight_layout() 
 
 
 ## Dibujo las reacciones
 qq_ = reshape(q,3,nno)'
-z = qq_
 z_    = zeros(nno,3)
-
 for i = 1:nno*3
-    if z[i]!= 0
-      z_[i] = z[i]
-
-    elseif z[i] == 0
+    if qq_[i]!= 0
+      z_[i] = qq_[i]
+    elseif qq_[i] == 0
           z_[i]  = NaN
     end
 end    
@@ -326,7 +320,7 @@ A = [
    1 - 3^(1/2)/2            -1/2            -1/2   3^(1/2)/2 + 1
             -1/2   3^(1/2)/2 + 1   1 - 3^(1/2)/2            -1/2 ]
        
-for e = 1:nef           
+for e = 1:nef
 
    Mx[LaG[e,:],:] .+=  A * [sigma_b[e,1,1][1]
                             sigma_b[e,1,2][1]
@@ -386,13 +380,44 @@ plot_mom_Q_ang(xnod,[Qx, Qy, Q_max], [],[],[ang],
 
 
 #calculos wood_armer
- include("wood_armer.jl")
-Mxast_sup, Myast_sup, Mxast_inf, Myast_inf = WoodArmer(Mx, My, Mxy)
+include("wood_armer.jl")
+wood = hcat(collect.(WoodArmer.(Mx, My, Mxy))...)'
 
 #Diseño de wood y armer:
-dibujar_wood_armer(xnod,[Mxast_sup, Myast_sup, Mxast_inf, Myast_inf],
-                [L"M_x(kN/m)", L"Q_y(kN/m)",  L"Q_{max}(kN/m)", L"Q_{max}(kN/m)"]) 
+dibujar_wood_armer(xnod,[wood[:,1], wood[:,2], wood[:,3], wood[:,4]],
+                [L"Momentos M_x^* sup", L"Momentos M_y^* sup",  L"Momentos M_x^* inf", L"Momentos M_y^* inf"]) 
 
+## Reportamos los resultados a un libro EXCEL.
+
+XLSX.openxlsx("resultados_LOSA_EF_MZC.xlsx", mode="w") do xf
+    sheet = xf[1]
+    XLSX.rename!(sheet, "Desplazamientos")
+    sheet["A1"] = ["Nodo ", "W_m", "tx_rad", "ty_rad", "q_fz_kN", "q_fz_kN", "q_my_kN_m"]
+ 
+    #Desplazamientos:
+    sheet["A2", dim=1] = collect(1:nno); sheet["B2", dim=1] = aa_[:,1]; sheet["C2", dim=1] = aa_[:,2] 
+    sheet["D2", dim=1] = aa_[:,3] 
+
+    # reacciones
+    sheet["E2", dim=1] = qq_[:,1]; sheet["F2", dim=1] = qq_[:,2]; sheet["G2", dim=1] = qq_[:,3] 
+
+    XLSX.addsheet!(xf, "Momentos")
+    sheet = xf[2]     # EDIT: this works if there was only 1 sheet before. 
+                      # If there were already 2 or more sheets: see comments below.
+ 
+    sheet["A1"] = ["Nodo ", "Mx-kN_m_m", "My ", "Mxy ", "Mxast_sup", "Myast_sup", "Mxast_inf", "Myast_inf"]
+    sheet["A2", dim=1] = collect(1:nno); sheet["B2", dim=1] = Mx; sheet["C2", dim=1] = My 
+    sheet["D2", dim=1] = Mxy; sheet["E2", dim=1] = wood[:,1]; sheet["F2", dim=1] = wood[:,2]; sheet["G2", dim=1] = wood[:,3]
+    sheet["H2", dim=1] = wood[:,4]
+
+    XLSX.addsheet!(xf, "Cortantes")
+    sheet = xf[3]     # EDIT: this works if there was only 1 sheet before. 
+                      # If there were already 2 or more sheets: see comments below.
+ 
+    sheet["A1"] = ["Nodo ", "Qx-KN_m", "Qy ", "Qmax "]
+    sheet["A2", dim=1] = collect(1:nno); sheet["B2", dim=1] = Qx; sheet["C2", dim=1] = Qy 
+    sheet["D2", dim=1] = Q_max; 
+end
 
 ## comparación solución analítica
 u = 0.5; v = 1; xi = 1.25; eta = 1.5;
@@ -411,3 +436,6 @@ end
 println("Observe que al comparar ambos métodos los errores relativos máximos son:")
 println(maximum(filter(!isnan,err)))
 println("Es decir son extremadamente pequeños !!")
+println()
+println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+println("Se reportaron los resultados en: resultados_LOSA_EF_MZC.xlsx ")

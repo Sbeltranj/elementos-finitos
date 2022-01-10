@@ -1,4 +1,4 @@
-include("gauss_legendre.jl")
+include("gausslegendre_quad.jl")
 
 function t2ft_R89(xnod_, lado, carga)
     # Esta función convierte las fuerzas superficiales aplicadas a un elemento

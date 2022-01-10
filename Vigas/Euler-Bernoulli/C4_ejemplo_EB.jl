@@ -1,9 +1,16 @@
-#JULIA 1.6.3
+#JULIA 1.7.1
+
+# PROGRAMA ELABORADO POR: 
+# Diego Andrés Alvarez Marín
+# daalvarez@unal.edu.co
+#https://github.com/diegoandresalvarez/elementosfinitos/tree/master/codigo/vigas
+
+# Traduciendo a JULIA por:
+# Santiago Beltrán Jaramillo
+# sbeltran@unal.edu.co
 
 import XLSX
-using SparseArrays
-using PyPlot
-using Printf
+using SparseArrays, PlotlyJS, Printf
 
 # Programa para el cálculo de vigas de Euler-Bernoulli.
 
@@ -20,12 +27,10 @@ filename = "viga_Uribe_Escamilla_ej_5_5.xlsx"
 #se carga el libro.xlsx, con el nombre de la hoja "xnod"
 columns, labels = XLSX.readtable(filename, "xnod")
 
-# %%Se lee la posición de los nodos
+## Se lee la posición de los nodos
 T    = hcat(columns...)  
 xnod = T[:,nodos]                       # Posición de los nodos
 L    = diff(xnod)                      # Longitud de cada EF
-
-
 nno  = length(xnod);                   # número de nodos
 nef  = nno - 1;                        # número de elementos finitos (EF)
 ngdl = 2*nno;                          # número de grados de libertad
@@ -33,7 +38,7 @@ gdl  = [ [1:2:ngdl]' [2:2:ngdl]' ];    # grados de libertad
 gdl  = reshape(hcat(gdl...)',nno,2)
 
 
-# %%Se leen la matriz de conectividad (LaG), el modulo de elasticidad, las 
+## Se leen la matriz de conectividad (LaG), el modulo de elasticidad, las 
 # propiedades del material y las cargas
 columns, labels = XLSX.readtable(filename, "LaG_EI_q")
 T = hcat(columns...)
@@ -49,7 +54,7 @@ Aast  = T[ :,Aas];           # área de cortante (para viga de Timoshenko)
 fz    = T[:,8:9];        # relación de las cargas distribuidas
 fz = coalesce.(fz, 0.0)      # reemplazo los missing con ceros
 
-#%%Relación de los apoyos
+##Relación de los apoyos
 
 columns, labels = XLSX.readtable(filename, "restric")
 T = hcat(columns...)
@@ -59,7 +64,7 @@ dirdesp = T[:,direccion];
 ac      = T[:,desplazamiento]; # desplazamientos conocidos
 ac      = ac.*0.0
 
-# %%Grados de libertad del desplazamiento conocidos y desconocidos
+## Grados de libertad del desplazamiento conocidos y desconocidos
 n_apoyos = length(idxNODO);  
 c = zeros(n_apoyos, 1);        # GDL conocidos    
 
@@ -71,7 +76,7 @@ c = round.(Int, c)             # se convierte en Int64
 c = vec(c)                     # ahora de matrix a vector
 d =  setdiff(1:ngdl,c);        # GDL desconocidos
 
-# %%Relación de cargas puntuales
+## Relación de cargas puntuales
 columns, labels = XLSX.readtable(filename, "carga_punt")
 T       = hcat(columns...)
 
@@ -80,7 +85,7 @@ dirfp   = T[:,direccion];
 fp      = T[:,fuerza_pun];; # desplazamientos conocidos
 
 
-# %%Se colocan las fuerzas/momentos nodales en el vector de fuerzas nodales
+## Se colocan las fuerzas/momentos nodales en el vector de fuerzas nodales
 # equivalentes global "f"
 f_ini = zeros(ngdl,1);   # vector de fuerzas nodales equivalentes global
 
@@ -108,9 +113,9 @@ end
 
 # %%VIGA DE EULER-BERNOULLI:
 # Con el programa "func_forma_euler_bernoulli.m" se calcularon:
-#   Ke     = la matriz de rigidez de flexion del elemento e
+#   Ke     = la matriz de rigidez de flexión del elemento e
 #   fe     = el vector de fuerzas nodales equivalentes
-#   Bb     = la matriz de deformaciones de flexion
+#   Bb     = la matriz de deformaciones de flexión
 #   N      = matriz de funciones de forma
 #   dN_dxi = derivada de la matriz de funciones de forma con respecto a xi
 
@@ -134,7 +139,7 @@ for e = 1:nef  # Ciclo sobre todos los elementos finitos
     local    Le = L[e]
 
     # Matriz de rigidez de flexión del elemento e
-    Ke = (E[e]*I[e]/Le^3) *[  12    6*Le   -12    6*Le    
+    local Ke = (E[e]*I[e]/Le^3) *[  12    6*Le   -12    6*Le    
                               6*Le  4*Le^2 -6*Le  2*Le^2 
                              -12   -6*Le    12   -6*Le    
                               6*Le  2*Le^2 -6*Le  4*Le^2 ]
@@ -152,8 +157,8 @@ for e = 1:nef  # Ciclo sobre todos los elementos finitos
 
 end
 
-# %%Se resuelve el sistema de ecuaciones
-#%% extraigo las submatrices y especificó las cantidades conocidas
+## Se resuelve el sistema de ecuaciones
+## extraigo las submatrices y especificó las cantidades conocidas
 # f = vector de fuerzas nodales equivalentes
 # q = vector de fuerzas nodales de equilibrio del elemento
 # a = desplazamientos
@@ -250,10 +255,7 @@ for e = 1:nef        # ciclo sobre todas los elementos finitos
    tt[e] = (atan.((dN_dxi*2/Le)*ae));
 end
 
-
-
-
-# %%Imprimo los resultados
+ ## Imprimo los resultados
 println("Desplazamientos nodales")
 println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
@@ -290,68 +292,48 @@ for i = 1:nno
 
 end
 
-#%% Gráfico la solución analítica y la solución por el MEF
-# %%1) grafico los desplazamientos de la viga
-
-figure(1)                       # Lienzo nuevo
-subplot(211)  
-
-grid("on")                      # retícula
-xlabel("Eje x [m]")             # Título del eje X
-ylabel("Desplazamientos [m]")   # Título del eje Y
-tight_layout()
-title("Solución con el MEF para el desplazamiento ")
+## ctrl + D --> ENTER en consola, para evitar conflictos en paquetes de graficación. 
+## Implementando PLOTLYJS.jl, me falta dar nombres a los ejes y escala científica eje y; 
+## NOTA: aún no encuentro la forma de llevar lo anterior a cabo, el paquete PlotlyJS.jl tiene pocos ejemplos en la web.
+## el paquete PyPlot.jl funciona bien, el ejemplo "C4_ejemplo_TE.jl" es muestra de ello.
 
 
-for e = 1:nef # ciclo sobre todos los elementos finitos
-    defor = plot(xx[e], ww[e], color = :blue,
-    label = nothing);           # gráfico solución por MEF
-end
+p1 = make_subplots(
+   x_title="EJE X (m)",
+   rows=2, cols=1,
+   subplot_titles=["Solución con el MEF para el desplazamiento" "Solución con el MEF para el giro"]
+)
 
-#%% 2) Gráfico de los ángulos de giro
-subplot(212)
-grid("on")
-tight_layout()
-title("Solución con el MEF para el giro ", fontsize = 12)
-ylabel("Giro (rad)")             # Título del eje Y
-xlabel("Eje x [m]")              # Título del eje X
+for e = 1:nef
+  add_trace!(p1, scatter(x=xx[e], y=ww[e],mode="lines", marker_color = "blue",yaxis =:log10,
+  ), row=1, col=1)
 
-for e = 1:nef # ciclo sobre todos los elementos finitos
-   giro =  plot(xx[e], tt[e], color = :blue,
-   label = nothing);             # grafico solución por MEF
-end
-
-#%% 3) gráfico los momentos
-figure(2)                        # cree un nuevo lienzo
-subplot(211)
-
-grid("on")                       # retícula
-xlabel("Eje x [m]")              # Título del eje X
-ylabel("Momento flector (kN-m)") # Título del eje Y
-tight_layout()
-title("Solución con el MEF para el momento flector")
-plot(xmom[:], mom[:], color = :blue )
-
-
-#%% 4) Gráfico de la fuerza cortante
-subplot(212)
-
-grid("on")
-xlabel("Eje x [m]")             # Título del eje X
-ylabel("Fuerza cortante (kN)")  # Título del eje Y
-tight_layout()
-title("Solución con el MEF para la fuerza cortante")
-
-for e = 1:nef # ciclo sobre todos los elementos finitos
-   plot([xnod[LaG[e,1]]; xnod[LaG[e,2]]],[cor[e]; cor[e]],
-         color = :blue) #gráfico solución por MEF
+  add_trace!(p1, scatter(x=xx[e], y=tt[e],mode="lines", marker_color = "blue", yaxis =:log10,
+  ), row=2, col=1)
 
 end
+relayout!(p1, showlegend=false)
+p1
 
 
-display(figure(1))
-display(figure(2))
+p2 = make_subplots(
+   x_title="EJE X (m)",
+   rows=2, cols=1,
+   subplot_titles=["Solución con el MEF para el momento flector" "Solución con el MEF para la fuerza cortante"]
+)
 
-gcf()
+add_trace!(p2, scatter(x =xmom[:], y =mom[:],mode="lines", marker_color = "blue",
+), row=1, col=1,)
 
-#%%Fin #falta agregar comparación por MAXIMA.
+for e =1:nef
+   add_trace!(p2, scatter(x =[xnod[LaG[e,1]]; xnod[LaG[e,2]]], y=[cor[e]; cor[e]],mode="lines", yaxis =:log10, marker_color = "blue",
+   ), row=2, col=1)
+end
+
+layout = Layout(xaxis_title="EJE Y", yaxis_title="EJE X")
+
+relayout!(p2, showlegend=false)
+p2
+
+display(p1)
+display(p2)
