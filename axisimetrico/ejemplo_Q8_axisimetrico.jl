@@ -15,7 +15,7 @@ deformaciones y los esfuerzos de la estructura mostrada en la figura adjunta=#
 # pip install matplotlib (https://matplotlib.org/stable/)
 
 import XLSX
-using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall
+using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall, WriteVTK
 
 ENV["MPLBACKEND"]="qt5agg"
 include("gausslegendre_quad.jl")
@@ -564,3 +564,34 @@ XLSX.openxlsx("resultados_ejemplo_Q8_axisimetrico.xlsx", mode="w") do xf
       sheet["D2", dim=1] = tmax; sheet["E2", dim=1] = sv; #sheet["E2", dim=1] = n1;
    end
 println("Se han guardado los resultados en: resultados_ejemplo_Q8_axisimetrico.xlsx ")
+
+#Consulte la documentación:
+#https://jipolanco.github.io/WriteVTK.jl/dev/grids/unstructured/#Unstructured-grid
+
+## se reportan resultados .vtu, para visualizar en  paraview
+
+cells   = Vector{MeshCell{VTKCellType, Vector{Int64}}}(undef,nef) 
+for e = 1:nef
+
+ ## Nota,de acuerdo al manual de Paraview el EF de 8 nodos se denomina VTK_QUADRATIC_QUAD (=23)
+ ## Sin embargo al implementarlo en JULIA no es posible llevarlo a cabo, por esto en connectivity,
+ ## He tomado los vertices del EF así como se muestra a continuación.
+ global cells[e] = MeshCell(VTKCellTypes.VTK_QUAD,  vec(LaG[e,[1 3 5 7]]) )
+ 
+end
+
+vtkfile = vtk_grid("Q8_element", xnod[:,X].*1.0,xnod[:,Y].*1.0, cells) 
+
+vtkfile["uv"]  = a 
+
+vtkfile["s_r"] = sr;     vtkfile["er"] = er; 
+vtkfile["s_z"] = sz;     vtkfile["ez"] = ez;
+vtkfile["t_rz"]  = trz;  vtkfile["grz"] = grz;
+
+vtkfile["s1"] = s1
+vtkfile["s2"] = s2
+vtkfile["sv"] = sv
+
+outfiles = vtk_save(vtkfile)
+
+println("Se han reportado los datos en formato .vtu para ser visualizados en ParaView")
