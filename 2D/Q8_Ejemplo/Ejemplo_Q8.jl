@@ -27,33 +27,7 @@ close("all")  # close all de MATLAB (función de PyPlot)
 # deformaciones y los esfuerzos dela estructura en tensión PLANA mostrada
 # en la figura adjunta
 
-
-function gausslegendre_quad(m)
-   # Integration using a Gauss-Legendre quadrature
-
-   ## Calculation of the Legendre polynomials using Bonnet's recursion:
-   #           P_n(x) = ((2n-1) x P_{n-1}(x) - (n-1) P_{n-2}(x))/n
-
-   # Remember that  JULIA does not make 0-based indexing of arrays
-
-   P = Vector{Polynomial{Float64}}(undef, m+1)
-   P[0 + 1] =     Polynomial([1.0])       # P_{0}(x) = 1
-   P[1 + 1] = x = Polynomial([0.0, 1.0])  # P_{1}(x) = x
-
-   for n = 2:(m-1 + 1)
-      P[n + 1] = ((2*n - 1)*x*P[n-1 + 1] - (n-1)*P[n-2 + 1])/n
-   end
-
-    ## Roots
-    xi = sort(roots(Polynomial(P[m+1])));
-
-    ## Weights
-    s = derivative(Polynomial(P[m+1]));
-
-    w = 2.0 ./ ((1 .- xi.^2).*(s.(xi)).^2);
-
-   return xi, w
-end
+include("gausslegendre_quad.jl")
 
 function t2ft_R89(xnod, lado, carga, espesor)
     # Esta función convierte las fuerzas superficiales aplicadas a un elemento
@@ -142,7 +116,7 @@ rhoe = 7850.0        # densidad (kg/m^3)
 g    = 9.81          # aceleración de la gravedad (m/s^2)
 be = [0; -rhoe*g]    # vector de fuerzas masicas del elemento
 
-MALLA = 1   # MALLA=1 grafico, MALLA=2 la generada con ANSYS
+MALLA = 3   # MALLA=1 gráfico, MALLA=2 la generada con ANSYS
 
 ## cargar
 # xnod - posición de los nodos
@@ -662,10 +636,30 @@ title("Esfuerzos de von Mises (Pa)")
 #Consulte la documentación:
 #https://jipolanco.github.io/WriteVTK.jl/dev/grids/unstructured/#Unstructured-grid
 
-cells = MeshCell(VTKCellTypes.VTK_QUAD[23],     [0,2,4,6,1,3,5,7])
-vtkfile = vtk_grid("my_vtk_file", xnod[:, X], xnod[:, Y], cells) 
-vtkfile["sigma_x"] = sx
-vtkfile["sigma_y"] = sy
-vtkfile["tau_xy"]  = txy
+## se reportan resultados .vtu, para visualizar en  paraview
+
+cells   = Vector{MeshCell{VTKCellType, Vector{Int64}}}(undef,nef) 
+for e = 1:nef
+
+ ## Nota,de acuerdo al manual de Paraview el EF de 8 nodos se denomina VTK_QUADRATIC_QUAD (=23)
+ ## Sin embargo al implementarlo en JULIA no es posible llevarlo a cabo, por esto en connectivity,
+ ## He tomado los vertices del EF así como se muestra a continuación.
+ global cells[e] = MeshCell(VTKCellTypes.VTK_QUAD,  vec(LaG[e,[1 3 5 7]]) )
+ 
+end
+
+vtkfile = vtk_grid("Q8_element", xnod[:,X],xnod[:,Y], cells) 
+
+vtkfile["uv"]  = a 
+
+vtkfile["s_x"] = sx;    vtkfile["s1"] = s1;      vtkfile["ex"] = ex; vtkfile["gxy"] = gxy;
+vtkfile["s_y"] = sy;    vtkfile["s2"] = s2;      vtkfile["ey"] = ey;
+vtkfile["t_xy"]  = txy; vtkfile["Tmax"] = tmax;  vtkfile["ez"] = ez;
+
+vtkfile["sv"] = sv
+vtkfile["n1"] = [cos.(ang)           sin.(ang)                    ]
+vtkfile["n2"] = [cos.(ang .+ pi/2)           sin.(ang .+ pi/2)    ]
+
 outfiles = vtk_save(vtkfile)
-LaG[:,1:8] 
+
+println("Se han reportado los datos en formato .vtu para ser visualizados en ParaView")
