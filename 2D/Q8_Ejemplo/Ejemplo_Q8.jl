@@ -10,7 +10,7 @@
 
 #Cargamos paquetes:
 
-using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall
+using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall, WriteVTK
 
 #Instale matplotlib de Python
 ENV["MPLBACKEND"]="qt5agg"
@@ -142,7 +142,7 @@ rhoe = 7850.0        # densidad (kg/m^3)
 g    = 9.81          # aceleración de la gravedad (m/s^2)
 be = [0; -rhoe*g]    # vector de fuerzas masicas del elemento
 
-MALLA = 3           # MALLA=1 grafico, MALLA=2 la generada con ANSYS
+MALLA = 1   # MALLA=1 grafico, MALLA=2 la generada con ANSYS
 
 ## cargar
 # xnod - posición de los nodos
@@ -658,3 +658,14 @@ sv = sqrt.(((s1-s2).^2 + (s2-s3).^2 + (s1-s3).^2)/2)
 #println([(1:nno)'  sv]);
 plot_def_esf_ang(xnod, sv, [], L"\sigma_v(x,y) [Pa]")
 title("Esfuerzos de von Mises (Pa)")
+
+#Consulte la documentación:
+#https://jipolanco.github.io/WriteVTK.jl/dev/grids/unstructured/#Unstructured-grid
+
+cells = MeshCell(VTKCellTypes.VTK_QUAD[23],     [0,2,4,6,1,3,5,7])
+vtkfile = vtk_grid("my_vtk_file", xnod[:, X], xnod[:, Y], cells) 
+vtkfile["sigma_x"] = sx
+vtkfile["sigma_y"] = sy
+vtkfile["tau_xy"]  = txy
+outfiles = vtk_save(vtkfile)
+LaG[:,1:8] 

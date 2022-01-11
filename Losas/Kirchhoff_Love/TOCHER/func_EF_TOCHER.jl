@@ -28,20 +28,7 @@ function plot_mom_Q_ang(xnod, mom_Q, ang_mf1, ang_mf2, ang_mt, lab)
       triangles[e] = LaG[e, [NL1, NL2, NL3]] .- 1
 
     end
- 
-        # Para propósitos de graficación con tripcolor, el EF MZC se divide en 2 triángulos así: 
 
-    #                             4--------3
-    #                             |\       |
-    #                             | \ EFT2 |
-    #                             |  \     |
-    #                             |   \    |
-    #                             |    \   |
-    #                             |     \  |
-    #                             | EFT1 \ |
-    #                             |       \|
-    #                             1--------2
-       
        fig, ax = subplots()
 
        for e = 1:length(mom_Q)

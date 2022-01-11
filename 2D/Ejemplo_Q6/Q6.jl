@@ -22,7 +22,7 @@ deformaciones y los esfuerzos de la estructura mostrada en la figura adjunta=#
 # pip install matplotlib (https://matplotlib.org/stable/)
 
 import XLSX
-using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall
+using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall, WriteVTK
 
 ENV["MPLBACKEND"]="qt5agg"
 include("gausslegendre_quad.jl")
@@ -512,4 +512,39 @@ XLSX.openxlsx("resultados_Q6.xlsx", mode="w") do xf
  end
 
 
+## se reportan resultados .vtu, para visualizar en  paraview
 
+#Consulte la documentación:
+#https://jipolanco.github.io/WriteVTK.jl/dev/grids/unstructured/#Unstructured-grid
+
+cells   = Vector{MeshCell{VTKCellType, Vector{Int64}}}(undef,nef) 
+for e = 1:nef
+ global cells[e] = MeshCell(VTKCellTypes.VTK_QUAD,  LaG[e,:] )
+end
+
+vtkfile = vtk_grid("Q6_element", xnod[:,1].*1.0,xnod[:,2].*1.0, cells) 
+
+vtkfile["uv"]  = a 
+
+vtkfile["sigma_x"] = sx
+vtkfile["sigma_y"] = sy
+vtkfile["tau_xy"]  = txy
+
+vtkfile["ex"] = ex
+vtkfile["ey"] = ey
+vtkfile["gxy"]  = gxy
+vtkfile["ez"]  = ez
+
+LaG[:,[1,2,3,4]]
+
+vtkfile["s1"] = s1
+vtkfile["s2"] = s2
+vtkfile["tmax"]  = tmax
+
+vtkfile["sv"] = sv
+
+
+vtkfile["n1"] = [cos.(ang)           sin.(ang)                    ]
+vtkfile["n2"] = [cos.(ang .+ pi/2)           sin.(ang .+ pi/2)    ]
+
+outfiles = vtk_save(vtkfile)

@@ -11,7 +11,7 @@
 
 #=
 -------------------------------------------------------------------------------
-NOTA: este código SOLO es apropiado para TENSION PLANA usando elementos
+NOTA: este código SOLO es apropiado para TENSIÓN PLANA usando elementos
       triangulares de 3 nodos
 -------------------------------------------------------------------------------
 DEFINICIÓN DEL PROBLEMA:
@@ -19,19 +19,15 @@ Calcule los desplazamientos y las reacciones en los empotramiento, las
 deformaciones y los esfuerzos de la estructura mostrada en la figura adjunta=#
 
 import XLSX
-using Polynomials
-using PyPlot
-using LinearAlgebra
-using Statistics
-using SparseArrays
-using PyCall 
+using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall, WriteVTK
 
 include("t2ft_T3.jl") #Para las fuerzas superficiales y dibujar los
                       #diferentes gráficos.
 
-
 close("all")          #cerrar ventanas
-
+#Instale matplotlib de Python
+ENV["MPLBACKEND"]="qt5agg"
+pygui(true)
 
 # %%Defino las constantes y variables, para hacer el código mas legible
 X   = EF  = nodo      =  elemento = material = 1
@@ -49,20 +45,20 @@ filename = "malla_refinada_v1.xlsx"
 columns, labels = XLSX.readtable(filename, "xnod")
 
 
-# %% posición de los nodos:
-# %%Se lee la posición de los nodos
+##posición de los nodos:
+##Se lee la posición de los nodos
 T    = hcat(columns...)  
 
 # xnod: fila=número del nodo, columna=coordenada X_=1 o Y_=2
 xnod = T[:,x_:y_]   
 nno  = length(xnod[:,1])
 
-# %% definición de los grados de libertad
+## definición de los grados de libertad
 ngdl = 2*nno  
 gdl  = [ [1:2:ngdl]' [2:2:ngdl]' ];    # grados de libertad (dos por nodo)
 gdl  = reshape(hcat(gdl...)',nno,2)
 
-# %% definición de elementos finitos con respecto a nodos
+## definición de elementos finitos con respecto a nodos
 # LaG: fila=número del elemento, columna=número del nodo local
 columns, labels = XLSX.readtable(filename, "LaG_mat")
 T = hcat(columns...)
@@ -70,7 +66,7 @@ T = hcat(columns...)
 LaG   = T[:,NL1:NL3]        # Definición de EFs respecto a nodos
 nef   = size(LaG,1)
 
-# %% definición de los materiales
+## definición de los materiales
 mat   = T[:,5]
 columns, labels = XLSX.readtable(filename, "prop_mat")
 T  = hcat(columns...)
@@ -81,7 +77,7 @@ rhoe = T[:, rho]     # [kg/m³]  densidad
 te   = T[:, espesor] # [m]      espesor
 nmat = size(Ee,1)    # número de materiales
 
-# %% Relación de cargas puntuales
+## Relación de cargas puntuales
 
 columns, labels = XLSX.readtable(filename, "carga_punt")
 T  = hcat(columns...)
@@ -97,7 +93,7 @@ for i = 1:length(idxNODO)
    f[gdl[idxNODO[i], dirfp[i]]] = fp[i]
 end
 
-# %% Se dibuja la malla de elementos finitos
+## Se dibuja la malla de elementos finitos
 NL1, NL2, NL3 = 1, 2, 3  # Definición de los EF triangulares por ndo
 
 figure(1)
@@ -122,12 +118,12 @@ plot(xnod[:,X], xnod[:,Y], "b.")
 axis("equal") 
 title("Malla de elementos finitos")
 
-# %% ensamblo la matriz de rigidez global y el vector de fuerzas nodales
+## ensamblo la matriz de rigidez global y el vector de fuerzas nodales
 # equivalentes global
 
 K   = spzeros(ngdl,ngdl)    # matriz de rigidez global como RALA (sparse)
 N   = Array{Any}(undef,nef) # contenedor para las matrices de forma
-B   = Array{Any}(undef,nef) # contenedor para las matrices de deformacion
+B   = Array{Any}(undef,nef) # contenedor para las matrices de deformación
 idx = Array{Array{Int64}}(undef, nef,1) 
 #De  = Array{Array{Int64}}(undef, nef,1) 
 
@@ -165,7 +161,7 @@ for e = 1:nef      # ciclo sobre todos los elementos finitos
     #% Calculo de la matriz de rigidez del EF e
     Ke = te[mat[e]].*B[e]'*De*B[e].*Ae;
 
-    #% Calculo del vector de f.n.e. de fuerzas masicas del EF e (peso propio)
+    #% Calculo del vector de f.n.e. de fuerzas másicas del EF e (peso propio)
     fbe = -rhoe[mat[e]].*g*Ae*te[mat[e]]*[0; 1; 0; 1; 0; 1]/3;
 
     #% Ensamblo las contribuciones a las matrices globales
@@ -175,26 +171,24 @@ for e = 1:nef      # ciclo sobre todos los elementos finitos
 
 end
 
-# %% Muestro la configuración de la matriz K (K es rala)
+## Muestro la configuración de la matriz K (K es rala)
 figure(2)
 spy(K)
 title("Los puntos representan los elementos diferentes de cero")
 
-# %% # Calculo del vector de f.n.e. fte del EF e para fuerzas superficiales
+## Calculo del vector de f.n.e. fte del EF e para fuerzas superficiales
 columns, labels = XLSX.readtable(filename, "carga_distr")
 T    = hcat(columns...)
 
 idxNODO = T[:,nodo]
-#nlcd = size(Ee,1)
-
 el    = T[:,elemento];
-lados = T[:, 2];      # número de lados con carga distribuída
+lados = T[:, 2];      # número de lados con carga distribuida
 tix   = T[:, tix];    # componentes de carga en las diferentes
 tiy   = T[:, tiy];    # direcciones: tix, tiy, tjx, tjy
 tjx   = T[:, tjx];
 tjy   = T[:, tjy];
 
-for i = 1:2
+for i = 1:length(T[:,1])
 
    local carga, lado, e
    e     = el[i,1]
@@ -381,13 +375,38 @@ XLSX.openxlsx("resultados_T3.xlsx", mode="w") do xf
 
 end
 
-# se muestran los gráficos.
-for i = 1:14
+## se reportan resultados .vtu, para visualizar en  paraview
 
-   display(figure(i))
+#Consulte la documentación:
+#https://jipolanco.github.io/WriteVTK.jl/dev/grids/unstructured/#Unstructured-grid
 
+cells   = Vector{MeshCell{VTKCellType, Vector{Int64}}}(undef,nef) 
+for e = 1:nef
+ global cells[e] = MeshCell(VTKCellTypes.VTK_TRIANGLE,  LaG[e,:] )
 end
 
-gcf()
+vtkfile = vtk_grid("VIGA_CON_T3", xnod[:,1].*1.0,xnod[:,2].*1.0, cells) 
 
-#%% Fin 
+vtkfile["uv"]  = a 
+
+vtkfile["sigma_x"] = sx
+vtkfile["sigma_y"] = sy
+vtkfile["tau_xy"]  = txy
+
+vtkfile["ex"] = ex
+vtkfile["ey"] = ey
+vtkfile["gxy"]  = gxy
+vtkfile["ez"]  = ez
+
+
+vtkfile["s1"] = s1
+vtkfile["s2"] = s2
+vtkfile["tmax"]  = tmax
+
+vtkfile["sv"] = sv
+
+
+vtkfile["n1"] = [cos.(ang)           sin.(ang)           zeros(nef)]
+vtkfile["n2"] = [cos.(ang .+ pi/2)           sin.(ang .+ pi/2)           zeros(nef)]
+
+outfiles = vtk_save(vtkfile)
