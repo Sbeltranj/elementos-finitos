@@ -4,7 +4,7 @@
 import Pkg
 
 packages = ["Plots", "Polynomials", "PyPlot", "LinearAlgebra", "Statistics", "SparseArrays", "PyCall",
-             "XLSX", "BoundaryValueDiffEq", "PlotlyJS", "MappedArrays" ]
+             "XLSX", "BoundaryValueDiffEq", "PlotlyJS", "MappedArrays", "WriteVTK" ]
 
 for e = 1:length(packages)
  Pkg.add(packages[e])

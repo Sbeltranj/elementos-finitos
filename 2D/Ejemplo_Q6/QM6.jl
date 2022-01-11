@@ -551,8 +551,6 @@ vtkfile["ey"] = ey
 vtkfile["gxy"]  = gxy
 vtkfile["ez"]  = ez
 
-LaG[:,[1,2,3,4]]
-
 vtkfile["s1"] = s1
 vtkfile["s2"] = s2
 vtkfile["tmax"]  = tmax

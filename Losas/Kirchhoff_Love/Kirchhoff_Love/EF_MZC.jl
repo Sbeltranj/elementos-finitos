@@ -11,7 +11,7 @@
 
 ## cargamos paquetes:
 import XLSX
-using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall
+using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall, WriteVTK
 
 include("func_EF_MZC.jl")  #para los gráficos
 close("all")          #cerrar ventanas
@@ -439,3 +439,21 @@ println("Es decir son extremadamente pequeños !!")
 println()
 println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 println("Se reportaron los resultados en: resultados_LOSA_EF_MZC.xlsx ")
+
+## se reportan resultados .vtu, para visualizar en  paraview
+
+#Consulte la documentación:
+#https://jipolanco.github.io/WriteVTK.jl/dev/grids/unstructured/#Unstructured-grid
+
+cells   = Vector{MeshCell{VTKCellType, Vector{Int64}}}(undef,nef) 
+for e = 1:nef
+ global cells[e] = MeshCell(VTKCellTypes.VTK_QUAD,  LaG[e,:] )
+end
+
+vtkfile = vtk_grid("MZC_EF", xnod[:,1].*1.0,xnod[:,2].*1.0, cells) 
+ 
+vtkfile["M_x"] = Mx;    vtkfile["Q_x"] = Qx;      vtkfile["Mxast_sup"] = wood[:,1].*1.0; vtkfile["Myast_inf"] = wood[:,4].*1.0;
+vtkfile["M_y"] = My;    vtkfile["Q_y"] = Qx;      vtkfile["Myast_sup"] = wood[:,2].*1.0;
+vtkfile["M_xy"]  = Mxy; vtkfile["Q_max"] = Q_max; vtkfile["Mxast_inf"] = wood[:,3].*1.0;
+
+outfiles = vtk_save(vtkfile)
