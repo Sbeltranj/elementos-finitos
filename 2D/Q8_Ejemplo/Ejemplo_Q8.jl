@@ -324,7 +324,7 @@ for e = 1:nef  # ciclo sobre todos los elementos finitos
             # Se ensambla la matriz de deformacion del elemento B
             dNi_dx = (+dy_deta*ddN_dxi[i] - dy_dxi*ddN_deta[i])/det_Je[p,q]
             dNi_dy = (-dx_deta*ddN_dxi[i] + dx_dxi*ddN_deta[i])/det_Je[p,q]
-            B[e,p,q][:,[2*i-1 2*i]] = [ dNi_dx 0          # aqui se ensambla
+            B[e,p,q][:,[2*i-1 2*i]] = [ dNi_dx 0          # aquí se ensambla
                                         0      dNi_dy     # y asigna la matriz
                                         dNi_dy dNi_dx ]   # B_i
          end
