@@ -11,6 +11,7 @@ NL20 = 21
 g = 9.81 #m/s2 
 
 #Nombre archivo EXCEL
+#nombre_archivo = "malla_H20_conexion.xlsx"
 nombre_archivo = "malla_H20_viga.xlsx"
 
 #se carga el libro.xlsx, con el nombre de la hoja "xnod"
@@ -50,8 +51,8 @@ columns, labels = XLSX.readtable(nombre_archivo, "prop_mat")
 T       = hcat(columns...)
 
 E          = T[:,2]   # módulo de elasticidad E
-nu         = T[1,3]  # coeficiente de Poisson
-rhoe       = T[1,4]  # densidad del material
+nu         = T[:,3]  # coeficiente de Poisson
+rhoe       = T[:,4]  # densidad del material
 nmat       = length(E)
 ## Relación de cargas puntuales
 
@@ -387,7 +388,8 @@ cells = [MeshCell(VTKCellTypes.VTK_HEXAHEDRON, vec(LaG[e,[1 3 5 7 13 15 17 19] ]
 
 vtkfile = vtk_grid("H20_element", xnod[:,X],xnod[:,Y], xnod[:,Z], cells) 
 
-vtkfile["s_x"] = sx;    vtkfile["txy"] = txy;      vtkfile["ex"] = ex; vtkfile["uvw"] = a
-vtkfile["s_y"] = sy;    vtkfile["txz"] = txz;      vtkfile["ey"] = ey
-vtkfile["s_z"]  =sz;    vtkfile["tyz"] = tyz;      vtkfile["ez"] = ez
+vtkfile["s_x"] = sx;    vtkfile["txy"] = txy;      vtkfile["ex"] = ex; vtkfile["uvw"] = a  ; vtkfile["gxz"] = gxz
+vtkfile["s_y"] = sy;    vtkfile["txz"] = txz;      vtkfile["ey"] = ey; vtkfile["sv"]  = sv ; vtkfile["gyz"] = gyz
+vtkfile["s_z"]  =sz;    vtkfile["tyz"] = tyz;      vtkfile["ez"] = ez; vtkfile["gxy"] = gxy; vtkfile["Tmax"] = tmax
 outfiles = vtk_save(vtkfile)
+println("Se han reportado los resultados en formato.vtu para ser visualizados en ParaView")
