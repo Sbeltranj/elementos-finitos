@@ -643,8 +643,9 @@ for e = 1:nef
 
  ## Nota,de acuerdo al manual de Paraview el EF de 8 nodos se denomina VTK_QUADRATIC_QUAD (=23)
  ## Sin embargo al implementarlo en JULIA no es posible llevarlo a cabo, por esto en connectivity,
- ## He tomado los vertices del EF así como se muestra a continuación.
- global cells[e] = MeshCell(VTKCellTypes.VTK_QUAD,  vec(LaG[e,[1 3 5 7]]) )
+ ## He tomado los vertices del EF así como se muestra a continuación. ##Con HexaHedron parece funcionar...
+ 
+ global cells[e] = MeshCell(VTKCellTypes.VTK_HEXAHEDRON,  vec(LaG[e,[1 3 5 7 8 2 4 6]]) )
  
 end
 

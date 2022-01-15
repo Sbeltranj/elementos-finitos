@@ -509,7 +509,7 @@ XLSX.openxlsx("resultados_Q6.xlsx", mode="w") do xf
     sheet["A1"] = ["Nodo ", "s1[Pa]", "s2[Pa]", "tmax[Pa]", "sv[Pa]","theta[rad]"]
     sheet["A2", dim=1] = collect(1:nno); sheet["B2", dim=1] = s1; sheet["C2", dim=1] = s2 
     sheet["D2", dim=1] = tmax; sheet["E2", dim=1] = sv; sheet["E2", dim=1] = ang;
- end
+end
 
 
 ## se reportan resultados .vtu, para visualizar en  paraview

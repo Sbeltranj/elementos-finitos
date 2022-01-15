@@ -1,6 +1,19 @@
+# Programa original elaborado por:
+# Diego Andrés Alvarez Marín
+# daalvarez@unal.edu.co
+# https://github.com/diegoandresalvarez/elementosfinitos/blob/master/codigo/3D/ejemplo_H20/python/ejemplo_H20.py
+
+# Traduciendo a JULIA 1.7.1 por:
+# Santiago Beltrán Jaramillo
+# sbeltran@unal.edu.co
+
+## cargamos paquetes:
 using LinearAlgebra, Statistics, SparseArrays,  WriteVTK
 import XLSX
 
+## -----------------------------------------------------------------------------
+## NOTA: este código SOLO es apropiado para EFs hexaédricos de 20 nodos (H20)
+## -----------------------------------------------------------------------------
 
 #Algunas variables, para facilitar lectura del código
 X = nodo = 1
@@ -383,7 +396,54 @@ tmax = (s1-s3)/2                               # esfuerzo cortante máximo
 ## Calculo de los esfuerzos de von Mises
 sv   = sqrt.(((s1-s2).^2 + (s2-s3).^2 + (s1-s3).^2)/2) 
 
-## Export results ParaView EF_H20
+
+## Reportamos los resultados a un libro EXCEL.
+
+XLSX.openxlsx("resultados_H20.xlsx", mode="w") do xf
+    sheet = xf[1]
+    XLSX.rename!(sheet, "Desplazamientos")
+    sheet["A1"] = ["Nodo ", "u [m]", "v [m]", "w [m]", "qx [N]", "qy [N]", "qz [N]"]
+ 
+    #Desplazamientos:
+    a_ = reshape(a, 3, nno)'
+    sheet["A2", dim=1] = collect(1:nno); sheet["B2", dim=1] = a_[:,1]; sheet["C2", dim=1] = a_[:,2] 
+    #Fuerzas 
+    sheet["D2", dim=1] = a_[:,3] 
+
+    # reacciones
+    q_ = reshape(q, 3, nno)'
+    sheet["E2", dim=1] = q_[:,1]; sheet["F2", dim=1] = q_[:,2] ; sheet["G2", dim=1] = q_[:,3] 
+    
+    XLSX.addsheet!(xf, "Esfuerzos")
+    sheet = xf[2]     # EDIT: this works if there was only 1 sheet before. 
+                      # If there were already 2 or more sheets: see comments below.
+ 
+    sheet["A1"] = ["Nodo ", "sx [Pa]", "sy [Pa]","sz [Pa]", "txy [Pa]" , "txz [Pa]", "tyz [Pa]"]
+    sheet["A2", dim=1] = collect(1:nno); sheet["B2", dim=1] = sx; sheet["C2", dim=1] = sy ; sheet["D2", dim=1] = sz
+    sheet["E2", dim=1] = txy ; sheet["F2", dim=1] = txz ; sheet["G2", dim=1] = tyz
+   
+ 
+    XLSX.addsheet!(xf, "Deformaciones_ex_ey_gxy")
+    sheet = xf[3]     # EDIT: this works if there was only 1 sheet before. 
+                      # If there were already 2 or more sheets: see comments below.
+ 
+    sheet["A1"] = ["Nodo ", "ex ", "ey","ez", "gxy [rad]" , "gxz [rad]", "gyz [rad]"]
+    sheet["A2", dim=1] = collect(1:nno); sheet["B2", dim=1] = ex; sheet["C2", dim=1] = ey ; sheet["D2", dim=1] = ez
+    sheet["E2", dim=1] = gxy ; sheet["F2", dim=1] = gxz ; sheet["G2", dim=1] = gyz
+ 
+    XLSX.addsheet!(xf, "principales")
+    sheet = xf[4]     # EDIT: this works if there was only 1 sheet before. 
+                      # If there were already 2 or more sheets: see comments below.
+ 
+    sheet["A1"] = ["Nodo ", "s1[Pa] ", "s2[Pa]","s3[Pa]", "sv [Pa]" , "tmax [Pa]"]
+    sheet["A2", dim=1] = collect(1:nno); sheet["B2", dim=1] = s1; sheet["C2", dim=1] = s2 ; sheet["D2", dim=1] = s3
+    sheet["E2", dim=1] = sv ; sheet["F2", dim=1] = tmax
+end
+
+## Export results ParaView EF_H20, al igual que el serendipito de 8 nodos, no he podido implementar la forma
+## en el cual me tome los 20 nodos del EF, en este caso tomo los puntos de las esquinas del EF (8), por supuesto esto
+## exportará resultados incompletos a Paraview. 
+
 cells = [MeshCell(VTKCellTypes.VTK_HEXAHEDRON, vec(LaG[e,[1 3 5 7 13 15 17 19] ]) ) for e = 1:nef]
 
 vtkfile = vtk_grid("H20_element", xnod[:,X],xnod[:,Y], xnod[:,Z], cells) 
