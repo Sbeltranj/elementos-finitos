@@ -38,5 +38,5 @@ function  Bb_RM(xi, eta, xe, ye, dN_dxi, dN_deta)
                                0 -dNi_dy -dNi_dx ]; # Bb_i
     end
     
-    return Bb, det_Je, Je
+    return Bb, det_Je
 end
