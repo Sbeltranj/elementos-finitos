@@ -104,14 +104,14 @@ for e = 1:nef
 
    nod_ef = LaG[e, [NL1, NL2, NL3, NL1]]
 
-   plot(xnod[nod_ef,X], xnod[nod_ef,Y],
+   plt.plot(xnod[nod_ef,X], xnod[nod_ef,Y],
          color="k", linestyle="-")
 
     cgx[e] = (xnod[LaG[e,1],X] + xnod[LaG[e,2],X] + xnod[LaG[e,3],X])/3;
     cgy[e] = (xnod[LaG[e,1],Y] + xnod[LaG[e,2],Y] + xnod[LaG[e,3],Y])/3; 
 
    # Calculo la posición del centro de gravedad del triangulo
-   text(cgx[e], cgy[e], "$e", fontsize=5, color=[1,0,0],
+   plt.text(cgx[e], cgy[e], "$e", fontsize=5, color=[1,0,0],
          horizontalalignment = "center", verticalalignment="center")
 end
 plot(xnod[:,X], xnod[:,Y], "b.")
@@ -127,7 +127,7 @@ B   = Array{Any}(undef,nef) # contenedor para las matrices de deformación
 idx = Array{Array{Int64}}(undef, nef,1) 
 #De  = Array{Array{Int64}}(undef, nef,1) 
 
-# matriz constitutiva del elemento para TENSION PLANA
+# matriz constitutiva del elemento para TENSIÓN PLANA
 De = [ Ee/(1 .-nue.^2)       Ee.*nue/(1 .-nue.^2)  0
        Ee.*nue/(1 .-nue.^2)  Ee/(1 .-nue.^2)       0
        0                     0                     Ee/(2 .*(1 .+nue)) ];
@@ -388,24 +388,10 @@ end
 vtkfile = vtk_grid("VIGA_CON_T3", xnod[:,1].*1.0,xnod[:,2].*1.0, cells) 
 
 vtkfile["uv"]  = a 
-
-vtkfile["sigma_x"] = sx
-vtkfile["sigma_y"] = sy
-vtkfile["tau_xy"]  = txy
-
-vtkfile["ex"] = ex
-vtkfile["ey"] = ey
-vtkfile["gxy"]  = gxy
-vtkfile["ez"]  = ez
-
-
-vtkfile["s1"] = s1
-vtkfile["s2"] = s2
-vtkfile["tmax"]  = tmax
-
-vtkfile["sv"] = sv
-
-
+vtkfile["sigma_x"] = sx;  vtkfile["ex"] = ex; vtkfile["ez"]  = ez
+vtkfile["sigma_y"] = sy;  vtkfile["ey"] = ey; vtkfile["s1"] = s1
+vtkfile["tau_xy"]  = txy; vtkfile["gxy"] = gxy; vtkfile["s2"] = s2
+vtkfile["tmax"]  = tmax; vtkfile["sv"] = sv
 vtkfile["n1"] = [cos.(ang)           sin.(ang)           zeros(nef)]
 vtkfile["n2"] = [cos.(ang .+ pi/2)           sin.(ang .+ pi/2)           zeros(nef)]
 

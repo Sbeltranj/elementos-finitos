@@ -89,7 +89,7 @@ n_int_gl = 2;                 # orden de la cuadratura de Gauss-Legendre
 
 x_gl, w_gl = gausslegendre_quad(n_int_gl)
 
-# calcula las raices (xi_gl) y los pesos (w_gl) de polinomios de Legendre
+# calcula las raíces (xi_gl) y los pesos (w_gl) de polinomios de Legendre
 
 # >> [x_gl,w_gl] = gausslegendre_quad(1)
 # x_gl = 0;
@@ -126,7 +126,7 @@ for e = 1:nef      # ciclo sobre todos los elementos finitos
     fe = zeros(3,1)
 
     for m = 1:n_int_gl
-       # matriz de deformacion del elemento
+       # matriz de deformación del elemento
        local xi
        xi = x_gl[m];
        Be = (1/Je)*[xi-1/2 -2*xi xi+1/2];
@@ -175,14 +175,14 @@ xi = collect(LinRange(-1,1,nint)) # coordenadas naturales
 
 # matriz de funciones de forma
 N = [xi.*(xi.-1)/2   (1 .+xi).*(1 .-xi)   xi.*(xi.+1)/2]
-xx    = Vector{Any}(undef,nef) # interpol de posiciones (geometria) en el elemento
+xx    = Vector{Any}(undef,nef) # interpol de posiciones (geometría) en el elemento
 uu    = Vector{Any}(undef,nef) # interpol desplazamientos en el elemento
 axial = Vector{Any}(undef,nef) # fuerzas axiales en el elemento
 
 for e in 1:nef       # ciclo sobre todas los elementos finitos
 
     Je = le[e]/2      # Jacobiano del elemento ( = dx_dxi)
-    Be = (1/Je)*[xi.-1/2  -2*xi  xi.+1/2] # matriz de deformacion del elemento
+    Be = (1/Je)*[xi.-1/2  -2*xi  xi.+1/2] # matriz de deformación del elemento
  
     # vector de desplazamientos nodales del elemento a^{(e)}
     ae = [ a[LaG[e,1]]
@@ -205,9 +205,9 @@ println("Desplazamientos (m) = ", a)
 println("Fuerzas nodales equivalentes (N) = ", f)
 println("Fuerzas nodales de equilibrio (N) = ", q)
 
-## Grafico la solución análitica y la solución por el MEF
+## Grafico la solución analítica y la solución por el MEF
 ## 1) grafico los desplazamientos de la barra
-uexacto(x) = (-b*x.^2/2 + (P + b*L)*x)/(E*A) # solución análitica
+uexacto(x) = (-b*x.^2/2 + (P + b*L)*x)/(E*A) # solución analítica
 x = collect(LinRange(0,L,30))             # 30 puntos unif/ distrib. entre 0 y L
 
 
@@ -232,7 +232,7 @@ for e = 1:nef   # ciclo sobre todos los EFs
 end
 
 ## 2) grafico la carga axial de la barra
-Nexacta(x) = (P + b*(L-x))         # solución análitica para la carga axial
+Nexacta(x) = (P + b*(L-x))         # solución analítica para la carga axial
 
 fig_axial = plot()
 fig_axial = scatter(x, Nexacta, label = "Solución analítica",

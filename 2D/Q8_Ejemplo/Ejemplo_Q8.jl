@@ -114,7 +114,7 @@ nue  = 0.30          # coeficiente de Poisson
 te   = 0.01          # espesor del solido (m)
 rhoe = 7850.0        # densidad (kg/m^3)
 g    = 9.81          # aceleración de la gravedad (m/s^2)
-be = [0; -rhoe*g]    # vector de fuerzas masicas del elemento
+be = [0; -rhoe*g]    # vector de fuerzas másicas del elemento
 
 MALLA = 3   # MALLA=1 gráfico, MALLA=2 la generada con ANSYS
 
@@ -185,13 +185,13 @@ nlcd = size(carga_distr,1) # número de lados con carga distribuida
 figure(1)
 cg = zeros(nef, 2) # almacena el centro de gravedad
 for e = 1:nef
-   plot(xnod[LaG[e,[1:8; 1]],X], xnod[LaG[e,[1:8; 1]],Y],
+   plt.plot(xnod[LaG[e,[1:8; 1]],X], xnod[LaG[e,[1:8; 1]],Y],
          color="k", linestyle="-")
 
    # Calculo la posición del centro de gravedad del triangulo
    cg[e,:] = [ mean(xnod[LaG[e,[1 3 5 7]],X]) mean(xnod[LaG[e,[1 3 5 7]],Y]) ]
 
-   text(cg[e, X], cg[e, Y], "$e", fontsize=5, color=[1,0,0],
+   plt.text(cg[e, X], cg[e, Y], "$e", fontsize=5, color=[1,0,0],
          horizontalalignment="center", verticalalignment="center")
 end
 plot(xnod[:,X], xnod[:,Y], "b.")
@@ -238,15 +238,15 @@ dN_deta(xi,eta) = [
       -((xi - 1)*(2*eta - xi))/4                   # dN7_deta
       eta*(xi - 1)                             ]   # dN8_deta
 
-## párametros de la cuadratura de Gauss-Legendre
-# se asumira aqui el mismo orden de la cuadratura tanto en la dirección de
+## parámetros de la cuadratura de Gauss-Legendre
+# se asumirá aquí el mismo orden de la cuadratura tanto en la dirección de
 # xi como en la dirección de eta
 n_gl = 2    # orden de la cuadratura de Gauss-Legendre
 
 
 # El comando:
 x_gl, w_gl  = gausslegendre_quad(n_gl)
-# calcula las raices (x_gl) y los pesos (w_gl) de polinomios de Legendre
+# calcula las raíces (x_gl) y los pesos (w_gl) de polinomios de Legendre
 # >> [x_gl,w_gl] = gausslegendre_quad(1)
 # x_gl = 0;
 # w_gl = 2;
@@ -267,7 +267,7 @@ x_gl, w_gl  = gausslegendre_quad(n_gl)
 
 K = spzeros(ngdl,ngdl)        # matriz de rigidez global como RALA (sparse)
 N = Array{Any}(undef,nef,n_gl,n_gl) # contenedor para las matrices de forma
-B = Array{Any}(undef,nef,n_gl,n_gl) # contenedor para las matrices de deformacion
+B = Array{Any}(undef,nef,n_gl,n_gl) # contenedor para las matrices de deformación
 
 # matriz constitutiva del elemento para tensión PLANA
 De = [ Ee/(1-nue^2)     Ee*nue/(1-nue^2)  0
@@ -494,7 +494,7 @@ sx  =  sx./num_elem_ady;  ex  =  ex./num_elem_ady
 sy  =  sy./num_elem_ady;  ey  =  ey./num_elem_ady
 txy = txy./num_elem_ady;  gxy = gxy./num_elem_ady
 
-## Se calculan las deformacion ez en tensión plana
+## Se calculan las deformación ez en tensión plana
 ez  = -(nue/Ee)*(sx+sy)
 
 
@@ -569,7 +569,7 @@ function plot_def_esf_ang(xnod,esfdef, angulos, lab)
          norma = 1 # = esf si quiere proporcional
    
          for ang in angulos
-            quiver(xnod[:,X],xnod[:,Y],              # En el nodo grafique una línea
+            plt.quiver(xnod[:,X],xnod[:,Y],              # En el nodo grafique una línea
                    norma.*cos.(ang),norma.*sin.(ang),# indicando la dirección
                    headlength=0,
                    headwidth = 0,

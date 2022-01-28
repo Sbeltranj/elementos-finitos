@@ -37,13 +37,13 @@ n_1 = plot(err, title = "Cuadratura de Gauss Legendre",
            yaxis = "Error", xaxis = "Número de puntos en la cuadratura",
            label = nothing )
 
-# Integracion de:
+# Integración de:
 #
 f(x)   = sin(x)
 #
 # entre 0 y pi/2 usando cuadraturas de Gauss-Legendre
 
-a   = 0;                  # límites de integracion
+a   = 0;                  # límites de integración
 b   = pi/2;
 sol = 1;                  # solución exacta
 err = zeros(10,1);        # separo la memoria

@@ -431,7 +431,7 @@ ez  = vec(ez);
 ## Se calculan y grafican para cada elemento los esfuerzos principales y
 ## sus direcciones
 # NOTA: esto solo es válido para el caso de TENSIÓN PLANA).
-# En caso de DEFORMACION PLANA se deben calcular los valores y vectores
+# En caso de DEFORMACIÓN PLANA se deben calcular los valores y vectores
 # propios de la matriz de tensiónes de Cauchy
 #   [dirppales[e], esfppales[e]] =  eig([sx  txy 0    # matriz de esfuerzos
 #                                       txy sy  0     # de Cauchy

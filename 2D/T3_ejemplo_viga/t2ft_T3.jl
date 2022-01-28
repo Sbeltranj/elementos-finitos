@@ -168,7 +168,7 @@ function plot_def_esf_ang(xnod,esfdef, angulos, lab)
           norma = 1 
     
           for ang in angulos
-             quiver(cgx[:,X],cgy[:,X],                 # En el nodo grafique una línea
+             plt.quiver(cgx[:,X],cgy[:,X],                 # En el nodo grafique una línea
                     norma.*cos.(ang), norma.*sin.(ang),# indicando la dirección
                     headlength=0,
                     headwidth = 0,

@@ -110,9 +110,9 @@ println("Cargas axiales en cada elemento finito (N) =  ")
 display(faxial)
 
 
-#%% Grafico la solucion analitica y la solucion por el MEF
-#% 1) grafico los desplazamientos de la barra
-u(x) = (-b*x.^2/2 + (P + b*L)*x)/(E*A); # solucion analitica para el despl.
+#%% Gráfico la solución analítica y la solucion por el MEF
+#% 1) gráfico los desplazamientos de la barra
+u(x) = (-b*x.^2/2 + (P + b*L)*x)/(E*A); # solucion analítica para el despl.
 
 xx = LinRange(0,L,100);                 # 100 puntos equidistantes entre 0 y L
 

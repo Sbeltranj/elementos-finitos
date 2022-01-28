@@ -10,7 +10,7 @@
 
 #=
 -------------------------------------------------------------------------------
-NOTA: este código SOLO es apropiado para TENSION PLANA usando elementos
+NOTA: este código SOLO es apropiado para TENSIÓN PLANA usando elementos
       rectangulares de 4 nodos con modos incompatibles
 -------------------------------------------------------------------------------
 DEFINICIÓN DEL PROBLEMA:
@@ -184,7 +184,7 @@ for e = 1:nef
     # derivadas de la función de transformación
     xe = xnod[LaG[e,:],X]
     ye = xnod[LaG[e,:],Y]
-    # se calcula el área del cuadrilatero (del EF)
+    # se calcula el área del cuadrilátero (del EF)
     # Ver https://en.wikipedia.org/wiki/Shoelace_formula
     # Ae = 0.5*(x1y2 + x2y3 + x3y4 + x4y1 - x2y1 - x3y2 - x4y3 - x1y4)
     Ae = 0.5*(xe[1]*ye[2] + xe[2]*ye[3] + xe[3]*ye[4] + xe[4]*ye[1] - xe[2]*ye[1] - xe[3]*ye[2] - xe[4]*ye[3] - xe[1]*ye[4])
@@ -243,7 +243,7 @@ for e = 1:nef
         end
 
     end
-    # se calcula la matriz de correccion B56c    
+    # se calcula la matriz de corrección B56c    
     B56c = zeros(3,4)
     for p = 1:n_gl
         for q = 1:n_gl           
@@ -286,7 +286,7 @@ idxNODO = T[:,nodo]
 nlcd = size(idxNODO,1)
 
 el    = T[:,elemento];
-lados = T[:, 2];      # número de lados con carga distribuída
+lados = T[:, 2];      # número de lados con carga distribuida
 tix   = T[:, tix];    # componentes de carga en las diferentes
 tiy   = T[:, tiy];    # direcciones: tix, tiy, tjx, tjy
 tjx   = T[:, tjx];
@@ -448,7 +448,7 @@ ez  = vec(ez);
 ## Se calculan y grafican para cada elemento los esfuerzos principales y
 ## sus direcciones
 # NOTA: esto solo es válido para el caso de TENSIÓN PLANA).
-# En caso de DEFORMACION PLANA se deben calcular los valores y vectores
+# En caso de DEFORMACIÓN PLANA se deben calcular los valores y vectores
 # propios de la matriz de tensiónes de Cauchy
 #   [dirppales[e], esfppales[e]] =  eig([sx  txy 0    # matriz de esfuerzos
 #                                       txy sy  0     # de Cauchy

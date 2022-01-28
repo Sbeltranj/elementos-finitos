@@ -29,7 +29,7 @@ b = 1000      # N/m              # fuerza axial aplicada sobre cada EF
 P = 250       # N                # carga nodal al final de la barra
 
 
-#%% Solución de la ecuacion diferencial
+#%% Solución de la ecuación diferencial
 
 # Solución numérica usando solve_bvp (boundary value problem)
 #   d /           du(x)  \
@@ -87,7 +87,7 @@ error_en_faxial = maximum(abs.(faxial_exacta.(x) - last.(sol.u)))
 println("Maximo error en el cálculo de la fuerza axial =  $(error_en_faxial) N")
 
 
-#%% Grafico la solución analítica y la solución por el la función BVProblem
+#%% Gráfico la solución analítica y la solución por el la función BVProblem
 
 
 # 1) grafico los desplazamientos de la barra

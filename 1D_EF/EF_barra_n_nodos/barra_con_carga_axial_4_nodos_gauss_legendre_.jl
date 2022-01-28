@@ -49,7 +49,7 @@ n_int_gl = 3;                 # orden de la cuadratura de Gauss-Legendre
 
 x_gl, w_gl = gausslegendre_quad(n_int_gl)
 
-# calcula las raices (xi_gl) y los pesos (w_gl) de polinomios de Legendre
+# calcula las raíces (xi_gl) y los pesos (w_gl) de polinomios de Legendre
 
 # >> [x_gl,w_gl] = gausslegendre_quad(1)
 # x_gl = 0;
@@ -64,7 +64,7 @@ x_gl, w_gl = gausslegendre_quad(n_int_gl)
 # x_gl = [  -0.861136311594054; -0.339981043584857; 0.339981043584856; 0.861136311594053 ];
 # w_gl = [   0.347854845137453;  0.652145154862547; 0.652145154862547; 0.347854845137453 ];
 
-## Relacion de cargas puntuales
+## Relación de cargas puntuales
 f      = zeros(ngdl)  # vector de fuerzas nodales equivalentes global
 f[nno] = P            # relaciono la carga puntual en el nodo "nno"
 
@@ -101,7 +101,7 @@ for e = 1:nef      # ciclo sobre todos los elementos finitos
     fe = zeros(4,1)
 
     for m = 1:n_int_gl
-       # matriz de deformacion del elemento
+       # matriz de deformación del elemento
        local xi, Be
        xi = x_gl[m];
        Be = Bmat(Je, xi)'
@@ -146,14 +146,14 @@ a = zeros(nno);  a[c] = ac;  a[d] = ad # desplazamientos
 q = zeros(nno);  q[c] = qd             # fuerzas nodales equivalentes
 
 
-## se realizan unos calculos intermedios que necesitaremos mas adelante
+## se realizan unos cálculos intermedios que necesitaremos mas adelante
 nint = 200              # numero de puntos donde se interpolará dentro del EF
 xi = collect(LinRange(-1,1,nint)) # coordenadas naturales
 
 # matriz de funciones de forma
 N = Nforma.(xi)
 N = hcat(N...)'
-xx    = Vector{Any}(undef,nef) # interpol de posiciones (geometria) en el elemento
+xx    = Vector{Any}(undef,nef) # interpol de posiciones (geometría) en el elemento
 uu    = Vector{Any}(undef,nef) # interpol desplazamientos en el elemento
 axial = Vector{Any}(undef,nef) # fuerzas axiales en el elemento
 
@@ -162,7 +162,7 @@ for e in 1:nef       # ciclo sobre todas los elementos finitos
     local Je, Be, ae
 
     Je = le[e]/2      # Jacobiano del elemento ( = dx_dxi)
-    Be = Bmat.(Je, xi) # matriz de deformacion del elemento
+    Be = Bmat.(Je, xi) # matriz de deformación del elemento
     Be = hcat(Be...)'
     # vector de desplazamientos nodales del elemento a^{(e)}
     ae = [ a[LaG[e,1]]
@@ -187,7 +187,7 @@ println("Fuerzas nodales de equilibrio (N) = ", q)
 
 ## Grafico la solución análitica y la solución por el MEF
 ## 1) grafico los desplazamientos de la barra
-uexacto(x) = (x.*(4*L^3 .- 12*L^2 .- x.^3 + 4*x.^2 .+ 12*P))/(12*E*A) # solución análitica
+uexacto(x) = (x.*(4*L^3 .- 12*L^2 .- x.^3 + 4*x.^2 .+ 12*P))/(12*E*A) # solución analítica
 x = collect(LinRange(0,L,200))               # 200 puntos unif/ distrib. entre 0 y L
 
 
