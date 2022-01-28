@@ -1,19 +1,28 @@
-include("Malla1.jl")
-include("gauss_legendre.jl")
-include("Bb_RM.jl")
-include("Bs_RM.jl")
-include("dibujar_Q9.jl")
+# Programa original (MATLAB) elaborado por:
+# Diego Andrés Alvarez Marín
+# daalvarez@unal.edu.co
+# https://github.com/diegoandresalvarez/elementosfinitos/tree/master/codigo/losas/Mindlin/QL9_integracion_reducida
 
-import XLSX
-using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall, WriteVTK
-
-ENV["MPLBACKEND"]="qt5agg"
-pygui(true)
+# Traduciendo a JULIA 1.7.1 por:
+# Santiago Beltrán Jaramillo
+# sbeltran@unal.edu.co
 
 ## Calculo de los desplazamientos verticales y ángulos de giro, las 
 # reacciones, los momentos flectores y las fuerzas cortantes en una losa de
 # Mindlin utilizando los elementos finitos de placa "QL9"
 
+#Cargamos funciones:
+
+include("Malla1.jl"); include("gauss_legendre.jl"); include("Bb_RM.jl"); include("Bs_RM.jl")
+include("dibujar_QL9.jl"); include("funciones_forma_lagrangiano_9_nodos.jl")
+
+## Para borrar memoria: ctrl+D --> ENTER, en Julia REPL
+
+using Polynomials, PyPlot, SparseArrays, PyCall, WriteVTK
+
+ENV["MPLBACKEND"]="qt5agg"
+pygui(true)
+close("all")
 
 ## defino las variables/constantes
 X = 1; Y = 2;        # un par de constantes que ayudaran en la 
@@ -31,7 +40,7 @@ ngdl  = 3*nno;        # número de grados de libertad (tres por nodo)
 gdl  = [[1:3:ngdl]' [2:3:ngdl]' [3:3:ngdl]']   # nodos vs grados de libertad
 gdl  = reshape(hcat(gdl...)',nno,3)
 
-#= ## Se dibuja la malla de elementos finitos. 
+## Se dibuja la malla de elementos finitos. 
 figure(1)
 cg = zeros(nef, 2) # almacena el centro de gravedad
 for e = 1:nef
@@ -49,13 +58,13 @@ for e = 1:nef
 end
 
 title("Malla de elementos finitos")
-plot(xnod[:,X], xnod[:,Y], "b.") =#
+plot(xnod[:,X], xnod[:,Y], "b.")
 
 ## Se cargan las funciones de forma junto con sus derivadas
 # Se cargan las funciones de forma del elemento lagrangiano de 9 nodos 
 # junto con sus derivadas con respecto a xi y a eta
 
-include("funciones_forma_lagrangiano_9_nodos.jl")
+
 
 ## parámetros de la cuadratura de Gauss-Legendre (INTEGRACIÓN SELECTIVA)
 # se asumirá aquí el mismo orden de la cuadratura tanto en la dirección de
@@ -107,8 +116,6 @@ NN = Array{Any}(undef,nef,n_gl_b,n_gl_b); # matrices de funciones de forma calcu
 Bb = Array{Any}(undef,3,nno_,n_gl_b,nef)  # matrices de deformación generalizada de flexión
 Bs = Array{Any}(undef,2,nno_,n_gl_s,nef); # matrices de deformación generalizada de cortante
 
-#s = Array{Any}(undef,n_gl_b,27,nef,2)
-s = Array{Any}(undef,4,4,2,3)
 ## se ensambla la matriz de rigidez global K y el vector de fuerzas nodales
 ## equivalentes global f
 for e = 1:nef      # ciclo sobre todos los elementos finitos
@@ -255,7 +262,7 @@ aa_ =  reshape(a,3,nno)'
 a_ = aa_[:,1]*1000
 NL1, NL2, NL3, NL4, NL5, NL6, NL7, NL8 = 1,2,3,4,5,6,7,8
 
-#= @pyimport matplotlib.tri as mtri
+@pyimport matplotlib.tri as mtri
 triangles = Vector{Vector{Int64}}(undef, 6*nef)
 
 for e = 1:nef
@@ -279,7 +286,7 @@ title("Estructura deformada $(esc) veces")
 ax = fig.add_subplot(projection="3d")
 ax.set_box_aspect((2, 4, esc)) 
 img = ax.plot_trisurf(triang, a_, cmap="bwr")
-colorbar(img, shrink=0.79) =#
+colorbar(img, shrink=0.79) 
 
 
 ## En los puntos de integración de Gauss-Legendre calcular:
@@ -432,7 +439,3 @@ plot_mom_Q_ang(xnod,[ Mf1_xy, Mf2_xy, Mt_max], [ang_], [ang_.+pi/2], [ang_.+pi/4
 #Cortantes Qx, Qy, Qmax 
 plot_mom_Q_ang(xnod,[Qx, Qy, Q_max], [],[],[ang],
                 [L"Q_x(kN/m)", L"Q_y(kN/m)",  L"Q_{max}(kN/m)"])
-
-
-
-
