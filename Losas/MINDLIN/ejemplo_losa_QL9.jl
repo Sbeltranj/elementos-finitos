@@ -1,4 +1,4 @@
-include("fun.jl")
+include("Malla1.jl")
 include("gauss_legendre.jl")
 include("Bb_RM.jl")
 include("Bs_RM.jl")
@@ -102,13 +102,14 @@ idx   = Array{Array{Int64}}(undef, nef,1)     # grados de libertad de cada eleme
 # cada punto de integración: 
 NN = Array{Any}(undef,nef,n_gl_b,n_gl_b); # matrices de funciones de forma calculadas con n_gl_b puntos de integración
 Bb = Array{Any}(undef,n_gl_b,27,n_gl_b,nef) #Array{Any}(undef,nef,n_gl_b,n_gl_b); # matrices de deformación generalizada de flexión
-Bs = Array{Any}(undef,nef,n_gl_s,n_gl_s); # matrices de deformación generalizada de cortante
+Bs = Array{Any}(undef,n_gl_s,27,n_gl_s,nef); # matrices de deformación generalizada de cortante
 
 #s = Array{Any}(undef,n_gl_b,27,nef,2)
 s = Array{Any}(undef,4,4,2,3)
 ## se ensambla la matriz de rigidez global K y el vector de fuerzas nodales
 ## equivalentes global f
 for e = 1:nef      # ciclo sobre todos los elementos finitos
+    
    xe = xnod[LaG[e,:],X];   
    ye = xnod[LaG[e,:],Y];    
     
@@ -118,6 +119,7 @@ for e = 1:nef      # ciclo sobre todos los elementos finitos
 
    for p = 1:n_gl_b
       for q = 1:n_gl_b
+        #local xi_gl, eta_gl, NNforma, ddN_dxi, ddN_deta
          xi_gl  = x_gl_b[p];
          eta_gl = x_gl_b[q];
 
@@ -128,9 +130,74 @@ for e = 1:nef      # ciclo sobre todos los elementos finitos
          Kbe +=  Bb[:, :, q, e]'*Dbg*Bb[:, :, q, e]*det_Je_b[p,q]*w_gl_b[p]*w_gl_b[q];
       end
    end
+   ## se calcula la matrix Ks
+   Kse = zeros(3*nnoef, 3*nnoef);   
+   det_Je_s = zeros(n_gl_s, n_gl_s); # Jacobianos con n_gl_s puntos de integración
+
+   for p = 1:n_gl_s
+      for q = 1:n_gl_s
+        #local xi_gl, eta_gl, NNforma, ddN_dxi, ddN_deta
+         xi_gl  = x_gl_s[p];
+         eta_gl = x_gl_s[q];
+         
+         Bs[:, :, q, e]  = Bs_RM(xi_gl, eta_gl, xe, ye, Nforma, dN_dxi, dN_deta)[1];   
+         det_Je_s[p,q]   = Bs_RM(xi_gl, eta_gl, xe, ye, Nforma, dN_dxi, dN_deta)[2];
+
+         # se arma la matriz de rigidez del elemento e
+         Kse +=  Bs[:, :, q, e]'*Dsg*Bs[:, :, q, e]*det_Je_s[p,q]*w_gl_s[p]*w_gl_s[q];
+                 
+      end
+   end 
+
+   ## se calcula la matriz NN
+   Mbe = zeros(3*nnoef, 3*nnoef); # matriz que se utiliza en el calculo de fe   
+   for p = 1:n_gl_b
+      for q = 1:n_gl_b
+         xi_gl  = x_gl_b[p];
+         eta_gl = x_gl_b[q];
+
+         # Se evalúan las funciones de forma en los puntos de integración
+         # de Gauss-Legendre
+         N = Nforma(xi_gl, eta_gl);
+         
+         # Se ensambla la matriz de funciones de forma N
+         NN[e,p,q] = zeros(3,3*nnoef);
+         for i = 1:nnoef            
+            NN[e,p,q][:,[3*i-2 3*i-1 3*i]] = [ 
+                N[i]    0           0
+                0       N[i]        0
+                0       0           N[i] ];
+         end
    
+         # matriz requerida para calcular el vector de fuerzas nodales 
+         # equivalentes (se utiliza la integración completa)
+         Mbe += NN[e,p,q]'*NN[e,p,q]*det_Je_b[p,q]*w_gl_b[p]*w_gl_b[q];                                              # REVISAR !!!!!!!!!!!!!!!!   
+      end
+   end  
+   ## se calcula el vector de fuerzas nodales equivalentes del elemento e      
+   xa = xnod[LaG[e,1],X];   ya = xnod[LaG[e,1],Y];
+   xb = xnod[LaG[e,5],X];   yb = xnod[LaG[e,5],Y];
+
+   if (xa >= 0.9999 && xb <= 1.601) && (ya >= 0.9999 && yb <= 2.001)
+      ffe = zeros(nnoef, 3); ffe[:,ww] .= qdistr;
+      ffe = reshape(ffe', 3*nnoef,1);                                                                                             # REVISAR !!!!!!!!!!!!!
+   else
+      ffe = zeros(3*nnoef,1);
+   end  
+
+   fe = Mbe*ffe;   
+   ## se asocian los grados de libertad del elemento locales a los globales
+   idx[e] = [ gdl[LaG[e,1],:];  gdl[LaG[e,2],:];  gdl[LaG[e,3],:];  
+              gdl[LaG[e,4],:];  gdl[LaG[e,5],:];  gdl[LaG[e,6],:]; 
+              gdl[LaG[e,7],:];  gdl[LaG[e,8],:];  gdl[LaG[e,9],:] ];
+
+   K[idx[e],idx[e]] += Kbe + Kse
+   f[idx[e],:]      += fe
 end
 
-
+## Muestro la configuración de la matriz K (K es rala)
+figure(2)
+spy(K)
+title("Los puntos representan los elementos diferentes de cero")
 
 
