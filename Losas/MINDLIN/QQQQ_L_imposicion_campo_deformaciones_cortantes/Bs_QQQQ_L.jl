@@ -1,3 +1,5 @@
+using BlockDiagonals
+
 function  Bs_QQQQ_L(xi, eta, xe, ye, Nforma, dN_dxi, dN_deta, J_xi_eta)
     ## Calcula la matriz de deformación sustitutiva por cortante Bs para el EF
     ## de losa de Mindlin QQQQ-L
@@ -72,8 +74,9 @@ function  Bs_QQQQ_L(xi, eta, xe, ye, Nforma, dN_dxi, dN_deta, J_xi_eta)
        end
     end
     
-    Bhat_s = Bbar_s              # eq 6.79
-    C = J[:];
+    #Bhat_s = Bbar_s              # eq 6.79
+    #C = BlockDiagonal.(J[1], J[2])
+    #C = J[1];
            
     # La matriz A_invP_T se dedujo con el programa APm1T_QQQQ_L_metodo1.m
     A_invP_T = [ 
@@ -102,7 +105,7 @@ function  Bs_QQQQ_L(xi, eta, xe, ye, Nforma, dN_dxi, dN_deta, J_xi_eta)
                                        0                                  0
                                        0 -(xi*(3^(1/2)*eta - 1)*(xi - 1))/4 ]';
     
-    Bbar_s = inv(J_xi_eta) * A_invP_T * C * Bhat_s;
+    #Bbar_s = inv(J_xi_eta) * A_invP_T * C * Bbar_s[1];
         
-    return Bbar_s
+    return  J
 end

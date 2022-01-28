@@ -1,3 +1,5 @@
+#NOTA: Aún no esta terminado el código,
+
 # Programa original (MATLAB) elaborado por:
 # Diego Andrés Alvarez Marín
 # daalvarez@unal.edu.co
@@ -142,7 +144,9 @@ for e = 1:nef      # ciclo sobre todos los elementos finitos
          det_Je_b[p,q]  = Bb_RM(xi_gl, eta_gl, xe, ye, dN_dxi, dN_deta)[2];
          Je_pq          = Bb_RM(xi_gl, eta_gl, xe, ye, dN_dxi, dN_deta)[3];
 
-        A =  Bs_QQQQ_L(xi_gl, eta_gl, xe, ye, Nforma, dN_dxi, dN_deta, Je_pq)
+
+        
+        #A =  Bs_QQQQ_L(xi_gl, eta_gl, xe, ye, Nforma, dN_dxi, dN_deta, Je_pq)
 
          # se arma la matriz de rigidez del elemento e
          Kbe +=  Bb[:, :, q, e]'*Dbg*Bb[:, :, q, e]*det_Je_b[p,q]*w_gl_b[p]*w_gl_b[q];
