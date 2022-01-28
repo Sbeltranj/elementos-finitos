@@ -74,7 +74,7 @@ function  Bs_QQQQ_L(xi, eta, xe, ye, Nforma, dN_dxi, dN_deta, J_xi_eta)
        end
     end
     
-    #Bhat_s = Bbar_s              # eq 6.79
+    Bhat_s = reshape(hcat(Bbar_s...),27, 24)            # eq 6.79
     #C = BlockDiagonal.(J[1], J[2])
     #C = J[1];
            
