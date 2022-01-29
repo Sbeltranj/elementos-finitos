@@ -1,9 +1,7 @@
-## falta implementar diagblock, en Bs_QQQQ_L.jl .... (código aún no terminado)
-
 # Programa original (MATLAB) elaborado por:
 # Diego Andrés Alvarez Marín
 # daalvarez@unal.edu.co
-# https://github.com/diegoandresalvarez/elementosfinitos/tree/master/codigo/losas/Mindlin/QL9_integracion_reducida
+# https://github.com/diegoandresalvarez/elementosfinitos/tree/master/codigo/losas/Mindlin
 
 # Traduciendo a JULIA 1.7.1 por:
 # Santiago Beltrán Jaramillo
@@ -16,7 +14,7 @@
 #Cargamos funciones:
 
 include("Malla1.jl"); include("gauss_legendre.jl"); include("Bb_RM.jl"); include("Bs_RM.jl")
-include("dibujar_QL9.jl"); include("funciones_forma_lagrangiano_9_nodos.jl")
+include("dibujar_QQQQ.jl"); include("funciones_forma_lagrangiano_9_nodos.jl")
 include("Bs_QQQQ_L.jl")
 
 ## Para borrar memoria: ctrl+D --> ENTER, en Julia REPL
@@ -62,7 +60,7 @@ end
 
 title("Malla de elementos finitos")
 plot(xnod[:,X], xnod[:,Y], "b.")
-
+sadaf 
 ## Se cargan las funciones de forma junto con sus derivadas
 # Se cargan las funciones de forma del elemento lagrangiano de 9 nodos 
 # junto con sus derivadas con respecto a xi y a eta
@@ -142,14 +140,13 @@ for e = 1:nef      # ciclo sobre todos los elementos finitos
 
          Bb[:, :, q, e] = Bb_RM(xi_gl, eta_gl, xe, ye, dN_dxi, dN_deta)[1];
          det_Je_b[p,q]  = Bb_RM(xi_gl, eta_gl, xe, ye, dN_dxi, dN_deta)[2];
+
+         local Je_pq
          Je_pq          = Bb_RM(xi_gl, eta_gl, xe, ye, dN_dxi, dN_deta)[3];
-
-
-         ## falta implementar diagblock, en Bs_QQQQ_L.jl ....
-         #Bs[:, :, q, e] =  Bs_QQQQ_L(xi_gl, eta_gl, xe, ye, Nforma, dN_dxi, dN_deta, Je_pq)
+         Bs[:, :, q, e] =  Bs_QQQQ_L(xi_gl, eta_gl, xe, ye, Nforma, dN_dxi, dN_deta, Je_pq)
          
          # se arma la matriz de rigidez del elemento e
-         #Kse +=  Bs[:, :, q, e]'*Dsg*Bs[:, :, q, e]*det_Je[p,q]*w_gl_s[p]*w_gl_s[q]; 
+         Kse +=  Bs[:, :, q, e]'*Dsg*Bs[:, :, q, e]*det_Je_b[p,q]*w_gl_s[p]*w_gl_s[q]; 
          Kbe +=  Bb[:, :, q, e]'*Dbg*Bb[:, :, q, e]*det_Je_b[p,q]*w_gl_b[p]*w_gl_b[q];
       end
    end
@@ -201,7 +198,7 @@ for e = 1:nef      # ciclo sobre todos los elementos finitos
    f[idx[e],:]      += fe
 end
 
-#= ## Muestro la configuración de la matriz K (K es rala)
+## Muestro la configuración de la matriz K (K es rala)
 figure(2)
 spy(K)
 title("Los puntos representan los elementos diferentes de cero")
@@ -428,4 +425,4 @@ plot_mom_Q_ang(xnod,[ Mf1_xy, Mf2_xy, Mt_max], [ang_], [ang_.+pi/2], [ang_.+pi/4
                 [L"Mf1_{xy}(kN-m/m)", L"Mf2_{xy}(kN-m/m)", L"Mt_{max}(kN-m/m)"])
 #Cortantes Qx, Qy, Qmax 
 plot_mom_Q_ang(xnod,[Qx, Qy, Q_max], [],[],[ang],
-                [L"Q_x(kN/m)", L"Q_y(kN/m)",  L"Q_{max}(kN/m)"]) =#
+                [L"Q_x(kN/m)", L"Q_y(kN/m)",  L"Q_{max}(kN/m)"])

@@ -1,5 +1,3 @@
-using BlockDiagonals
-
 function  Bs_QQQQ_L(xi, eta, xe, ye, Nforma, dN_dxi, dN_deta, J_xi_eta)
     ## Calcula la matriz de deformación sustitutiva por cortante Bs para el EF
     ## de losa de Mindlin QQQQ-L
@@ -40,7 +38,6 @@ function  Bs_QQQQ_L(xi, eta, xe, ye, Nforma, dN_dxi, dN_deta, J_xi_eta)
     for i = 1:npc
        ## Se evalúan las funciones de forma en los puntos de colocación   
        N        = Nforma(cx[i],  cy[i]);
-       
        ## Se evalúan las derivadas de las funciones de forma en los puntos de colocación   
        ddN_dxi  = dN_dxi(cx[i], cy[i]);
        ddN_deta = dN_deta(cx[i], cy[i]);
@@ -73,11 +70,15 @@ function  Bs_QQQQ_L(xi, eta, xe, ye, Nforma, dN_dxi, dN_deta, J_xi_eta)
                                           dN_dy_j   0    -N[j] ];                        
        end
     end
+
+    C = zeros(npc*2,npc*2)
+
+    for i = 1:npc
+      C[(2*i-1):(2*i),(2*i-1):(2*i)] = cat(J[i]; dims=(1,2))
+    end
+
+    Bhat_s = vcat(Bbar_s...)       
     
-    Bhat_s = reshape(hcat(Bbar_s...),27, 24)            # eq 6.79
-    #C = BlockDiagonal.(J[1], J[2])
-    #C = J[1];
-           
     # La matriz A_invP_T se dedujo con el programa APm1T_QQQQ_L_metodo1.m
     A_invP_T = [ 
       (eta*(3^(1/2)*xi + 1)*(eta + 1))/4                                  0
@@ -105,7 +106,7 @@ function  Bs_QQQQ_L(xi, eta, xe, ye, Nforma, dN_dxi, dN_deta, J_xi_eta)
                                        0                                  0
                                        0 -(xi*(3^(1/2)*eta - 1)*(xi - 1))/4 ]';
     
-    #Bbar_s = inv(J_xi_eta) * A_invP_T * C * Bbar_s[1];
+    Bbar_s = inv(J_xi_eta) * A_invP_T * C * Bhat_s;
         
-    return  J
+    return  Bbar_s
 end
