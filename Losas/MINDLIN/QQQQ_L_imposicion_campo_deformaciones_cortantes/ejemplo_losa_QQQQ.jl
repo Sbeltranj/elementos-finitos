@@ -71,17 +71,17 @@ plot(xnod[:,X], xnod[:,Y], "b.")
 # se asumirá aquí el mismo orden de la cuadratura tanto en la dirección de
 # xi como en la dirección de eta
 
-# se utilizara integración COMPLETA
+# se utilizará integración COMPLETA
 #=
 n_gl_b = 3; # orden de la cuadratura de GL para la integración de Kb
 n_gl_s = 3; # orden de la cuadratura de GL para la integración de Ks
 =#
 
-# se utilizara integración SELECTIVA
+# se utilizará integración SELECTIVA
 n_gl_b = 3; # orden de la cuadratura de GL para la integración de Kb
 n_gl_s = 3; # orden de la cuadratura de GL para la integración de Ks
 
-# se utilizara integración REDUCIDA
+# se utilizará integración REDUCIDA
 #=
 n_gl_b = 2; # orden de la cuadratura de GL para la integración de Kb
 n_gl_s = 2; # orden de la cuadratura de GL para la integración de Ks
