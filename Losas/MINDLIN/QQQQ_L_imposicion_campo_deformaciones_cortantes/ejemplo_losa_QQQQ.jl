@@ -60,7 +60,7 @@ end
 
 title("Malla de elementos finitos")
 plot(xnod[:,X], xnod[:,Y], "b.")
-sadaf 
+
 ## Se cargan las funciones de forma junto con sus derivadas
 # Se cargan las funciones de forma del elemento lagrangiano de 9 nodos 
 # junto con sus derivadas con respecto a xi y a eta
