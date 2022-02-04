@@ -18,7 +18,7 @@ include("dibujar_QL9.jl"); include("funciones_forma_lagrangiano_9_nodos.jl")
 
 ## Para borrar memoria: ctrl+D --> ENTER, en Julia REPL
 
-using Polynomials, PyPlot, SparseArrays, PyCall, WriteVTK
+using Polynomials, PyPlot, SparseArrays, PyCall, WriteVTK, Statistics, LinearAlgebra
 
 ENV["MPLBACKEND"]="qt5agg"
 pygui(true)
