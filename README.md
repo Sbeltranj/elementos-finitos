@@ -14,3 +14,7 @@ https://github.com/JuliaPy/PyPlot.jl#readme.
 
 
 [![git.png](https://i.postimg.cc/yxbTQTBs/git.png)](https://postimg.cc/p5K8yzp6)
+
+- Momentos Losa simplemente apoyada  [clic](https://github.com/Sbeltranj/elementos-finitos/tree/master/Losas/Kirchhoff_Love/Kirchhoff_Love).
+
+[![plot-9.png](https://i.postimg.cc/m2vWxVsP/plot-9.png)](https://postimg.cc/vctNfrDy)
