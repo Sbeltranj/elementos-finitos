@@ -426,3 +426,6 @@ plot_mom_Q_ang(xnod,[ Mf1_xy, Mf2_xy, Mt_max], [ang_], [ang_.+pi/2], [ang_.+pi/4
 #Cortantes Qx, Qy, Qmax 
 plot_mom_Q_ang(xnod,[Qx, Qy, Q_max], [],[],[ang],
                 [L"Q_x(kN/m)", L"Q_y(kN/m)",  L"Q_{max}(kN/m)"])
+
+
+
