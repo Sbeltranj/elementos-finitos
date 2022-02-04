@@ -264,7 +264,6 @@ for e = 1:nef
 
 end
 
-
 triang = mtri.Triangulation(xnod[:,X], xnod[:,Y], triangles=triangles) 
 
 fig = figure()
@@ -328,7 +327,6 @@ for e = 1:nef      # ciclo sobre todos los elementos finitos
         end
     end
 end
-
 
 ## Se extrapolan los momentos y cortantes a los nodos
 num_elem_ady = zeros(nno,1)  # número de elementos adyacentes
@@ -397,8 +395,6 @@ My  =  My./num_elem_ady;
 Mxy =  Mxy./num_elem_ady;   
 Qx  =  Qx./num_elem_ady;  
 Qy  =  Qy./num_elem_ady; 
-
-
 ## Se convierte el array-matrix en un vector para los gráficos.
 Mx = vec(Mx); My = vec(My); Mxy = vec(Mxy)
 Qx = vec(Qx); Qy = vec(Qy)
@@ -410,7 +406,6 @@ Mf1_xy = (Mx+My)/2 + Mt_max             # momento flector máximo
 Mf2_xy = (Mx+My)/2 - Mt_max             # momento flector mínimo
 ang_  = 0.5*atan.(2*Mxy, Mx-My)         # ángulo de inclinación de Mf1_xy
 
-
 ## Se calculan y grafican los cortantes Qx, Qy y los Qmaximos, junto con 
 ## su ángulo de inclinación
 Q_max = hypot.(Qx, Qy)
@@ -418,14 +413,19 @@ ang   = atan.(Qy, Qx)
 
 ## se dibujan los gráficos:
 #Momentos Mx, My, Mxy  
-plot_mom_Q_ang(xnod,[ Mx, My, Mxy], [], [], [],
-                [L"Momento Mx(kN-m/m)", L" Momento My(kN-m/m)", L"Momento Mxy(kN-m/m)"])
+figure(4)
+subplot(131);plot_mom_Q_ang(xnod,[My], [],[L"Momento Mx(kN-m/m)"])
+subplot(132); plot_mom_Q_ang(xnod,[Mx], [],[L"Momento My(kN-m/m)"])
+subplot(133);plot_mom_Q_ang(xnod,[Mxy], [],[L"Momento Mxy(kN-m/m)"])
+
 #Momentos principales
-plot_mom_Q_ang(xnod,[ Mf1_xy, Mf2_xy, Mt_max], [ang_], [ang_.+pi/2], [ang_.+pi/4, ang_.-pi/4],
-                [L"Mf1_{xy}(kN-m/m)", L"Mf2_{xy}(kN-m/m)", L"Mt_{max}(kN-m/m)"])
+figure(5)
+subplot(131);plot_mom_Q_ang(xnod,[Mf1_xy], [ang_],[L"Mf1_{xy}(kN-m/m)"])
+subplot(132);plot_mom_Q_ang(xnod,[Mf2_xy], [ang_.+pi/2],[L"Mf2_{xy}(kN-m/m)"])
+subplot(133);plot_mom_Q_ang(xnod,[Mt_max], [ang_.+pi/4, ang_.-pi/4],[L"Mt_{max}(kN-m/m)"])
+
 #Cortantes Qx, Qy, Qmax 
-plot_mom_Q_ang(xnod,[Qx, Qy, Q_max], [],[],[ang],
-                [L"Q_x(kN/m)", L"Q_y(kN/m)",  L"Q_{max}(kN/m)"])
-
-
-
+figure(6)
+subplot(131);plot_mom_Q_ang(xnod,[Qx], [],[L"Q_x(kN/m)"])
+subplot(132);plot_mom_Q_ang(xnod,[Qy], [],[L"Q_y(kN/m)"])
+subplot(133);plot_mom_Q_ang(xnod,[Q_max], [ang],[ L"Q_{max}(kN/m)"])
