@@ -4,7 +4,7 @@ Losa calculada con elementos finitos MZC: https://github.com/diegoandresalvarez/
 
 [![plot-9.png](https://i.postimg.cc/m2vWxVsP/plot-9.png)](https://postimg.cc/vctNfrDy)
 
-[![git.png](https://i.postimg.cc/fL9CCktM/git.png)](https://postimg.cc/WFs0bNwy)
+[![git.png](https://i.postimg.cc/02WS6Pjn/git.png)](https://postimg.cc/zVhv6mnH)
 
 
 
