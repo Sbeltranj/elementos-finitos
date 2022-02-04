@@ -2,8 +2,6 @@
 
 using LinearAlgebra
 
-#clearconsole()
-#%%
 # Ejemplo 11.23 Uribe Escamilla sin deformada
 
 #%% Unidades en toneladas y metros
@@ -44,7 +42,7 @@ nn = size(gdl,1)    #número de nodos  (número de filas de gdl)
 
 
 #%% fuerzas nodales equivalentes para las diferentes barras
-# (en este ejemplo las fuerzas nodales equivalentes estan siendo
+# (en este ejemplo las fuerzas nodales equivalentes están siendo
 # especificadas con respecto al sistema de coordenadas globales)
 
 fe = Array{Array{Float64}}(undef, nb,1)
@@ -56,7 +54,6 @@ fe[2] = [0;      0;      0;      0;       0;      0     ]; # mirar pag 613
 fe[3] = [0;      0;      0;      0;       0;      0     ];
 
 #%% separó la memoria
-
 K   = zeros(ngdl,ngdl);                         # matriz de rigidez global
 f   = zeros(ngdl,1);                            # vector de fuerzas nodales equivalentes global
 Ke  = Array{Array{Float64}}(undef, nb,1)        # matriz de rigidez local en coordenadas globales
@@ -93,13 +90,10 @@ for e = 1:nb  # para cada barra
    Ke[e] = T[e]'*Kloc*T[e];
    K[idx[e],idx[e]] += Ke[e]
    f[idx[e]]        += fe[e] # sumo a f global
-
-
 end
 
 #%% localizó la carga puntual de 1.5 ton en el gdl 4
 f[4] += 1.5
-
 #%% grados de libertad del desplazamiento conocidos (c) y desconocidos (d)
 c = [1; 2; 3; 10; 11; 12]
 d = setdiff(1:ngdl, c) # d = [4 5 6 7 8 9];
@@ -119,11 +113,7 @@ Kdd = K[d,d]; Kcd = K[c,d]; fd = f[c];
 
 # desplazamientos para los gdls c = [1 2 3 10 11 12]
 ac = zeros(6,1)
-
-
 #%% resuelvo el sistema de ecuaciones
-
-
 ad = Kdd\(fc-Kdc*ac)
 qd = Kcc*ac + Kcd*ad -fd
 
@@ -135,7 +125,6 @@ a[d] = ad;       #q[d] = qc = 0
 println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 println("Desplazamientos:")
 display(a)
-
 #%% imprimo las fuerzas internas en cada barra referidas a las coordenadas
 #% globales
 println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")

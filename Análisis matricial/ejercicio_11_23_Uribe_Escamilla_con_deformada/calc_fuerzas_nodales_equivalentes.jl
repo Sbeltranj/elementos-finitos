@@ -9,15 +9,14 @@ X1 = 1; Y1 = 2; M1 = 3; X2 = 4; Y2 = 5; M2   = 6;
 v_ = 1; t_ = 2; M_ = 3; V_ = 4; u_ = 5; fax_ = 6;
 u1 = 1; v1 = 2; t1 = 3; u2 = 4; v2 = 5; t2   = 6;
 
-
 function diffeq1!(dydx,y,x,p)
     #=
     Esta función dibuja el elemento de pórtico deformado junto con sus 
     respectivos diagramas de fuerza axial, fuerza cortante y momento flector.
     El diagrama de momento flector se grafica en el lado opuesto de la fibra
     a tracción
-    PARAMETROS DE ENTRADA (junto con algunos ejemplos):
-    A = area
+    PARÁMETROS DE ENTRADA (junto con algunos ejemplos):
+    A = Área
     E = E
     I = Ix local
     (x1,y1) y (x2,y2) son las coordenadas de los puntos iniciales
@@ -66,7 +65,7 @@ function diffeq1!(dydx,y,x,p)
 end
 
 
-#%% se definen las condiciones de frontera de la ecuacion diferencial 
+#%% se definen las condiciones de frontera de la ecuación diferencial 
 function bc2!(residual,y,x,p)
    
     #residual == res

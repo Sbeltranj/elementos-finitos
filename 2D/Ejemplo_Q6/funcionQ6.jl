@@ -89,29 +89,8 @@ function plot_def_esf_ang(xnod,esfdef, angulos, lab)
     NL1, NL2, NL3, NL4= 1,2,3,4
     triangles = Vector{Vector{Int64}}(undef, 2*nef)
  
-        # Para propósitos de graficación el EF se divide en 6 triángulos así: 
-     #     
-     #                             7 -------6--------5
-     #                             |       /|\       |
-     #                             | EFT6 / | \ EFT3 |
-     #                             |     /  |  \     |
-     #                             |    /   |   \    |
-     #                             |   /    |    \   |
-     #                             |  /     |     \  |
-     #                             | /      |      \ |
-     #                             8/  EFT5 | EFT4  \4
-     #                             |\       |       /|
-     #                             | \      |      / |
-     #                             |  \     |     /  |
-     #                             |   \    |    /   |
-     #                             |    \   |   /    |
-     #                             |     \  |  /     |
-     #                             | EFT1 \ | / EFT2 |
-     #                             |       \|/       |
-     #                             1--------2--------3
 
-
-    # Para propósitos de graficación con tripcolor, el EF MZC se divide en 2 triángulos así: 
+    # Para propósitos de graficación con tripcolor, el EF se divide en 2 triángulos así: 
 
     #                             4--------3
     #                             |\       |
@@ -126,7 +105,6 @@ function plot_def_esf_ang(xnod,esfdef, angulos, lab)
        
  
      for e = 1:nef
-
         # se arma la matriz de correspondencia (LaG) de la malla
         triangles[2*e - 1] = LaG[e, [NL1, NL2, NL4]] .- 1
         triangles[2*e - 0] = LaG[e, [NL2, NL3, NL4]] .- 1

@@ -21,13 +21,13 @@ function diffeq1!(dydx,y,x,p)
     respectivos diagramas de fuerza axial, fuerza cortante y momento flector.
     El diagrama de momento flector se grafica en el lado opuesto de la fibra
     a tracción
-    PARAMETROS DE ENTRADA (junto con algunos ejemplos):
-    A = area
+    PARÁMETROS DE ENTRADA (junto con algunos ejemplos):
+    A = área
     E = E
     I = Ix local
     (x1,y1) y (x2,y2) son las coordenadas de los puntos iniciales
-    qxloc = ->    x^2  # carga en la dir. del eje x local (function handle)
-    qyloc = ->    0    # carga en la dir. del eje y local (function handle)
+    qxloc = ->    x^2  # carga en la dir. del eje x local 
+    qyloc = ->    0    # carga en la dir. del eje y local 
     qe = 
          [ 0.01,        # U1, V1, M1 reacciones del nodo 1 en coord. locales
           -0.01,
@@ -71,7 +71,7 @@ function diffeq1!(dydx,y,x,p)
 end
 
 
-#%% se definen las condiciones de frontera de la ecuacion diferencial 
+#%% se definen las condiciones de frontera de la ecuación diferencial 
 function bc2!(residual,y,x,p)
    
     #residual == res
@@ -97,7 +97,7 @@ sol = solve(bvp, GeneralMIRK4(), dt=0.05)
 #convertimos el vector tupla de la solución, en un array de 5x6 con el comando hcat:
 sol1 = hcat(sol.u...)'
 
-#%% Calculos intermedios
+#%% Cálculos intermedios
 s     = sol.t
 
 axial    = sol1[:,6]        # Fuerza axial [kN]
@@ -108,12 +108,11 @@ v        = sol1[:,1]        # Desplazamiento vertical de la viga [m]
 
 qe = hcat(qe...)'
 
-#%% rotacion de la solucion antes de dibujar
+#%% rotación de la solución antes de dibujar
 ang = atan(y2-y1, x2-x1)
 
-T   = [ cos(ang)  -sin(ang)    # matriz de rotacion
+T   = [ cos(ang)  -sin(ang)    # matriz de rotación
         sin(ang)   cos(ang) ]
-
 
 #%% Dibujar de deformada
 
@@ -126,15 +125,11 @@ figure(2)
 plot(xx,yy,color = :red)
 plot([x1, x2], [y1, y2],color = :blue)
 
-
-
 #%% Dibujar los diagramas de fuerza axial 
 pos = T*[ s,   esc_faxial*axial ]; # escalamiento del diagrama
 
 ss = x1 .+ hcat(pos[1,:]...)
 aa = y1 .+ hcat(pos[2,:]...)
-
-
 
 figure(3)
 plot([x1, x2], [y1, y2],color = :blue)

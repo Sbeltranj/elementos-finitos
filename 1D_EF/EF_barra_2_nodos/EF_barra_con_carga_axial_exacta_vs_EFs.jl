@@ -22,8 +22,7 @@ using Plots
 #% 1    2    3    4          nno-1  nno
 #% |<----longitud L de la barra---->|   el área transversal de la barra es A
 
-#%%  defino las variables
-
+##  defino las variables
 nef  = 3                      # número de elementos finitos (EF)
 nno  = nef+1                  # número de nodos
 ngdl = nno                    # número de grados de libertad
@@ -109,7 +108,6 @@ println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 println("Cargas axiales en cada elemento finito (N) =  ")
 display(faxial)
 
-
 #%% Gráfico la solución analítica y la solucion por el MEF
 #% 1) gráfico los desplazamientos de la barra
 u(x) = (-b*x.^2/2 + (P + b*L)*x)/(E*A); # solucion analítica para el despl.
@@ -122,8 +120,6 @@ gr() #Pkg.add("GR")
 #plotlyjs()  #instalar paquete plotlyjs (mejor interacción gráfica):
              #  Pkg.add("plotlyjs")
              #alternativamente comentar plotlyjs
-
-
 # gráfico solución analítica
 #plot! == hold on MatLab
 

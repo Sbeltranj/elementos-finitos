@@ -10,16 +10,11 @@
 
 using LinearAlgebra
 
-#clearconsole()
-
 #%% Ejemplo 11.3 Uribe Escamilla
-# Unidades en tonedadas y cm
+# Unidades en toneladas y cm
 
 E = 2040 #Elastic module ton/cm^2
-
-
 ang = atand(300,400)
-
 
 #barra   1    2     3    4    5
 theta = [ang  0    -ang  0   -90]    # ángulo de inclinación
@@ -41,7 +36,6 @@ gdl = [ 1 2  # fila = nodo
         3 4  # col1 = gdl en dirección x
         5 6  # col2 = gdl en dirección y
         7 8]
-
 
 #%% separo memoria
 K = zeros(8, 8)  # Matrix global
@@ -67,7 +61,7 @@ for e = 1:5
         cs = cosd(theta[e])
         ss = sind(theta[e])  # sin y cos de la inclinación
 
-        # matriz de transformacion de coordenadas para la barra e
+        # matriz de transformación de coordenadas para la barra e
         T[e] = [ cs  ss  0  0
                 -ss  cs  0  0
                  0  0  cs  ss

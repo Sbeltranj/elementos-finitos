@@ -124,7 +124,7 @@ function plot_def_esf_ang(xnod,esfdef, angulos, lab)
      #                            3/  ---- | ----  \1
  
  
-         # se grafica la malla de EFS, los colores en cada triángulo y las curvas
+         # se gráfica la malla de EFS, los colores en cada triángulo y las curvas
          # de nivel
  
          ax.triplot(xnod[:,X], xnod[:,Y], triangles,  lw=0.5, color="gray")

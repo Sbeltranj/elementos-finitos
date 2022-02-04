@@ -17,8 +17,6 @@ close("all")          #cerrar ventanas
 #Se cargan las funciones
 include("dibujar_deformada_portico.jl")
 include("calc_fuerzas_nodales_equivalentes.jl")
-
-
 #%% Unidades en toneladas y metros
 #%% constantes
 NL1 = 1; NL2 = 2; MAT = 3;
@@ -63,8 +61,6 @@ ngdl = 3*nno;        # número de grados de libertad (tres por nodo)
 gdl  = [ [1:3:ngdl]' [2:3:ngdl]' [3:3:ngdl]' ] # nodos vs gdl
 gdl  = reshape(hcat(gdl...)',4,3)
 
-
-
 figure(1)
 #
 for e = 1:nbar
@@ -84,7 +80,6 @@ for n = 1:nno
 end
 
 gcf()
-
 #%% cargas aplicadas (gdl carga)
 cargas_aplica = [ 1.5 ]
 dofs_cargados = cargas_aplica[:,1][1];
@@ -106,8 +101,6 @@ qyloc =   [ x -> -2.8*cos(ang1)^2
             x -> 0
             x -> 0]
 
-
-
 #%% fuerzas nodales equivalentes para las diferentes barras
 # (en este ejemplo las fuerzas nodales equivalentes estas siendo 
 # especificadas con respecto al sistema de coordenadas globales)
@@ -121,7 +114,6 @@ for e = 1:nbar
     fe[e] = calc_fuerzas_nodales_equivalentes(
          A[mat[e]], E[mat[e]], I[mat[e]], x1,x2, y1,y2, qxloc[e],qyloc[e],L)
 end
-
 
 #%% separó memoria
 K   = zeros(ngdl,ngdl);                           # matriz de rigidez global
@@ -166,8 +158,6 @@ for e = 1:nbar  # para cada barra
    Ke[e]             = T[e]'*Kloc*T[e];
    K[idx[e],idx[e]] += Ke[e]
    f[idx[e]]        += fe[e] # sumo a f global
-
-
 end
 
 #%% grados de libertad del desplazamiento conocidos (c) y desconocidos (d)
@@ -180,11 +170,9 @@ apoyos = [
    gdl[4,TH] 0
 ]
 
-
 c = apoyos[:,1]
 d = setdiff(1:ngdl, c);
 
-#%%
 # f = vector de fuerzas nodales equivalentes
 # q = vector de fuerzas nodales de equilibrio del elemento
 # a = desplazamientos
@@ -204,8 +192,6 @@ Kdd = K[d,d]; Kcd = K[c,d]; fd = f[c];
 
 # desplazamientos para los gdls c 
 ac = apoyos[:,2]
-
-
 #%% resuelvo el sistema de ecuaciones
 ad = Kdd\(fc-Kdc*ac)
 qd = Kcc*ac + Kcd*ad -fd
@@ -250,28 +236,21 @@ for i = 1:nno
 end
 
 println("                                                                                    ")
-
 qq = reshape(q,3,nno)' # matrix 3x4
-
-
 println("Fuerzas nodales de equilibrio (solo imprimo los diferentes de cero)")
 println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
 for i = 1:nno
-
    if qq[i] != 0 && qq[i,2] != 0  && qq[i,3]  != 0
 
       q1 = round(qq[i,1], digits = 3)
       q2 = round(qq[i,2], digits = 3)
       @printf("Node %d: qx = %10.3f ton qy = %10.3f ton mom = %10.3f ton*m \n",
                i, q1, q2, qq[i,3]) 
-      
    else
-
    end
 
 end
-
 
 #%% Dibujar la estructura y su deformada
 
@@ -300,8 +279,6 @@ title("Momento flector [ton-m]")
 xlabel("x, m")
 ylabel("y, m")
 
-
-
 for e = 1:nbar
      x1 = xnod[LaG[e,NL1], X];  x2 = xnod[LaG[e,NL2], X]
      y1 = xnod[LaG[e,NL1], Y];  y2 = xnod[LaG[e,NL2], Y]
@@ -311,5 +288,4 @@ for e = 1:nbar
                        T[e]*a[idx[e]],qe_loc[e], esc_def, esc_faxial, esc_V, esc_M)
 
 end
-
 #Fin

@@ -291,8 +291,6 @@ for e = 1:nef        # ciclo sobre todas los elementos finitos
    tt[e] = atan.(Nt*ae);
 end
 
-
-
 ## Imprimo los resultados
 println("Desplazamientos nodales")
 println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -310,7 +308,6 @@ end
 println("                                                                                    ")
 
 qq = reshape(q,2,nno)' # matrix 3x4
-
 
 println("Fuerzas nodales de equilibrio (solo imprimo los diferentes de cero)")
 println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")

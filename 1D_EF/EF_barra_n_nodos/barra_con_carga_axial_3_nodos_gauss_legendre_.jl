@@ -19,16 +19,6 @@ de la viga mostrada
 1    2    3    4          nno-1  nno
 |<----longitud L de la barra---->|   el área transversal de la barra es A
 =#
-
-
-# PROGRAMA ELABORADO POR: 
-# Diego Andrés Alvarez Marín
-# daalvarez@unal.edu.co
-
-# Actualizando la versión 0.5.1 a 1.6.3
-# Santiago Beltrán Jaramillo
-# sbeltran@unal.edu.co
-
 #Cargamos paquetes:
 
 using Plots
@@ -253,7 +243,6 @@ for e = 1:nef   # ciclo sobre todos los EFs
     end
                                                     
 end
-
 
 display(fig_despla)
 display(fig_axial)

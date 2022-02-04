@@ -8,7 +8,6 @@
 # Santiago Beltrán Jaramillo
 # sbeltran@unal.edu.co
 
-
 ## DEFINICIÓN DEL PROBLEMA
 #=
 Calcule los desplazamientos y las reacciones en el empotramiento
@@ -19,14 +18,11 @@ de la viga mostrada
 1    2    3    4          nno-1  nno
 |<----longitud L de la barra---->|   el área transversal de la barra es A
 =#
-
 #Cargamos paquetes:
 
 using Plots
-
-
 # -----------------------------------------------------------------
-# Se usaron tres elementos isoparametricos lagrangianos cuadráticos
+# Se usaron tres elementos isoparamétricos lagrangianos cuadráticos
 # -----------------------------------------------------------------
 
 ## defino las variables
@@ -184,8 +180,6 @@ for e = 1:nef   # ciclo sobre todos los EFs
                                                     
 end
 
-
 display(fig_despla)
 display(fig_axial)
-
 #Fin

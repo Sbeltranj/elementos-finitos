@@ -218,7 +218,7 @@ nint = 10;           # número de puntos donde se interpolara dentro del EF
 xi   = collect(LinRange(-1,1,nint)); # coordenadas naturales
 
 
-xx = Array{Array{Float64}}(undef, nef,1) # Interpol de posiciones (geometria) en el elemento
+xx = Array{Array{Float64}}(undef, nef,1) # Interpol de posiciones (geometría) en el elemento
 ww = Array{Array{Float64}}(undef, nef,1) # Interpol desplazamientos en el elemento
 tt = Array{Array{Float64}}(undef, nef,1) # Interpol ángulo en el elemento
 
@@ -245,7 +245,7 @@ for e = 1:nef        # ciclo sobre todas los elementos finitos
    #% vector de desplazamientos nodales del elemento a^{(e)}
    local   ae = a[idx[e]];
 
-   # interpola sobre la geometria (coord naturales a geometricas)
+   # interpola sobre la geometria (coord naturales a geométricas)
    xx[e] = Le .*xi/2 .+ (xnod[LaG[e,1]] + xnod[LaG[e,2]])/2;
    
    # se calcula el desplazamiento al interior del elemento finito

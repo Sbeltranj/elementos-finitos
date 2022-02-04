@@ -19,7 +19,7 @@ de la viga mostrada
 |<----longitud L de la barra---->|   el área transversal de la barra es A
 =#
 # -----------------------------------------------------------------
-# Se usaron tres elementos isoparametricos lagrangianos cuadráticos
+# Se usaron tres elementos isoparamétricos lagrangianos cuadráticos
 # -----------------------------------------------------------------
 #Cargamos paquetes:
 

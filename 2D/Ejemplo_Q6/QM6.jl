@@ -541,23 +541,11 @@ end
 vtkfile = vtk_grid("QM6_element", xnod[:,1].*1.0,xnod[:,2].*1.0, cells) 
 
 vtkfile["uv"]  = a 
-
-vtkfile["sigma_x"] = sx
-vtkfile["sigma_y"] = sy
-vtkfile["tau_xy"]  = txy
-
-vtkfile["ex"] = ex
-vtkfile["ey"] = ey
-vtkfile["gxy"]  = gxy
-vtkfile["ez"]  = ez
-
-vtkfile["s1"] = s1
-vtkfile["s2"] = s2
-vtkfile["tmax"]  = tmax
+vtkfile["s_x"] = sx;    vtkfile["s1"] = s1;      vtkfile["ex"] = ex; vtkfile["gxy"] = gxy;
+vtkfile["s_y"] = sy;    vtkfile["s2"] = s2;      vtkfile["ey"] = ey;
+vtkfile["t_xy"]  = txy; vtkfile["Tmax"] = tmax;  vtkfile["ez"] = ez;
 
 vtkfile["sv"] = sv
-
-
 vtkfile["n1"] = [cos.(ang)           sin.(ang)                    ]
 vtkfile["n2"] = [cos.(ang .+ pi/2)           sin.(ang .+ pi/2)    ]
 

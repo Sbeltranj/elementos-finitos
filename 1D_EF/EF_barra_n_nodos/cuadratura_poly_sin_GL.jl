@@ -61,7 +61,3 @@ xlabel!("Número de puntos en la cuadratura")
 
 display(n_1)
 display(n_2)
-
-
-
-
