@@ -395,7 +395,6 @@ end
 Mx = vec(Mx); My = vec(My); Mxy = vec(Mxy)
 Qx = vec(Qx); Qy = vec(Qy)
 
-
 ## Se calculan y grafican para cada elemento los momentos principales y
 ## sus direcciones
 Mt_max = sqrt.(((Mx-My)/2).^2 + Mxy.^2) # momento torsión máximo
@@ -438,3 +437,22 @@ wood = hcat(collect.(WoodArmer.(Mx, My, Mxy))...)'
 dibujar_wood_armer(xnod,[wood[:,1], wood[:,2], wood[:,3], wood[:,4]],
                 [L"Momentos M_x^* sup", L"Momentos M_y^* sup",  L"Momentos M_x^* inf", L"Momentos M_y^* inf"]) 
 
+## comparación solución analítica
+u = 0.5; v = 1; xi = 1.25; eta = 1.5;
+qdist = -10;
+err = zeros(nno,1);
+MEF = zeros(nno,1);
+analitica = zeros(nno,1);
+ww = 1;
+
+include("cal_w.jl")
+for i = 1:nno
+    MEF[i] = aa_[i,ww];
+    analitica[i] = calc_w(xnod[i,X], xnod[i,Y], E, nu, h, 2, 4, qdist, u, v, xi, eta);
+    err[i] = abs((MEF[i]-analitica[i])/analitica[i]);
+end
+
+println("Observe que al comparar ambos métodos los errores relativos máximos son:")
+println(maximum(filter(!isnan,err)))
+println("Es decir son extremadamente pequeños !!")
+println()
