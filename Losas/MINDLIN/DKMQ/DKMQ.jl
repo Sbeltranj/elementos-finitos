@@ -1,9 +1,22 @@
-# Programa elaborado en JULIA 1.7.1
+## 
+# Cálculo de los desplazamientos en una placa utilizando la teoría de
+# Reissner-Mindlin y el elemento finito de placa DKQ/DKMQ 
+#
+# Algoritmo documentado en:
+# Katili, I. (1993), A new discrete Kirchhoff-Mindlin element based on 
+# Mindlin-Reissner plate theory and assumed shear strain fields-part II: 
+# An extended DKQ element for thick-plate bending analysis. Int. J. Numer. 
+# Meth. Engng., 36: 1885-1908. https://doi.org/10.1002/nme.1620361107
+#
+# Este es el algoritmo de losas usado en MIDAS y AUTODESK ROBOT.
+# Se programo intentando seguir la nomenclatura del articulo
 
 # Diego Andrés Alvarez Marín
 # daalvarez@unal.edu.co
+# Sebastián Jaramillo Moreno
 # https://github.com/diegoandresalvarez/elementosfinitos/tree/master/codigo/losas
 
+# Programa elaborado en JULIA 1.7.1
 # Traducido por:
 # Santiago Beltrán Jaramillo
 # sbeltran@unal.edu.co
@@ -17,19 +30,6 @@ close("all")          #cerrar ventanas
 
 ENV["MPLBACKEND"]="qt5agg"
 pygui(true)
-
-## 
-# Calculo de los desplazamientos en una placa utilizando la teoria de
-# Reissner-Mindlin y el elemento finito de placa DKQ/DKMQ 
-#
-# Algoritmo documentado en:
-# Katili, I. (1993), A new discrete Kirchhoff-Mindlin element based on 
-# Mindlin-Reissner plate theory and assumed shear strain fields-part II: 
-# An extended DKQ element for thick-plate bending analysis. Int. J. Numer. 
-# Meth. Engng., 36: 1885-1908. https://doi.org/10.1002/nme.1620361107
-#
-# Este es el algoritmo de losas usado en MIDAS y AUTODESK ROBOT.
-# Se programo intentando seguir la nomenclatura del articulo
 
 ## selección del tipo de EF de losa a emplear
 DKMQ = 1;
@@ -50,6 +50,7 @@ nno  = length(xnod[:,1]) #nno número de nodos
 ngdl = 3*nno  
 gdl  = [[1:3:ngdl]' [2:3:ngdl]' [3:3:ngdl]']    # grados de libertad
 gdl  = reshape(hcat(gdl...)',nno,3)
+
 ## Se dibuja la malla de elementos finitos. 
 figure(1)
 cg = zeros(nef, 2) # almacena el centro de gravedad
@@ -72,9 +73,9 @@ title("Malla de elementos finitos")
 plt.plot(xnod[:,X], xnod[:,Y], "b.")
 
 
-## Parametros de la cuadratura de Gauss-Legendre
-# se asumira aqui el mismo orden de la cuadratura tanto en la direccion de
-# xi como en la direccion de eta
+## Parámetros de la cuadratura de Gauss-Legendre
+# se asumirá aquí el mismo orden de la cuadratura tanto en la dirección de
+# xi como en la dirección de eta
 include("gauss_legendre.jl")
 n_gl = 2;                 # orden de la cuadratura de Gauss-Legendre
 x_gl, w_gl = gausslegendre_quad(n_gl);
@@ -96,15 +97,13 @@ Hs = (5/6)*G*h*Matrix{Float64}(I, 2, 2); # matriz constitutiva de cortante gener
 #  equivalentes global
 K   = spzeros(ngdl,ngdl)                 # matriz de rigidez global como RALA (sparse)
 idx = Array{Array{Int64}}(undef, nef,1)
-f   = zeros(ngdl,1);        # vector de fuerzas nodales equivalentes global
+f   = zeros(ngdl,1);                     # vector de fuerzas nodales equivalentes global
 N   = Array{Any}(undef,nef,n_gl, n_gl);
-#Bb  = Array{Any}(undef,nef,n_gl);
-#Bs  = Array{Any}(undef,nef,n_gl);
-nno_ = length(xnod[LaG[1,:],X])*3
-Bb = Array{Any}(undef,nef,n_gl,n_gl)  # matrices de deformación generalizada de flexión
+nef = size(LaG,1)
+Bb = Array{Any}(undef,nef,n_gl,n_gl);  # matrices de deformación generalizada de flexión
 Bs = Array{Any}(undef,nef,n_gl,n_gl); # matrices de deformación generalizada de cortante
 
-for e = 1:1               # ciclo sobre todos los elementos finitos
+for e = 1:nef               # ciclo sobre todos los elementos finitos
     ## Longitudes de los lados, cosenos y senos (Figura 4)
     xe = xnod[LaG[e,:],X];       ye = xnod[LaG[e,:],Y];
     x21 = xe[2] - xe[1];         y21 = ye[2] - ye[1]; 
@@ -196,7 +195,7 @@ for e = 1:1               # ciclo sobre todos los elementos finitos
                 error("Tipo de EF de losa no soportado");
             end
             
-            # Ecuación 38
+            # Ecuación 38 ## FALTA OPTIMIZAR, PROGRAMAR DE MEJOR FORMA ESTAS LINEAS 
             jh = (2/3) * Lk .* (1 .+phi_k)
             A_dbeta = [jh[1] 0  0 0
                         0    jh[1]  0 0
@@ -230,7 +229,7 @@ for e = 1:1               # ciclo sobre todos los elementos finitos
             # Ecuación 43
             Bs[e,pp,qq] = Bs_dbeta*An;
             
-            ## se arma la matriz de rigidez del elemento e por flexion (eq. 45)
+            ## se arma la matriz de rigidez del elemento e por flexión (eq. 45)
             Kbe +=  Bb[e,pp,qq]'*Hb*Bb[e,pp,qq]*det_Je[pp,qq]*w_gl[pp]*w_gl[qq];
             
             ## se arma la matriz de rigidez del elemento e por cortante (eq. 47)
@@ -249,12 +248,123 @@ for e = 1:1               # ciclo sobre todos los elementos finitos
     f[idx[e],:]      +=  fe;
 end
 
+## Muestro la configuración de la matriz K (K es rala)
+figure(2)
+spy(K)
+title("Los puntos representan los elementos diferentes de cero")
 
+## grados de libertad del desplazamiento conocidos y desconocidos
+# determino los grados de libertad correspondientes a los bordes
+lado_x0 = findall(x -> x==0, xnod[:,X]);     lado_y0 = findall(x -> x==0, xnod[:,Y]);
+lado_x2 = findall(x -> x==2, xnod[:,X]);     lado_y4 = findall(x -> x==4, xnod[:,Y]);
 
+c = [ gdl[lado_x0,ww]; gdl[lado_x0,ty]; 
+      gdl[lado_x2,ww]; gdl[lado_x2,ty];
+      gdl[lado_y0,ww]; gdl[lado_y0,tx];
+      gdl[lado_y4,ww]; gdl[lado_y4,tx] ];
 
+d = setdiff(1:ngdl,c);         # GDL desconocidos
 
+ac = zeros(length(c),1); # desplazamientos conocidos en contorno
 
+## se extraen las submatrices y especifico las cantidades conocidas
+# f = vector de fuerzas nodales equivalentes
+# q = vector de fuerzas nodales de equilibrio del elemento
+# a = desplazamientos
 
+#| qd |   | Kcc Kcd || ac |   | fd |
+#|    | = |         ||    | - |    |
+#| qc |   | Kdc Kdd || ad |   | fc |
+
+## extraigo las submatrices y especifico las cantidades conocidas
+
+Kcc = K[c,c]; Kcd = K[c,d]; fd = f[c]
+Kdc = K[d,c]; Kdd = K[d,d]; fc = f[d]
+
+# f = vector de fuerzas nodales equivalentes
+# q = vector de fuerzas nodales de equilibrio del elemento
+# a = desplazamientos
+
+qc = zeros(size(d))  # cargas de equilibrio en nodos libres ( = 0 siempre)
+qc = round.(Int, qc)
+
+## resuelvo el sistema de ecuaciones
+ad = Kdd \ ((fc + qc)-Kdc*ac)     # cálculo desplazamientos desconocidos
+qd = Kcc*ac + Kcd*ad - fd         # cálculo fuerzas de equilibrio desconocidas
+a = zeros(ngdl);   a[c]  = ac;   a[d] = ad   # desplazamientos
+q  = zeros(ngdl);  q[c]  = qd;   q[d] = qc   # fuerzas nodales equivalentes
+
+## Se calcula para cada elemento el vector de momentos en los puntos
+## de Gauss (ecuacion 49)
+MxMyMxy = Array{Any}(undef,nef,n_gl,n_gl);
+for e = 1:nef
+    for pp = 1:n_gl
+        for qq = 1:n_gl
+            MxMyMxy[e,pp,qq] = Hb*Bb[e,pp,qq]*a[idx[e]];
+        end
+    end
+end
+
+## Se calcula para cada elemento el vector de cortantes en los puntos
+## de Gauss (ecuacion 50)
+if EFtype == DKMQ
+    QxQy = Array{Any}(undef,nef,n_gl,n_gl);
+    for e = 1:nef
+        for pp = 1:n_gl
+            for qq = 1:n_gl
+                QxQy[e,pp,qq] = Hs*Bs[e,pp,qq]*a[idx[e]];
+            end
+        end
+    end
+end
+
+## Se extrapolan los momentos y cortantes a los nodos
+num_elem_ady = zeros(nno,1);  # numero de elementos adyacentes
+Mx  = zeros(nno,1);
+My  = zeros(nno,1);
+Mxy = zeros(nno,1);
+Qx  = zeros(nno,1);
+Qy  = zeros(nno,1);
+
+A = [ 
+   3^(1/2)/2 + 1            -1/2            -1/2   1 - 3^(1/2)/2
+            -1/2   1 - 3^(1/2)/2   3^(1/2)/2 + 1            -1/2
+   1 - 3^(1/2)/2            -1/2            -1/2   3^(1/2)/2 + 1
+            -1/2   3^(1/2)/2 + 1   1 - 3^(1/2)/2            -1/2 ];
+
+for e = 1:nef                             
+    Mx[LaG[e,:],:] .+=   A *   [ MxMyMxy[e,1,1][1]
+                                                MxMyMxy[e,1,2][1]
+                                                MxMyMxy[e,2,1][1]
+                                                MxMyMxy[e,2,2][1] ];
+
+    My[LaG[e,:],:] .+=    A * [ MxMyMxy[e,1,1][2]
+                                                MxMyMxy[e,1,2][2]
+                                                MxMyMxy[e,2,1][2]
+                                                MxMyMxy[e,2,2][2] ];
+                                        
+    Mxy[LaG[e,:],:] .+=   A * [ MxMyMxy[e,1,1][3]
+                                                MxMyMxy[e,1,2][3]
+                                                MxMyMxy[e,2,1][3]
+                                                MxMyMxy[e,2,2][3] ];
+                                            
+    num_elem_ady[LaG[e,:],:] .+= num_elem_ady[LaG[e,:],:] .+ 1;
+end 
+
+if EFtype == DKMQ
+    for e = 1:nef                             
+
+        Qx[LaG[e,:],:] = Qx[LaG[e,:],:]   + A * [ QxQy[e,1,1][1]
+                                                    QxQy[e,1,2][1]
+                                                    QxQy[e,2,1][1]
+                                                    QxQy[e,2,2][1] ];
+
+        Qy[LaG[e,:],:] = Qy[LaG[e,:],:]   + A * [ QxQy[e,1,1][2]
+                                                    QxQy[e,1,2][2]
+                                                    QxQy[e,2,1][2]
+                                                    QxQy[e,2,2][2] ];
+    end
+end 
 
 
 
