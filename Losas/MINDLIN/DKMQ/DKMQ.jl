@@ -1,0 +1,264 @@
+# Programa elaborado en JULIA 1.7.1
+
+# Diego Andrés Alvarez Marín
+# daalvarez@unal.edu.co
+# https://github.com/diegoandresalvarez/elementosfinitos/tree/master/codigo/losas
+
+# Traducido por:
+# Santiago Beltrán Jaramillo
+# sbeltran@unal.edu.co
+
+## cargamos paquetes:
+import XLSX
+using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall, WriteVTK
+
+include("losa.jl")  #para los gráficos
+close("all")          #cerrar ventanas
+
+ENV["MPLBACKEND"]="qt5agg"
+pygui(true)
+
+## 
+# Calculo de los desplazamientos en una placa utilizando la teoria de
+# Reissner-Mindlin y el elemento finito de placa DKQ/DKMQ 
+#
+# Algoritmo documentado en:
+# Katili, I. (1993), A new discrete Kirchhoff-Mindlin element based on 
+# Mindlin-Reissner plate theory and assumed shear strain fields-part II: 
+# An extended DKQ element for thick-plate bending analysis. Int. J. Numer. 
+# Meth. Engng., 36: 1885-1908. https://doi.org/10.1002/nme.1620361107
+#
+# Este es el algoritmo de losas usado en MIDAS y AUTODESK ROBOT.
+# Se programo intentando seguir la nomenclatura del articulo
+
+## selección del tipo de EF de losa a emplear
+DKMQ = 1;
+DKQ  = 2;
+EFtype = DKMQ;
+
+## defino las variables/constantes
+X = 1; Y = 2; Z = 3; # un par de constantes que ayudaran en la 
+ww= 1; tx= 2; ty= 3; # lectura del código
+
+E  = 210e9;       # [Pa]    modulo de elasticidad = 210GPa
+nu = 0.3;         #         coeficiente de Poisson
+h  = 0.05;        # [m]     espesor de la losa
+q  = -10000;      # [N/m^2] carga
+nno  = length(xnod[:,1]) #nno número de nodos
+
+## definición de los grados de libertad
+ngdl = 3*nno  
+gdl  = [[1:3:ngdl]' [2:3:ngdl]' [3:3:ngdl]']    # grados de libertad
+gdl  = reshape(hcat(gdl...)',nno,3)
+## Se dibuja la malla de elementos finitos. 
+figure(1)
+cg = zeros(nef, 2) # almacena el centro de gravedad
+nef   = size(LaG,1)
+for e = 1:nef
+    nod_ef = LaG[e, [1, 2, 3, 4, 1]]
+    
+    plt.plot(xnod[nod_ef,X], xnod[nod_ef,Y],
+          color="k", linestyle="-")
+
+    # Cálculo de la posición del centro de gravedad 
+    cg[e,:] = [ mean(xnod[nod_ef,X]) mean(xnod[nod_ef,Y]) ]
+
+    plt.text(cg[e, X], cg[e, Y], "$e", fontsize=5, color=[1,0,0],
+        horizontalalignment="center", verticalalignment="center")
+
+end
+
+title("Malla de elementos finitos")
+plt.plot(xnod[:,X], xnod[:,Y], "b.")
+
+
+## Parametros de la cuadratura de Gauss-Legendre
+# se asumira aqui el mismo orden de la cuadratura tanto en la direccion de
+# xi como en la direccion de eta
+include("gauss_legendre.jl")
+n_gl = 2;                 # orden de la cuadratura de Gauss-Legendre
+x_gl, w_gl = gausslegendre_quad(n_gl);
+
+## Se leen las funciones de forma N y P y sus derivadas dN_dxi, dN_deta, 
+#  dP_dxi, dP_deta
+include("funciones_de_forma.jl");
+
+## matrices constitutivas
+Db = (E*h^3/(12*(1-nu^2)));   # plate rigidity
+Hb = Db * [ 1  nu 0           # matriz constitutiva de flexión generalizada
+            nu 1  0           # (Dbe en la nomenclatura del curso) 
+            0  0  (1-nu)/2 ]; 
+
+G  = E/(2*(1+nu));     # modulo de cortante
+Hs = (5/6)*G*h*Matrix{Float64}(I, 2, 2); # matriz constitutiva de cortante generalizada (Dse)
+
+## ensamblo la matriz de rigidez global y el vector de fuerzas nodales
+#  equivalentes global
+K   = spzeros(ngdl,ngdl)                 # matriz de rigidez global como RALA (sparse)
+idx = Array{Array{Int64}}(undef, nef,1)
+f   = zeros(ngdl,1);        # vector de fuerzas nodales equivalentes global
+N   = Array{Any}(undef,nef,n_gl, n_gl);
+#Bb  = Array{Any}(undef,nef,n_gl);
+#Bs  = Array{Any}(undef,nef,n_gl);
+nno_ = length(xnod[LaG[1,:],X])*3
+Bb = Array{Any}(undef,nef,n_gl,n_gl)  # matrices de deformación generalizada de flexión
+Bs = Array{Any}(undef,nef,n_gl,n_gl); # matrices de deformación generalizada de cortante
+
+for e = 1:1               # ciclo sobre todos los elementos finitos
+    ## Longitudes de los lados, cosenos y senos (Figura 4)
+    xe = xnod[LaG[e,:],X];       ye = xnod[LaG[e,:],Y];
+    x21 = xe[2] - xe[1];         y21 = ye[2] - ye[1]; 
+    x32 = xe[3] - xe[2];         y32 = ye[3] - ye[2];
+    x43 = xe[4] - xe[3];         y43 = ye[4] - ye[3];    
+    x14 = xe[1] - xe[4];         y14 = ye[1] - ye[4];
+    xji = [ x21 x32 x43 x14 ];   yji = [ y21 y32 y43 y14 ];   
+    
+    Lk = hypot.(xji, yji);      Ck =xji./Lk;      Sk = yji./Lk;
+    
+    ## Ciclo sobre los puntos de Gauss para calcular Kbe, Kse y fe
+    Kbe = zeros(12,12);
+    Kse = zeros(12, 12);
+    fe  = zeros(12,1);
+    det_Je = zeros(n_gl,n_gl); # almacenara los Jacobianos
+    
+    for pp = 1:n_gl
+        for qq = 1:n_gl           
+            ## Se evalúan las funciones de forma y sus derivadas en los 
+            # puntos de Gauss
+            xi_gl  = x_gl[pp];            eta_gl = x_gl[qq];
+
+            NN       = Nforma(xi_gl, eta_gl);
+            ddN_dxi  = dN_dxi(xi_gl, eta_gl);       
+            ddN_deta = dN_deta(xi_gl, eta_gl);       
+            ddP_dxi  = dP_dxi(xi_gl, eta_gl);       
+            ddP_deta = dP_deta(xi_gl, eta_gl);
+                                   
+            ## Matriz jacobiana, su inversa y determinante
+            # Se ensambla la matriz jacobiana
+            dx_dxi  = sum(ddN_dxi .*xe);   dy_dxi  = sum(ddN_dxi .*ye);
+            dx_deta = sum(ddN_deta.*xe);   dy_deta = sum(ddN_deta.*ye);
+            
+            Je = [ dx_dxi    dy_dxi
+                   dx_deta   dy_deta ];
+            
+            # Se calcula su inversa
+            inv_Je = inv(Je);
+            j11 = inv_Je[1,1];              j12 = inv_Je[1,2];
+            j21 = inv_Je[2,1];              j22 = inv_Je[2,2];                       
+                
+            # y su determinante (el Jacobiano)
+            det_Je[pp,qq] = det(Je);
+
+            # Se ensambla la matriz de funciones de forma N
+            N[e,pp,qq] = zeros(3,12);
+            for i = 1:4         
+               N[e,pp,qq][:,[3*i-2 3*i-1 3*i]] = [ 
+                   NN[i]    0           0
+                   0       NN[i]        0
+                   0       0           NN[i] ];
+            end
+                    
+            
+            ## Se calcula Bb_beta (ecuación 12)
+            Bb_beta = zeros(3,12);
+            for i = 1:4                
+                dNi_dx = j11*ddN_dxi[i] + j12*ddN_deta[i]; # = ai
+                dNi_dy = j21*ddN_dxi[i] + j22*ddN_deta[i]; # = bi               
+                Bb_beta[:,[3*i-2 3*i-1 3*i]] = [ 0    dNi_dx         0
+                                                 0         0    dNi_dy
+                                                 0    dNi_dy    dNi_dx ];
+            end
+            
+            ## Se calcula Bb_dbeta (ecuación 13)
+            Bb_dbeta = zeros(3,4);            
+            for k = 1:4            
+                dPk_dx = j11*ddP_dxi[k] + j12*ddP_deta[k];
+                dPk_dy = j21*ddP_dxi[k] + j22*ddP_deta[k];
+                Bb_dbeta[:,k] = [ dPk_dx*Ck[k]
+                                  dPk_dy*Sk[k]
+                                  dPk_dy*Ck[k] + dPk_dx*Sk[k] ];
+            end
+            
+            ## Se calcula An
+            # Ecuación 22b          
+
+            if EFtype ==  DKMQ
+                phi_k = (2/((5/6)*(1 - nu))) .* (h./Lk).^2;
+            elseif EFtype == DKQ
+                phi_k = zeros(1,4);
+                # Esto de acuerdo con el articulo
+                # Katili, et. al. (2018) - A comparative formulation of 
+                # DKMQ, DSQ and MITC4 quadrilateral plate elements with 
+                # new numerical results based on s-norm tests. 
+                # Computers & Structures, Volume 204, Pages 48-64,
+                # https://doi.org/10.1016/j.compstruc.2018.04.001.
+            else
+                error("Tipo de EF de losa no soportado");
+            end
+            
+            # Ecuación 38
+            jh = (2/3) * Lk .* (1 .+phi_k)
+            A_dbeta = [jh[1] 0  0 0
+                        0    jh[1]  0 0
+                        0    0  jh[1] 0
+                        0    0  0 jh[1]]
+             #diagm([(2/3) * Lk .* (1 .+phi_k)]);
+            
+            
+            # Ecuación 39
+            Aw = [  1 -x21/2 -y21/2 -1 -x21/2 -y21/2  0      0      0  0      0      0
+                    0      0      0  1 -x32/2 -y32/2 -1 -x32/2 -y32/2  0      0      0
+                    0      0      0  0      0      0  1 -x43/2 -y43/2 -1 -x43/2 -y43/2
+                   -1 -x14/2 -y14/2  0      0      0  0      0      0  1 -x14/2 -y14/2 ];
+                              
+            # Ecuación 37
+            An = A_dbeta\Aw;
+            #Array{Any}(undef,nef,n_gl,n_gl)
+            ## Se calcula la matriz de deformación por flexión Bb (eq. 41)
+            Bb[e,pp,qq] = Bb_beta + Bb_dbeta*An;
+            
+            ## Se calcula la matriz de deformación por cortante Bs
+            L5_phi5 = Lk[1]*phi_k[1];    
+            L6_phi6 = Lk[2]*phi_k[2];
+            L7_phi7 = Lk[3]*phi_k[3];    
+            L8_phi8 = Lk[4]*phi_k[4];
+                       
+            # Ecuación 27
+            Bs_dbeta = (1/6)*[ -j11*(1-eta_gl)*L5_phi5    -j12*(1+xi_gl)*L6_phi6    j11*(1+eta_gl)*L7_phi7    j12*(1-xi_gl)*L8_phi8
+                               -j21*(1-eta_gl)*L5_phi5    -j22*(1+xi_gl)*L6_phi6    j21*(1+eta_gl)*L7_phi7    j22*(1-xi_gl)*L8_phi8 ];
+            
+            # Ecuación 43
+            Bs[e,pp,qq] = Bs_dbeta*An;
+            
+            ## se arma la matriz de rigidez del elemento e por flexion (eq. 45)
+            Kbe +=  Bb[e,pp,qq]'*Hb*Bb[e,pp,qq]*det_Je[pp,qq]*w_gl[pp]*w_gl[qq];
+            
+            ## se arma la matriz de rigidez del elemento e por cortante (eq. 47)
+            Kse += Bs[e,pp,qq]'*Hs*Bs[e,pp,qq]*det_Je[pp,qq]*w_gl[pp]*w_gl[qq];
+            
+            ## vector de fuerzas nodales equivalentes        
+            if (xe[1] >= 0.9999 && xe[2] <= 1.501) && (ye[2] >= 0.9999 && ye[3] <= 2.001)
+                fe += N[e,pp,qq]'*[q 0 0]'*det_Je[pp,qq]*w_gl[pp]*w_gl[qq];
+            end
+        end
+    end
+    
+    ## ensamblaje matricial
+    idx[e] = [ gdl[LaG[e,1],:]; gdl[LaG[e,2],:]; gdl[LaG[e,3],:]; gdl[LaG[e,4],:] ]
+    K[idx[e],idx[e]] +=  Kbe + Kse;
+    f[idx[e],:]      +=  fe;
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
