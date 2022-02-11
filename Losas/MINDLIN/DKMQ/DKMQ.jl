@@ -26,6 +26,7 @@ import XLSX
 using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall, WriteVTK
 
 include("losa.jl")  #para los gráficos
+include("dib_DKMQ.jl")  #para los gráficos
 close("all")          #cerrar ventanas
 
 ENV["MPLBACKEND"]="qt5agg"
@@ -294,6 +295,30 @@ qd = Kcc*ac + Kcd*ad - fd         # cálculo fuerzas de equilibrio desconocidas
 a = zeros(ngdl);   a[c]  = ac;   a[d] = ad   # desplazamientos
 q  = zeros(ngdl);  q[c]  = qd;   q[d] = qc   # fuerzas nodales equivalentes
 
+## Dibujar deformada:
+aa_ =  reshape(a,3,nno)'
+a_  = aa_[:,X]
+NL1, NL2, NL3, NL4 = 1,2,3,4
+
+@pyimport matplotlib.tri as mtri
+triangles = Vector{Vector{Int64}}(undef, 2*nef)
+
+for e = 1:nef
+    # se arma la matriz de correspondencia (LaG) de la malla
+    triangles[2*e - 1] = LaG[e, [NL1, NL2, NL4]] .- 1
+    triangles[2*e - 0] = LaG[e, [NL2, NL3, NL4]] .- 1
+ end
+
+triang = mtri.Triangulation(xnod[:,X], xnod[:,Y], triangles=triangles) 
+
+fig = plt.figure()
+esc = 0.8  #escala diagrama 
+title("Estructura deformada $(esc) veces")
+ax = fig.add_subplot(projection="3d")
+ax.set_box_aspect((2, 4, esc)) 
+ax.plot_trisurf(triang, a_, cmap="bwr")
+plt.tight_layout() 
+
 ## Se calcula para cada elemento el vector de momentos en los puntos
 ## de Gauss (ecuacion 49)
 MxMyMxy = Array{Any}(undef,nef,n_gl,n_gl);
@@ -354,21 +379,62 @@ end
 if EFtype == DKMQ
     for e = 1:nef                             
 
-        Qx[LaG[e,:],:] = Qx[LaG[e,:],:]   + A * [ QxQy[e,1,1][1]
+        Qx[LaG[e,:],:] .+= A * [ QxQy[e,1,1][1]
                                                     QxQy[e,1,2][1]
                                                     QxQy[e,2,1][1]
                                                     QxQy[e,2,2][1] ];
 
-        Qy[LaG[e,:],:] = Qy[LaG[e,:],:]   + A * [ QxQy[e,1,1][2]
+        Qy[LaG[e,:],:] .+= A * [ QxQy[e,1,1][2]
                                                     QxQy[e,1,2][2]
                                                     QxQy[e,2,1][2]
                                                     QxQy[e,2,2][2] ];
     end
 end 
 
+## Se convierte el array-matrix en un vector para los gráficos.
+Mx = vec(Mx); My = vec(My); Mxy = vec(Mxy)
+Qx = vec(Qx); Qy = vec(Qy)
 
 
+## Se calculan y grafican para cada elemento los momentos principales y
+## sus direcciones
+Mt_max = sqrt.(((Mx-My)/2).^2 + Mxy.^2) # momento torsión máximo
+Mf1_xy = (Mx+My)/2 + Mt_max             # momento flector máximo
+Mf2_xy = (Mx+My)/2 - Mt_max             # momento flector mínimo
+ang_  = 0.5*atan.(2*Mxy, Mx-My)         # ángulo de inclinación de Mf1_xy
 
 
+## se dibujan los gráficos:
+#Momentos Mx, My, Mxy  
+figure(4)
+subplot(131);plot_mom_Q_ang(xnod,[My], [],[L"Momento Mx(kN-m/m)"])
+subplot(132); plot_mom_Q_ang(xnod,[Mx], [],[L"Momento My(kN-m/m)"])
+subplot(133);plot_mom_Q_ang(xnod,[Mxy], [],[L"Momento Mxy(kN-m/m)"])
 
+#Momentos principales
+figure(5)
+subplot(131);plot_mom_Q_ang(xnod,[Mf1_xy], [ang_],[L"Mf1_{xy}(kN-m/m)"])
+subplot(132);plot_mom_Q_ang(xnod,[Mf2_xy], [ang_.+pi/2],[L"Mf2_{xy}(kN-m/m)"])
+subplot(133);plot_mom_Q_ang(xnod,[Mt_max], [ang_.+pi/4, ang_.-pi/4],[L"Mt_{max}(kN-m/m)"])
+
+#Cortantes Qx, Qy, Qmax 
+if EFtype == DKMQ
+    figure(6)
+    subplot(131);plot_mom_Q_ang(xnod,[Qx], [],[L"Q_x(kN/m)"])
+    subplot(132);plot_mom_Q_ang(xnod,[Qy], [],[L"Q_y(kN/m)"])
+end
+## Se calculan y grafican los cortantes máximos, junto con su angulo de inclinacion
+if EFtype == DKMQ
+    Q_max = hypot.(Qx, Qy);
+    ang   = atan.(Qy, Qx);
+    subplot(133);plot_mom_Q_ang(xnod,[Q_max], [ang],[ L"Q_{max}(kN/m)"])
+end
+
+#calculos wood_armer
+include("wood_armer.jl")
+wood = hcat(collect.(WoodArmer.(Mx, My, Mxy))...)'
+
+#Diseño de wood y armer:
+dibujar_wood_armer(xnod,[wood[:,1], wood[:,2], wood[:,3], wood[:,4]],
+                [L"Momentos M_x^* sup", L"Momentos M_y^* sup",  L"Momentos M_x^* inf", L"Momentos M_y^* inf"]) 
 

@@ -45,13 +45,12 @@ function plot_mom_Q_ang(xnod, mom_Q, ang_, lab)
     #                             1--------2
        
     for i = 1:length(mom_Q)
-        #ax1 = fig.add_subplot(gs[1,i])
         norma = 1
    
         im = plt.tripcolor(xnod[:, X] , xnod[:, Y], triangles, mom_Q[i],  cmap = "bwr",
                        shading = "gouraud")
    
-        colorbar(im,shrink=0.79)
+        colorbar(im,shrink=0.72)
         xlim(0, 2); ylim(0, 4); tight_layout()
         plt.gca().set_aspect("equal", adjustable="box")
         title(lab[i])
