@@ -22,12 +22,12 @@
 # sbeltran@unal.edu.co
 
 ## cargamos paquetes:
-import XLSX
-using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall, WriteVTK
+using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall
 
 include("losa.jl")  #para los gráficos
 include("dib_DKMQ.jl")  #para los gráficos
 close("all")          #cerrar ventanas
+nef   = size(LaG,1)
 
 ENV["MPLBACKEND"]="qt5agg"
 pygui(true)
@@ -55,7 +55,7 @@ gdl  = reshape(hcat(gdl...)',nno,3)
 ## Se dibuja la malla de elementos finitos. 
 figure(1)
 cg = zeros(nef, 2) # almacena el centro de gravedad
-nef   = size(LaG,1)
+
 for e = 1:nef
     nod_ef = LaG[e, [1, 2, 3, 4, 1]]
     

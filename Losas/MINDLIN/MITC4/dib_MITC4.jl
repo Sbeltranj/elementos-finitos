@@ -8,12 +8,6 @@
 # Santiago Beltrán Jaramillo
 # sbeltran@unal.edu.co
 
-
-#Función para dibujar los diferentes gráficos del EF MZC,
-#para la losa de Kirchhoff_Love
-#Tener instalada la librería de matplotlib (PYTHON-pip install matplotlib)
-#además Pkg.add("PyPlot") en consola de JULIA
-
 using PyPlot,PyCall
 
 function plot_mom_Q_ang(xnod, mom_Q, ang_, lab)

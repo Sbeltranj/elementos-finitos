@@ -24,10 +24,10 @@
 # sbeltran@unal.edu.co
 
 ## cargamos paquetes:
-using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall, WriteVTK
+using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall
 
 include("losa.jl")  #para los gráficos
-include("dib_DKMQ.jl")  #para los gráficos
+include("dib_MITC4.jl")  #para los gráficos
 close("all")          #cerrar ventanas
 
 ENV["MPLBACKEND"]="qt5agg"
@@ -417,9 +417,3 @@ println("Observe que al comparar ambos métodos los errores relativos máximos s
 println(maximum(filter(!isnan,err)))
 println("Es decir son extremadamente pequeños !!")
 println()
-
-
-
-
-
-
