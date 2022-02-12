@@ -17,6 +17,7 @@
 using PyPlot
 using PyCall
 using MappedArrays
+close("all")          #cerrar ventanas
 ENV["MPLBACKEND"]="qt5agg"
 pygui(true)
 
@@ -25,7 +26,6 @@ figure()
 title("Haciendo clic con el ratón, defina los 16 nodos del EF")
 axis([-5, 5, -5, 5])
 
-a = [1,2,3,4,5]
 coord = ginput(16)
 
 xnod = mappedarray(coord->first(coord),coord)
@@ -33,7 +33,8 @@ ynod = mappedarray(coord->last(coord),coord)
 
 ## Espacio normalizado
 fig = plt.figure()
-gs = fig.add_gridspec(ncols=2, nrows=2)
+title("Jacobiano Isoparamétrico")
+gs = fig.add_gridspec(ncols=3, nrows=1)
 
 #función meshgrid:
 #tomado de: https://stackoverflow.com/questions/44581049/utilizing-ndgrid-meshgrid-functionality-in-julia
@@ -67,6 +68,7 @@ xinod =  [-1, -1/3, 1/3,  1,    1,   1, 1, 1/3, -1/3, -1,  -1,   -1, -1/3,  1/3,
 etanod = [-1,   -1,  -1, -1, -1/3, 1/3, 1,   1,    1,  1, 1/3, -1/3, -1/3, -1/3, 1/3,  1/3]
 ax1.plot(xinod, etanod, "ro", markersize=12, linewidth=4)
 ax1.axis([-1.1, 1.1, -1.1, 1.1])
+ax1.set_title("Espacio normalizado")
 ax1.set_aspect("equal", "box")
 
 ## Funciones de forma del elemento lagrangiano plano de 16 nodos (cuadrático)
@@ -107,7 +109,7 @@ for i = 1:16
    y .+= N[i].*ynod[i];
 end
 
-ax3 = fig.add_subplot(gs[:2])
+ax3 = fig.add_subplot(gs[1,2])
 for i = 1:n
     h1 = ax3.plot(x[:, i], y[:, i], "b")
     h2 = ax3.plot(x[i, :], y[i, :], "b")
@@ -118,6 +120,7 @@ for i = 1:n
 end    
 ax3.plot(xnod, ynod, "ro", markersize=12, linewidth=4)
 ax3.set_aspect("equal", "box")
+
 
 ## derivadas de las funciones de forma
 dN_dxi = zeros(n, n, 16)
@@ -210,10 +213,10 @@ end
 
 
 ## se grafica el jacobiano
-ax2 = fig.add_subplot(gs[2,1])
+ax2 = fig.add_subplot(gs[1,3])
 h = ax2.pcolor(xi, eta, detJ, cmap="jet")
 tickscb = LinRange(minimum(detJ), maximum(detJ), 10)
-fig.colorbar(h, ax=ax2, ticks=tickscb), 
+fig.colorbar(h, shrink=0.5), 
 ax2.set_title("Determinante de J")
 
 if JR < 0 || JR > 40

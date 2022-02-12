@@ -26,7 +26,6 @@ de la viga mostrada
 using Plots
 using Polynomials
 
-
 ## defino las variables
 
 E = 200e9;    # Pa               # módulo de elasticidad de la barra
