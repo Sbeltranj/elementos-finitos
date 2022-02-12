@@ -27,7 +27,7 @@ function dibujar_EF_Q89_RM(xe, ye, N, ae, te, esc_w, esc_t)
     eta = [-ones(1,length(-1:0.1:1))               collect(-1:0.1:1)'    +ones(1,length(1:-0.1:-1))                collect(1:-0.1:-1)'   ];
     
     n = length(xi);  # number of points of vector xi
-    xnod[LaG[e,:],X]
+    
     x = zeros(n,1);
     y = zeros(n,1);
     for j = 1:n
@@ -38,14 +38,14 @@ function dibujar_EF_Q89_RM(xe, ye, N, ae, te, esc_w, esc_t)
     ## Se gráfica el elemento original
 
 
-    ax.plot3D(vec(x), vec(y), repeat([-te/2],size(x)[1]), "gray")
-    ax.plot3D(vec(x), vec(y), zeros(size(x)[1]), "gray")
-    ax.plot3D(vec(x), vec(y), repeat([te/2],size(x)[1]), "gray")
+    ax.plot3D(vec(x), vec(y), repeat([-te/2],size(x)[1]), "b-")
+    ax.plot3D(vec(x), vec(y), zeros(size(x)[1]), "b-")
+    ax.plot3D(vec(x), vec(y), repeat([te/2],size(x)[1]), "b-") 
     
     ## Se grafican las lineas verticales originales
     for j = 1:nno
-        ax.plot3D([ xe[j], xe[j] ], [ ye[j], ye[j] ], [ -te/2, te/2 ], "gray");
-    end
+        ax.plot3D([ xe[j], xe[j] ], [ ye[j], ye[j] ], [ -te/2, te/2 ], "b*-");
+    end 
     
     ## Se calcula el elemento deformado
     mov = reshape(ae,3,nno)';  # se reorganiza el vector de movimientos nodales
@@ -69,15 +69,15 @@ function dibujar_EF_Q89_RM(xe, ye, N, ae, te, esc_w, esc_t)
     ## Se gráfica el elemento deformado
     ax.plot3D(vec(x+u_sup), vec(y+v_sup), vec(w_sup), "r"); # cara superior
     ax.plot3D(vec(x+u_mid), vec(y+v_mid), vec(w_mid), "r"); # plano medio
-    ax.plot3D(vec(x+u_inf), vec(y+v_inf), vec(w_inf), "r"); # cara inferior
+    ax.plot3D(vec(x+u_inf), vec(y+v_inf), vec(w_inf), "r"); # cara inferior 
     
     ## Se grafican las lineas verticales deformadas
     z =  te/2; u_sup = -z*mov[:,tx_]; v_sup = -z*mov[:,ty_]; w_sup = mov[:,w_].+z;
     z = -te/2; u_inf = -z*mov[:,tx_]; v_inf = -z*mov[:,ty_]; w_inf = mov[:,w_].+z;
     
     for j = 1:nno
-        ax.plot3D([ xe[j]+u_inf[j], xe[j]+u_sup[j] ], [ ye[j]+v_inf[j], ye[j]+v_sup[j] ], [ w_inf[j], w_sup[j] ], "r");
-    end
+        ax.plot3D([ xe[j]+u_inf[j], xe[j]+u_sup[j] ], [ ye[j]+v_inf[j], ye[j]+v_sup[j] ], [ w_inf[j], w_sup[j] ], "r*-");
+    end 
     
     ## Meshgrid, tomado de: https://stackoverflow.com/questions/44581049/utilizing-ndgrid-meshgrid-functionality-in-julia
     function meshgrid(x, y)
@@ -94,7 +94,7 @@ function dibujar_EF_Q89_RM(xe, ye, N, ae, te, esc_w, esc_t)
     xi = xi' ; eta = eta'
     
 
-#=     w = zeros(21,21);
+    w = zeros(21,21);
     x = zeros(21,21);
     y = zeros(21,21);
     for i = 1:21
@@ -105,8 +105,16 @@ function dibujar_EF_Q89_RM(xe, ye, N, ae, te, esc_w, esc_t)
        end
     end
     
-    ax.plot_surface(x, y, w, cmap="bwr",
-                       linewidth=0, antialiased=false) =#
+    #@pyimport matplotlib.cm as cmapi
+    cm = pyimport("matplotlib.cm")
+
+#=     norma = plt.Normalize(minimum(w), maximum(w))
+    cim = cm.jet(norma(w)) 
+    rcount, ccount, _ = size(cim) =#
+
+    #my_col = cm.jet(w/minimum(w))
+    ax.plot_surface(x, y, w, rstride=1, cstride=1, 
+        linewidth=0, cmap = "jet")
 
     return
 end

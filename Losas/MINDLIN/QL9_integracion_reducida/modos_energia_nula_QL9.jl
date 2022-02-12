@@ -13,7 +13,7 @@
 
 #Cargamos funciones:
 
-include("Malla1.jl"); include("gauss_legendre.jl"); include("Bb_RM.jl"); include("Bs_RM.jl")
+include("Malla_MEN.jl"); include("gauss_legendre.jl"); include("Bb_RM.jl"); include("Bs_RM.jl")
 include("dibujar_QL9.jl"); include("funciones_forma_lagrangiano_9_nodos.jl"); include("dib89.jl")
 
 ## Para borrar memoria: ctrl+D --> ENTER, en Julia REPL
@@ -31,6 +31,8 @@ E  = 210e9;          # módulo de elasticidad del solido (Pa) = 210GPa
 nu = 0.3;            # coeficiente de Poisson
 t  = 0.05;           # espesor de la losa (m)
 qdistr = -10000;     # carga (N/m^2)
+
+
 
 nef   = size(LaG,1);  # número de EFs (numero de filas de LaG)
 nnoef = size(LaG,2);  # número de nodos por EF
@@ -211,6 +213,7 @@ for e = 1:nef      # ciclo sobre todos los elementos finitos
    f[idx[e],:]      += fe
 end
 
+f[gdl[45,ww]] = -10
 ## Muestro la configuración de la matriz K (K es rala)
 figure(2)
 spy(K)
@@ -218,13 +221,10 @@ title("Los puntos representan los elementos diferentes de cero")
 
 ## grados de libertad del desplazamiento conocidos y desconocidos
 # determino los grados de libertad correspondientes a los bordes
-lado_x0 = findall(x -> x==0, xnod[:,X]);     lado_y0 = findall(x -> x==0, xnod[:,Y]);
-lado_x2 = findall(x -> x==2, xnod[:,X]);     lado_y4 = findall(x -> x==4, xnod[:,Y]);
 
-c = [ gdl[lado_x0,ww]; gdl[lado_x0,ty]; 
-      gdl[lado_x2,ww]; gdl[lado_x2,ty];
-      gdl[lado_y0,ww]; gdl[lado_y0,tx];
-      gdl[lado_y4,ww]; gdl[lado_y4,tx] ];
+c = [ gdl[1,ww]; gdl[1,tx]; 
+      gdl[1,ty]; gdl[37,ww];
+      gdl[37,tx]; gdl[37,ty]];
 
 d = setdiff(1:ngdl,c);         # GDL desconocidos
 
@@ -258,7 +258,7 @@ a = zeros(ngdl);   a[c]  = ac;   a[d] = ad   # desplazamientos
 q  = zeros(ngdl);  q[c]  = qd;   q[d] = qc   # fuerzas nodales equivalentes
 
 ## Se dibuja el plano medio de la malla de elementos finitos y las deformaciones de esta
-aa_ =  reshape(a,3,nno)'
+#= aa_ =  reshape(a,3,nno)'
 a_ = aa_[:,1]*1000
 NL1, NL2, NL3, NL4, NL5, NL6, NL7, NL8 = 1,2,3,4,5,6,7,8
 
@@ -282,173 +282,16 @@ title("Estructura deformada $(esc) veces")
 ax = fig.add_subplot(projection="3d")
 ax.set_box_aspect((2, 4, esc)) 
 img = ax.plot_trisurf(triang, a_, cmap="bwr")
-colorbar(img, shrink=0.79) 
+colorbar(img, shrink=0.7) =#
 
+esc = 2.2
 fig = plt.figure()
+title("Estructura deformada $(esc) veces")
 ax = plt.axes(projection="3d")
 ax.set_box_aspect((2, 4, esc)) 
-
+#colorbar(fig, shrink=0.7)
+esc = 1.1
 for e = 1:nef
-   dibujar_EF_Q89_RM(xnod[LaG[e,:],X], xnod[LaG[e,:],Y],Nforma, a[idx[e]]*1000, t, esc, esc);
+   dibujar_EF_Q89_RM(xnod[LaG[e,:],X], xnod[LaG[e,:],Y],Nforma, a[idx[e]]*10000, t, esc, esc);
 end
 
-
-
-#= ## En los puntos de integración de Gauss-Legendre calcular:
-## El vector de momentos flectores y torsores (2x2)
-## El vector de fuerzas cortantes (1x1 o 2x2)
-n_gl_b = 2; x_gl_b, w_gl_b  = gausslegendre_quad(n_gl_b);
-
-# Observe que n_gl_s = 1; interpola mal la fuerza cortante.
-n_gl_s = 2; x_gl_s, w_gl_s  = gausslegendre_quad(n_gl_s);
-
-## se calcula de nuevo Bb y Bs en cada punto de GL
-
-Bb = Array{Any}(undef,3,nno_,n_gl_b,nef)# matrices de deformación generalizada de flexión
-Bs = Array{Any}(undef,2,nno_,n_gl_s,nef); # matrices de deformación generalizada de cortante
-
-## Se calculan los momentos y las fuerzas en los puntos de GL
-#sigmag_b = Array{Any}(undef,3,1,n_gl_b,nef); # momentos flectores y torsores
-#sigmag_s = Array{Any}(undef,2,1,n_gl_s,nef); # fuerzas cortantes
-
-sigmag_b = Array{Any}(undef,nef,n_gl_b,n_gl_b)
-sigmag_s = Array{Any}(undef,nef,n_gl_s,n_gl_s)
-
-for e = 1:nef      # ciclo sobre todos los elementos finitos
-    local xe, ye
-    xe = xnod[LaG[e,:],X];
-    ye = xnod[LaG[e,:],Y];
-    
-    ## se calcula la matrix Bb en los puntos de integración de GL para el
-    # calculo de los momentos flectores y torsores
-    local xi_gl, eta_gl
-    for p = 1:n_gl_b
-        for q = 1:n_gl_b
-            
-            xi_gl  = x_gl_b[p];
-            eta_gl = x_gl_b[q];
-            Bb[:, :, q, e] = Bb_RM(xi_gl, eta_gl, xe, ye, dN_dxi, dN_deta)[1];
-            sigmag_b[e,p,q] = Dbg*Bb[:, :, q, e]*a[idx[e]];
-        end
-    end
-    
-    ## se calcula la matrix Bs en los puntos de integracion de GL para el
-    # calculo de las fuerzas cortantes
-
-    local xi_gl, eta_gl
-    for p = 1:n_gl_s
-        for q = 1:n_gl_s
-            
-            xi_gl  = x_gl_s[p];
-            eta_gl = x_gl_s[q];
-            Bs[:, :, q, e]  = Bs_RM(xi_gl, eta_gl, xe, ye, Nforma, dN_dxi, dN_deta)[1]
-            sigmag_s[e,p,q]   = Dsg*Bs[:, :, q, e]*a[idx[e]];
-        end
-    end
-end
-
-
-## Se extrapolan los momentos y cortantes a los nodos
-num_elem_ady = zeros(nno,1)  # número de elementos adyacentes
-Mx  = zeros(nno,1) ; Qy  = zeros(nno,1)
-My  = zeros(nno,1) ; Qx  = zeros(nno,1)
-Mxy = zeros(nno,1)
-
-# matriz de extrapolación de esfuerzos para un elemento lagrangiano de 9
-# nodos
-A = [ 
-   3^(1/2)/2 + 1            -1/2            -1/2   1 - 3^(1/2)/2
- 3^(1/2)/4 + 1/4 1/4 - 3^(1/2)/4 3^(1/2)/4 + 1/4 1/4 - 3^(1/2)/4
-            -1/2   1 - 3^(1/2)/2   3^(1/2)/2 + 1            -1/2
- 1/4 - 3^(1/2)/4 1/4 - 3^(1/2)/4 3^(1/2)/4 + 1/4 3^(1/2)/4 + 1/4
-   1 - 3^(1/2)/2            -1/2            -1/2   3^(1/2)/2 + 1
- 1/4 - 3^(1/2)/4 3^(1/2)/4 + 1/4 1/4 - 3^(1/2)/4 3^(1/2)/4 + 1/4
-            -1/2   3^(1/2)/2 + 1   1 - 3^(1/2)/2            -1/2
- 3^(1/2)/4 + 1/4 3^(1/2)/4 + 1/4 1/4 - 3^(1/2)/4 1/4 - 3^(1/2)/4
-             1/4             1/4             1/4             1/4 ];
-
-for e = 1:nef
-
-   Mx[LaG[e,:],:] .+=  A * [sigmag_b[e,1,1][1]
-                            sigmag_b[e,1,2][1]
-                            sigmag_b[e,2,1][1]
-                            sigmag_b[e,2,2][1] ] 
-
-
-   My[LaG[e,:],:] .+=  A * [sigmag_b[e,1,1][2]
-                            sigmag_b[e,1,2][2]
-                            sigmag_b[e,2,1][2]
-                            sigmag_b[e,2,2][2] ]
-                                        
-   Mxy[LaG[e,:],:] .+= A * [sigmag_b[e,1,1][3]
-                            sigmag_b[e,1,2][3]
-                            sigmag_b[e,2,1][3]
-                            sigmag_b[e,2,2][3] ]
-
-    
-    if n_gl_s == 1
-
-        Qx[LaG[e,:],:] += sigmag_s[e][1];
-        Qy[LaG[e,:],:] += sigmag_s[e][2];
-
-    elseif n_gl_s == 2
-
-        Qx[LaG[e,:],:]  += A *[ sigmag_s[e,1,1][1]
-                                sigmag_s[e,1,2][1]
-                                sigmag_s[e,2,1][1]
-                                sigmag_s[e,2,2][1] ];
-
-        Qy[LaG[e,:],:]  += A *[ sigmag_s[e,1,1][2]
-                                sigmag_s[e,1,2][2]
-                                sigmag_s[e,2,1][2]
-                                sigmag_s[e,2,2][2] ];
-    else
-
-    end
-   num_elem_ady[LaG[e,:],:] .+=  1;
-
-end 
-
-## Alisado (promedio de los momentos y cortantes en los nodos)
-Mx  =  Mx./num_elem_ady;  
-My  =  My./num_elem_ady;  
-Mxy =  Mxy./num_elem_ady;   
-Qx  =  Qx./num_elem_ady;  
-Qy  =  Qy./num_elem_ady; 
-
-
-## Se convierte el array-matrix en un vector para los gráficos.
-Mx = vec(Mx); My = vec(My); Mxy = vec(Mxy)
-Qx = vec(Qx); Qy = vec(Qy)
-
-## Se calculan y grafican para cada elemento los momentos principales y
-## sus direcciones
-Mt_max = sqrt.(((Mx-My)/2).^2 + Mxy.^2) # momento torsión máximo
-Mf1_xy = (Mx+My)/2 + Mt_max             # momento flector máximo
-Mf2_xy = (Mx+My)/2 - Mt_max             # momento flector mínimo
-ang_  = 0.5*atan.(2*Mxy, Mx-My)         # ángulo de inclinación de Mf1_xy
-
-
-## Se calculan y grafican los cortantes Qx, Qy y los Qmaximos, junto con 
-## su ángulo de inclinación
-Q_max = hypot.(Qx, Qy)
-ang   = atan.(Qy, Qx)
-
-## se dibujan los gráficos:
-#Momentos Mx, My, Mxy  
-figure(4)
-subplot(131);plot_mom_Q_ang(xnod,[My], [],[L"Momento Mx(kN-m/m)"])
-subplot(132); plot_mom_Q_ang(xnod,[Mx], [],[L"Momento My(kN-m/m)"])
-subplot(133);plot_mom_Q_ang(xnod,[Mxy], [],[L"Momento Mxy(kN-m/m)"])
-
-#Momentos principales
-figure(5)
-subplot(131);plot_mom_Q_ang(xnod,[Mf1_xy], [ang_],[L"Mf1_{xy}(kN-m/m)"])
-subplot(132);plot_mom_Q_ang(xnod,[Mf2_xy], [ang_.+pi/2],[L"Mf2_{xy}(kN-m/m)"])
-subplot(133);plot_mom_Q_ang(xnod,[Mt_max], [ang_.+pi/4, ang_.-pi/4],[L"Mt_{max}(kN-m/m)"])
-
-#Cortantes Qx, Qy, Qmax 
-figure(6)
-subplot(131);plot_mom_Q_ang(xnod,[Qx], [],[L"Q_x(kN/m)"])
-subplot(132);plot_mom_Q_ang(xnod,[Qy], [],[L"Q_y(kN/m)"])
-subplot(133);plot_mom_Q_ang(xnod,[Q_max], [ang],[ L"Q_{max}(kN/m)"]) =#
