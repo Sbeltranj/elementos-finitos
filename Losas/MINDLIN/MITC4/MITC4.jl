@@ -1,20 +1,22 @@
 ## 
 # Cálculo de los desplazamientos en una placa utilizando la teoría de
-# Reissner-Mindlin y el elemento finito de placa DKQ/DKMQ 
+# Reissner-Mindlin y el elemento finito de placa MITC4
 #
 # Algoritmo documentado en:
-# Katili, I. (1993), A new discrete Kirchhoff-Mindlin element based on 
-# Mindlin-Reissner plate theory and assumed shear strain fields-part II: 
-# An extended DKQ element for thick-plate bending analysis. Int. J. Numer. 
-# Meth. Engng., 36: 1885-1908. https://doi.org/10.1002/nme.1620361107
+# Katili, I., Batoz, J.-L., Maknun, J. and Lardeur, P. (2018), A comparative 
+# formulation of DKMQ, DSQ and MITC4 quadrilateral plate elements with new 
+# numerical results based on s-norm tests. Computers & Structures, 204:
+# 48-64. https://doi.org/10.1016/j.compstruc.2018.04.001
 #
-# Este es el algoritmo de losas usado en MIDAS y AUTODESK ROBOT.
-# Se programo intentando seguir la nomenclatura del articulo
+# y
+#
+# Bathe, K.-J. and Dvorkin, E.N. (1985), A four-node plate bending element 
+# based on Mindlin/Reissner plate theory and a mixed interpolation. Int. J.
+# Numer. Meth. Engng., 21: 367-383. https://doi.org/10.1002/nme.1620210213
 
 # Diego Andrés Alvarez Marín
 # daalvarez@unal.edu.co
-# Sebastián Jaramillo Moreno
-# https://github.com/diegoandresalvarez/elementosfinitos/tree/master/codigo/losas
+# https://github.com/diegoandresalvarez/elementosfinitos/blob/master/codigo/losas/Mindlin/MITC4/EF_MITC4_Katili_et_al.m
 
 # Programa elaborado en JULIA 1.7.1
 # Traducido por:
@@ -22,7 +24,6 @@
 # sbeltran@unal.edu.co
 
 ## cargamos paquetes:
-import XLSX
 using Polynomials, PyPlot, LinearAlgebra, Statistics, SparseArrays, PyCall, WriteVTK
 
 include("losa.jl")  #para los gráficos
@@ -32,16 +33,12 @@ close("all")          #cerrar ventanas
 ENV["MPLBACKEND"]="qt5agg"
 pygui(true)
 
-## selección del tipo de EF de losa a emplear
-DKMQ = 1;
-DKQ  = 2;
-EFtype = DKMQ;
-
+global nef = size(LaG,1)
 ## defino las variables/constantes
 X = 1; Y = 2; Z = 3; # un par de constantes que ayudaran en la 
 ww= 1; tx= 2; ty= 3; # lectura del código
 
-E  = 210e9;       # [Pa]    modulo de elasticidad = 210GPa
+E  = 210e9;       # [Pa]    módulo de elasticidad = 210GPa
 nu = 0.3;         #         coeficiente de Poisson
 h  = 0.05;        # [m]     espesor de la losa
 q  = -10000;      # [N/m^2] carga
@@ -83,7 +80,7 @@ x_gl, w_gl = gausslegendre_quad(n_gl);
 
 ## Se leen las funciones de forma N y P y sus derivadas dN_dxi, dN_deta, 
 #  dP_dxi, dP_deta
-include("funciones_de_forma.jl");
+include("funciones_de_forma_Katili.jl");
 
 ## matrices constitutivas
 Db = (E*h^3/(12*(1-nu^2)));   # plate rigidity
@@ -100,7 +97,7 @@ K   = spzeros(ngdl,ngdl)                 # matriz de rigidez global como RALA (s
 idx = Array{Array{Int64}}(undef, nef,1)
 f   = zeros(ngdl,1);                     # vector de fuerzas nodales equivalentes global
 N   = Array{Any}(undef,nef,n_gl, n_gl);
-nef = size(LaG,1)
+
 Bb = Array{Any}(undef,nef,n_gl,n_gl);  # matrices de deformación generalizada de flexión
 Bs = Array{Any}(undef,nef,n_gl,n_gl); # matrices de deformación generalizada de cortante
 
@@ -130,8 +127,7 @@ for e = 1:nef               # ciclo sobre todos los elementos finitos
             NN       = Nforma(xi_gl, eta_gl);
             ddN_dxi  = dN_dxi(xi_gl, eta_gl);       
             ddN_deta = dN_deta(xi_gl, eta_gl);       
-            ddP_dxi  = dP_dxi(xi_gl, eta_gl);       
-            ddP_deta = dP_deta(xi_gl, eta_gl);
+
                                    
             ## Matriz jacobiana, su inversa y determinante
             # Se ensambla la matriz jacobiana
@@ -157,78 +153,36 @@ for e = 1:nef               # ciclo sobre todos los elementos finitos
                    0       NN[i]        0
                    0       0           NN[i] ];
             end
-                    
-            
-            ## Se calcula Bb_beta (ecuación 12)
-            Bb_beta = zeros(3,12);
+
+            ## Se calcula la matriz de deformación por flexión Bb (ec. 40)
+            Bb_ = zeros(3,12)
             for i = 1:4                
                 dNi_dx = j11*ddN_dxi[i] + j12*ddN_deta[i]; # = ai
                 dNi_dy = j21*ddN_dxi[i] + j22*ddN_deta[i]; # = bi               
-                Bb_beta[:,[3*i-2 3*i-1 3*i]] = [ 0    dNi_dx         0
-                                                 0         0    dNi_dy
-                                                 0    dNi_dy    dNi_dx ];
+                Bb_[:,[3*i-2 3*i-1 3*i]] = [ 0   dNi_dx        0
+                                                     0        0   dNi_dy
+                                                     0   dNi_dy   dNi_dx ];
             end
-            
-            ## Se calcula Bb_dbeta (ecuación 13)
-            Bb_dbeta = zeros(3,4);            
-            for k = 1:4            
-                dPk_dx = j11*ddP_dxi[k] + j12*ddP_deta[k];
-                dPk_dy = j21*ddP_dxi[k] + j22*ddP_deta[k];
-                Bb_dbeta[:,k] = [ dPk_dx*Ck[k]
-                                  dPk_dy*Sk[k]
-                                  dPk_dy*Ck[k] + dPk_dx*Sk[k] ];
-            end
-            
-            ## Se calcula An
-            # Ecuación 22b          
 
-            if EFtype ==  DKMQ
-                phi_k = (2/((5/6)*(1 - nu))) .* (h./Lk).^2;
-            elseif EFtype == DKQ
-                phi_k = zeros(1,4);
-                # Esto de acuerdo con el articulo
-                # Katili, et. al. (2018) - A comparative formulation of 
-                # DKMQ, DSQ and MITC4 quadrilateral plate elements with 
-                # new numerical results based on s-norm tests. 
-                # Computers & Structures, Volume 204, Pages 48-64,
-                # https://doi.org/10.1016/j.compstruc.2018.04.001.
-            else
-                error("Tipo de EF de losa no soportado");
-            end
-            
-            # Ecuación 38 ## FALTA OPTIMIZAR, PROGRAMAR DE MEJOR FORMA ESTAS LINEAS 
-            jh = (2/3) * Lk .* (1 .+phi_k)
-            A_dbeta = [jh[1] 0  0 0
-                        0    jh[1]  0 0
-                        0    0  jh[1] 0
-                        0    0  0 jh[1]]
-             #diagm([(2/3) * Lk .* (1 .+phi_k)]);
-            
-            
-            # Ecuación 39
-            Aw = [  1 -x21/2 -y21/2 -1 -x21/2 -y21/2  0      0      0  0      0      0
-                    0      0      0  1 -x32/2 -y32/2 -1 -x32/2 -y32/2  0      0      0
-                    0      0      0  0      0      0  1 -x43/2 -y43/2 -1 -x43/2 -y43/2
-                   -1 -x14/2 -y14/2  0      0      0  0      0      0  1 -x14/2 -y14/2 ];
-                              
-            # Ecuación 37
-            An = A_dbeta\Aw;
-            #Array{Any}(undef,nef,n_gl,n_gl)
-            ## Se calcula la matriz de deformación por flexión Bb (eq. 41)
-            Bb[e,pp,qq] = Bb_beta + Bb_dbeta*An;
-            
+            Bb[e,pp,qq] = Bb_
             ## Se calcula la matriz de deformación por cortante Bs
-            L5_phi5 = Lk[1]*phi_k[1];    
-            L6_phi6 = Lk[2]*phi_k[2];
-            L7_phi7 = Lk[3]*phi_k[3];    
-            L8_phi8 = Lk[4]*phi_k[4];
-                       
-            # Ecuación 27
-            Bs_dbeta = (1/6)*[ -j11*(1-eta_gl)*L5_phi5    -j12*(1+xi_gl)*L6_phi6    j11*(1+eta_gl)*L7_phi7    j12*(1-xi_gl)*L8_phi8
-                               -j21*(1-eta_gl)*L5_phi5    -j22*(1+xi_gl)*L6_phi6    j21*(1+eta_gl)*L7_phi7    j22*(1-xi_gl)*L8_phi8 ];
+            # Ecuación 52
+            # Nota: esta ecuación se calculo en "demos_MITC4.m"
+
+            Ng_Ag_Au = [        eta_gl/4 - 1/4       xi_gl/4 - 1/4
+                         -(x21*(eta_gl - 1))/8 (x14*(xi_gl - 1))/8
+                         -(y21*(eta_gl - 1))/8 (y14*(xi_gl - 1))/8
+                                1/4 - eta_gl/4     -xi_gl/4 - 1/4
+                         -(x21*(eta_gl - 1))/8 (x32*(xi_gl + 1))/8
+                         -(y21*(eta_gl - 1))/8 (y32*(xi_gl + 1))/8
+                                eta_gl/4 + 1/4       xi_gl/4 + 1/4
+                         -(x43*(eta_gl + 1))/8 (x32*(xi_gl + 1))/8
+                         -(y43*(eta_gl + 1))/8 (y32*(xi_gl + 1))/8
+                              -eta_gl/4 - 1/4       1/4 - xi_gl/4
+                         -(x43*(eta_gl + 1))/8 (x14*(xi_gl - 1))/8
+                         -(y43*(eta_gl + 1))/8 (y14*(xi_gl - 1))/8 ]';
             
-            # Ecuación 43
-            Bs[e,pp,qq] = Bs_dbeta*An;
+            Bs[e,pp,qq] = inv_Je*Ng_Ag_Au;
             
             ## se arma la matriz de rigidez del elemento e por flexión (eq. 45)
             Kbe +=  Bb[e,pp,qq]'*Hb*Bb[e,pp,qq]*det_Je[pp,qq]*w_gl[pp]*w_gl[qq];
@@ -331,14 +285,13 @@ for e = 1:nef
 end
 
 ## Se calcula para cada elemento el vector de cortantes en los puntos
-## de Gauss (ecuacion 50)
-if EFtype == DKMQ
-    QxQy = Array{Any}(undef,nef,n_gl,n_gl);
-    for e = 1:nef
-        for pp = 1:n_gl
-            for qq = 1:n_gl
-                QxQy[e,pp,qq] = Hs*Bs[e,pp,qq]*a[idx[e]];
-            end
+## de Gauss 
+
+QxQy = Array{Any}(undef,nef,n_gl,n_gl);
+for e = 1:nef
+    for pp = 1:n_gl
+        for qq = 1:n_gl
+            QxQy[e,pp,qq] = Hs*Bs[e,pp,qq]*a[idx[e]];
         end
     end
 end
@@ -351,6 +304,7 @@ Mxy = zeros(nno,1);
 Qx  = zeros(nno,1);
 Qy  = zeros(nno,1);
 
+
 A = [ 
    3^(1/2)/2 + 1            -1/2            -1/2   1 - 3^(1/2)/2
             -1/2   1 - 3^(1/2)/2   3^(1/2)/2 + 1            -1/2
@@ -358,6 +312,7 @@ A = [
             -1/2   3^(1/2)/2 + 1   1 - 3^(1/2)/2            -1/2 ];
 
 for e = 1:nef                             
+    
     Mx[LaG[e,:],:] .+=   A *   [ MxMyMxy[e,1,1][1]
                                                 MxMyMxy[e,1,2][1]
                                                 MxMyMxy[e,2,1][1]
@@ -376,20 +331,19 @@ for e = 1:nef
     num_elem_ady[LaG[e,:],:] .+=  1;
 end 
 
-if EFtype == DKMQ
-    for e = 1:nef                             
 
-        Qx[LaG[e,:],:] .+= A * [ QxQy[e,1,1][1]
-                                                    QxQy[e,1,2][1]
-                                                    QxQy[e,2,1][1]
-                                                    QxQy[e,2,2][1] ];
+for e = 1:nef                             
 
-        Qy[LaG[e,:],:] .+= A * [ QxQy[e,1,1][2]
-                                                    QxQy[e,1,2][2]
-                                                    QxQy[e,2,1][2]
-                                                    QxQy[e,2,2][2] ];
-    end
-end 
+    Qx[LaG[e,:],:] .+= A * [ QxQy[e,1,1][1]
+                                                QxQy[e,1,2][1]
+                                                QxQy[e,2,1][1]
+                                                QxQy[e,2,2][1] ];
+
+    Qy[LaG[e,:],:] .+= A * [ QxQy[e,1,1][2]
+                                                QxQy[e,1,2][2]
+                                                QxQy[e,2,1][2]
+                                                QxQy[e,2,2][2] ];
+end
 
 ## Alisado (promedio de los momentos y cortantes en los nodos)
 Mx  =  Mx./num_elem_ady;  
@@ -424,17 +378,17 @@ subplot(132);plot_mom_Q_ang(xnod,[Mf2_xy], [ang_.+pi/2],[L"Mf2_{xy}(kN-m/m)"])
 subplot(133);plot_mom_Q_ang(xnod,[Mt_max], [ang_.+pi/4, ang_.-pi/4],[L"Mt_{max}(kN-m/m)"])
 
 #Cortantes Qx, Qy, Qmax 
-if EFtype == DKMQ
-    figure(6)
-    subplot(131);plot_mom_Q_ang(xnod,[Qx], [],[L"Q_x(kN/m)"])
-    subplot(132);plot_mom_Q_ang(xnod,[Qy], [],[L"Q_y(kN/m)"])
-end
+
+figure(6)
+subplot(131);plot_mom_Q_ang(xnod,[Qx], [],[L"Q_x(kN/m)"])
+subplot(132);plot_mom_Q_ang(xnod,[Qy], [],[L"Q_y(kN/m)"])
+
 ## Se calculan y grafican los cortantes máximos, junto con su angulo de inclinacion
-if EFtype == DKMQ
-    Q_max = hypot.(Qx, Qy);
-    ang   = atan.(Qy, Qx);
-    subplot(133);plot_mom_Q_ang(xnod,[Q_max], [ang],[ L"Q_{max}(kN/m)"])
-end
+
+Q_max = hypot.(Qx, Qy);
+ang   = atan.(Qy, Qx);
+subplot(133);plot_mom_Q_ang(xnod,[Q_max], [ang],[ L"Q_{max}(kN/m)"])
+
 
 #calculos wood_armer
 include("wood_armer.jl")
@@ -446,7 +400,7 @@ dibujar_wood_armer(xnod,[wood[:,1], wood[:,2], wood[:,3], wood[:,4]],
 
 ## comparación solución analítica
 u = 0.5; v = 1; xi = 1.25; eta = 1.5;
-qdist =  -10000;
+qdist = -10000;
 err = zeros(nno,1);
 MEF = zeros(nno,1);
 analitica = zeros(nno,1);
@@ -463,3 +417,9 @@ println("Observe que al comparar ambos métodos los errores relativos máximos s
 println(maximum(filter(!isnan,err)))
 println("Es decir son extremadamente pequeños !!")
 println()
+
+
+
+
+
+
