@@ -14,7 +14,7 @@
 #Cargamos funciones:
 
 include("Malla1.jl"); include("gauss_legendre.jl"); include("Bb_RM.jl"); include("Bs_RM.jl")
-include("dibujar_QL9.jl"); include("funciones_forma_lagrangiano_9_nodos.jl")
+include("dibujar_QL9.jl"); include("funciones_forma_lagrangiano_9_nodos.jl"); include("dib89.jl")
 
 ## Para borrar memoria: ctrl+D --> ENTER, en Julia REPL
 
@@ -257,7 +257,7 @@ qd = Kcc*ac + Kcd*ad - fd         # cálculo fuerzas de equilibrio desconocidas
 a = zeros(ngdl);   a[c]  = ac;   a[d] = ad   # desplazamientos
 q  = zeros(ngdl);  q[c]  = qd;   q[d] = qc   # fuerzas nodales equivalentes
 
-## Dibujar deformada:
+## Se dibuja el plano medio de la malla de elementos finitos y las deformaciones de esta
 aa_ =  reshape(a,3,nno)'
 a_ = aa_[:,1]*1000
 NL1, NL2, NL3, NL4, NL5, NL6, NL7, NL8 = 1,2,3,4,5,6,7,8
@@ -266,7 +266,6 @@ NL1, NL2, NL3, NL4, NL5, NL6, NL7, NL8 = 1,2,3,4,5,6,7,8
 triangles = Vector{Vector{Int64}}(undef, 6*nef)
 
 for e = 1:nef
-
     # se arma la matriz de correspondencia (LaG) de la nueva malla triangular
     triangles[6*e - 5] = LaG[e, [NL1, NL2, NL8]] .- 1
     triangles[6*e - 4] = LaG[e, [NL2, NL3, NL4]] .- 1
@@ -274,10 +273,7 @@ for e = 1:nef
     triangles[6*e - 2] = LaG[e, [NL2, NL4, NL6]] .- 1
     triangles[6*e - 1] = LaG[e, [NL2, NL6, NL8]] .- 1
     triangles[6*e - 0] = LaG[e, [NL6, NL7, NL8]] .- 1
-
 end
-
-
 triang = mtri.Triangulation(xnod[:,X], xnod[:,Y], triangles=triangles) 
 
 fig = figure()
@@ -288,8 +284,17 @@ ax.set_box_aspect((2, 4, esc))
 img = ax.plot_trisurf(triang, a_, cmap="bwr")
 colorbar(img, shrink=0.79) 
 
+fig = plt.figure()
+ax = plt.axes(projection="3d")
+ax.set_box_aspect((2, 4, esc)) 
+escala  = 0.8
+for e = 1:nef
+   dibujar_EF_Q89_RM(xnod[LaG[e,:],X], xnod[LaG[e,:],Y],Nforma, a[idx[e]], t, escala, escala);
+      
+end
 
-## En los puntos de integración de Gauss-Legendre calcular:
+
+#= ## En los puntos de integración de Gauss-Legendre calcular:
 ## El vector de momentos flectores y torsores (2x2)
 ## El vector de fuerzas cortantes (1x1 o 2x2)
 n_gl_b = 2; x_gl_b, w_gl_b  = gausslegendre_quad(n_gl_b);
@@ -446,4 +451,4 @@ subplot(133);plot_mom_Q_ang(xnod,[Mt_max], [ang_.+pi/4, ang_.-pi/4],[L"Mt_{max}(
 figure(6)
 subplot(131);plot_mom_Q_ang(xnod,[Qx], [],[L"Q_x(kN/m)"])
 subplot(132);plot_mom_Q_ang(xnod,[Qy], [],[L"Q_y(kN/m)"])
-subplot(133);plot_mom_Q_ang(xnod,[Q_max], [ang],[ L"Q_{max}(kN/m)"])
+subplot(133);plot_mom_Q_ang(xnod,[Q_max], [ang],[ L"Q_{max}(kN/m)"]) =#
