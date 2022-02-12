@@ -120,7 +120,7 @@ MALLA = 3   # MALLA=1 gráfico, MALLA=2 la generada con ANSYS
 
 ## cargar
 # xnod - posición de los nodos
-# LaG  - definicion de elementos finitos con respecto a nodos
+# LaG  - definición de elementos finitos con respecto a nodos
 if     MALLA == 1    include("malla1.jl")
 elseif MALLA == 2    include("malla2.jl")
 elseif MALLA == 3    include("malla3.jl")
@@ -201,10 +201,7 @@ title("Malla de elementos finitos")
 
 ## Funciones de forma serendipitas del elemento rectangular de 8 nodos:
 # NOTA estas funciones de forma y sus derivadas se encontraron con el
-# programa c5_funciones_forma_lagrangianos_rect_2D_8_nodos.m
-
-
-
+# programa c5_funciones_forma_lagrangianos_rect_2D_8_nodos.m (https://github.com/diegoandresalvarez)
 
 Nforma(xi,eta) = [
       -((eta - 1)*(xi - 1)*(eta + xi + 1))/4       # N1
@@ -246,20 +243,6 @@ n_gl = 2    # orden de la cuadratura de Gauss-Legendre
 
 # El comando:
 x_gl, w_gl  = gausslegendre_quad(n_gl)
-# calcula las raíces (x_gl) y los pesos (w_gl) de polinomios de Legendre
-# >> [x_gl,w_gl] = gausslegendre_quad(1)
-# x_gl = 0;
-# w_gl = 2;
-# >> [x_gl,w_gl] = gausslegendre_quad(2)
-# x_gl = [  -0.577350269189626;  0.577350269189626 ];
-# w_gl = [   1.000000000000000;  1.000000000000000 ];
-# >> [x_gl,w_gl] = gausslegendre_quad(3)
-# x_gl = [  -0.774596669241483;                  0; 0.774596669241483 ];
-# w_gl = [   0.555555555555556;  0.888888888888889; 0.555555555555556 ];
-# >> [x_gl,w_gl] = gausslegendre_quad(4)
-# x_gl = [  -0.861136311594054; -0.339981043584857; 0.339981043584856; 0.861136311594053 ];
-# w_gl = [   0.347854845137453;  0.652145154862547; 0.652145154862547;
-# 0.347854845137453 ];
 
 ## ensamblo la matriz de rigidez global y el vector de fuerzas nodales
 #  equivalentes global
@@ -294,11 +277,11 @@ for e = 1:nef  # ciclo sobre todos los elementos finitos
          xi_gl  = x_gl[p]
          eta_gl = x_gl[q]
 
-         # Se evaluan las funciones de forma en los puntos de integración
+         # Se evalúan las funciones de forma en los puntos de integración
          # de Gauss-Legendre
          NNforma = Nforma(xi_gl, eta_gl)
 
-         # Se evaluan las derivadas de las funciones de forma en los puntos
+         # Se evalúan las derivadas de las funciones de forma en los puntos
          # de integración de Gauss-Legendre
          ddN_dxi  = dN_dxi( xi_gl, eta_gl);     xe = xnod[LaG[e,:],X]
          ddN_deta = dN_deta(xi_gl, eta_gl);     ye = xnod[LaG[e,:],Y]
@@ -321,7 +304,7 @@ for e = 1:nef  # ciclo sobre todos los elementos finitos
             N[e,p,q][:,[2*i-1 2*i]] = [ NNforma[i]  0
                                         0           NNforma[i] ]
 
-            # Se ensambla la matriz de deformacion del elemento B
+            # Se ensambla la matriz de deformación del elemento B
             dNi_dx = (+dy_deta*ddN_dxi[i] - dy_dxi*ddN_deta[i])/det_Je[p,q]
             dNi_dy = (-dx_deta*ddN_dxi[i] + dx_dxi*ddN_deta[i])/det_Je[p,q]
             B[e,p,q][:,[2*i-1 2*i]] = [ dNi_dx 0          # aquí se ensambla
@@ -344,8 +327,7 @@ for e = 1:nef  # ciclo sobre todos los elementos finitos
  f[idx[e],:]      += fe
 end
 
- 
-## Relacion de las cargas superficiales (vector ft)
+## Relación de las cargas superficiales (vector ft)
 ft = zeros(ngdl)   # fuerzas nodales equivalentes de cargas superficiales
 for i = 1:nlcd
    e     = carga_distr[i,1]
@@ -363,8 +345,6 @@ f += ft
 figure(2)
 spy(K)
 title("Los puntos representan los elementos diferentes de cero")
-
-
 
 ## grados de libertad del desplazamiento conocidos y desconocidos
 c = restric[:,1];   d = setdiff(1:ngdl,c)
@@ -397,10 +377,6 @@ q = zeros(ngdl);  q[c] = qd;  q[d] = qc   # fuerzas nodales equivalentes
 
 ## imprimo los resultados
 # format short g
-# println("Nodo   Despl_x (m)   Despl_y (m) = ");     [1:nno; reshape(a,2,nno)]'
-# println("Nodo Fuerzas nodales equiv. X, Y (N) = "); [1:nno; reshape(f,2,nno)]'
-# println("Nodo Fuerzas nodales equil. X, Y (N) = "); [1:nno; reshape(q,2,nno)]'
-
 ## Dibujo la malla de elementos finitos y las deformaciones de esta
 delta = reshape(a,2,nno)'
 
@@ -408,8 +384,8 @@ escala = 50000                # factor de escalamiento de la deformada
 xdef = xnod + escala*delta    # posición de la deformada
 figure(3)
 for e = 1:nef
-   plot(xnod[LaG[e,[1:8;1]],X], xnod[LaG[e,[1:8;1]],Y], color="r", linestyle="-")   # original
-   plot(xdef[LaG[e,[1:8;1]],X], xdef[LaG[e,[1:8;1]],Y], color="b", linestyle="-")   # deformada
+   plt.plot(xnod[LaG[e,[1:8;1]],X], xnod[LaG[e,[1:8;1]],Y], color="r", linestyle="-")   # original
+   plt.plot(xdef[LaG[e,[1:8;1]],X], xdef[LaG[e,[1:8;1]],Y], color="b", linestyle="-")   # deformada
 end
 axis("tight")
 axis("equal")
@@ -456,32 +432,32 @@ A = [
    3^(1/2)/4 + 1/4  3^(1/2)/4 + 1/4  1/4 - 3^(1/2)/4 1/4 - 3^(1/2)/4 ];
 
 for e = 1:nef
-   sx[LaG[e,:],:] = sx[LaG[e,:],:]   .+ A * [ esf[e,1,1][1]
+   sx[LaG[e,:],:] .+=  A * [ esf[e,1,1][1]
                                               esf[e,1,2][1]
                                               esf[e,2,1][1]
                                               esf[e,2,2][1] ]
 
-   sy[LaG[e,:],:] = sy[LaG[e,:],:]   .+ A * [ esf[e,1,1][2]
+   sy[LaG[e,:],:] .+=  A * [ esf[e,1,1][2]
                                               esf[e,1,2][2]
                                               esf[e,2,1][2]
                                               esf[e,2,2][2] ]
 
-   txy[LaG[e,:],:] = txy[LaG[e,:],:] .+ A * [ esf[e,1,1][3]
+   txy[LaG[e,:],:] .+= A * [ esf[e,1,1][3]
                                               esf[e,1,2][3]
                                               esf[e,2,1][3]
                                               esf[e,2,2][3] ]
 
-   ex[LaG[e,:],:] = ex[LaG[e,:],:]   .+ A * [ def[e,1,1][1]
+   ex[LaG[e,:],:] .+= A * [ def[e,1,1][1]
                                               def[e,1,2][1]
                                               def[e,2,1][1]
                                               def[e,2,2][1] ]
 
-   ey[LaG[e,:],:] = ey[LaG[e,:],:]   .+ A * [ def[e,1,1][2]
+   ey[LaG[e,:],:] .+= A * [ def[e,1,1][2]
                                               def[e,1,2][2]
                                               def[e,2,1][2]
                                               def[e,2,2][2] ]
 
-   gxy[LaG[e,:],:] = gxy[LaG[e,:],:] .+ A * [ def[e,1,1][3]
+   gxy[LaG[e,:],:] .+=  A * [ def[e,1,1][3]
                                               def[e,1,2][3]
                                               def[e,2,1][3]
                                               def[e,2,2][3] ]
@@ -507,8 +483,6 @@ function plot_def_esf_ang(xnod,esfdef, angulos, lab)
 
    NL1, NL2, NL3, NL4, NL5, NL6, NL7, NL8 = 1,2,3,4,5,6,7,8
    triangle = Vector{Vector{Int64}}(undef, 6*nef)
-
-
 
        # Para propósitos de graficación el EF se divide en 6 triángulos así: 
     #     
@@ -588,15 +562,12 @@ function plot_def_esf_ang(xnod,esfdef, angulos, lab)
 
 end
 
-
 plot_def_esf_ang(xnod, ex,  [], L"\epsilon_x(x,y)")
 plot_def_esf_ang(xnod, ey,  [], L"\epsilon_y(x,y)")
 plot_def_esf_ang(xnod, ez,  [], L"\epsilon_z(x,y)")
 plot_def_esf_ang(xnod, gxy, [], L"\gamma_{xy}(x,y)")
 
 ## Se imprimen y grafican los esfuerzos en los nodos
-#println("Esfuerzos (Pa):  (Nodo,sx,sy,txy) = ")
-#println([(1:nno)'  sx  sy  txy])
 plot_def_esf_ang(xnod, sx,  [], L"\sigma_x(x,y) [Pa]")
 plot_def_esf_ang(xnod, sy,  [], L"\sigma_y(x,y) [Pa]")
 plot_def_esf_ang(xnod, txy, [], L"\tau_{xy}(x,y) [Pa]")
@@ -604,27 +575,23 @@ plot_def_esf_ang(xnod, txy, [], L"\tau_{xy}(x,y) [Pa]")
 ## Se calculan y grafican para cada elemento los esfuerzos principales y
 ## sus direcciones
 # NOTA: esto solo es válido para el caso de TENSIÓN PLANA).
-# En caso de DEFORMACION PLANA se deben calcular los valores y vectores
+# En caso de DEFORMACIÓN PLANA se deben calcular los valores y vectores
 # propios de la matriz de tensiónes de Cauchy
 #   [dirppales{e}, esfppales{e}] = eig([sx  txy 0    # matriz de esfuerzos
 #                                       txy sy  0    # de Cauchy
 #                                       0   0   0]);
-
-s1   = (sx+sy)/2 + sqrt.(((sx-sy)/2).^2+txy.^2) # esfuerzo normal maximo
-s2   = (sx+sy)/2 - sqrt.(((sx-sy)/2).^2+txy.^2) # esfuerzo normal minimo
-tmax = (s1-s2)/2                               # esfuerzo cortante maximo
-ang  = 0.5*atan.(2*txy, sx-sy) # angulo de inclinacion de s1
+s1   = (sx+sy)/2 + sqrt.(((sx-sy)/2).^2+txy.^2) # esfuerzo normal máximo
+s2   = (sx+sy)/2 - sqrt.(((sx-sy)/2).^2+txy.^2) # esfuerzo normal mínimo
+tmax = (s1-s2)/2                               # esfuerzo cortante máximo
+ang  = 0.5*atan.(2*txy, sx-sy) # ángulo de inclinación de s1
 
 ## imprimo los resultados
-#println("Nodo,s1(Pa),s2(Pa),tmax(Pa),angulo(rad) = ")
-#println([(1:nno)'  s1  s2  tmax  ang])
-
 ## s1, s2, taumax
 plot_def_esf_ang(xnod, s1,   [ang],                  L"\sigma_1(x,y) [Pa]")
 plot_def_esf_ang(xnod, s2,   [ang.+pi/2],            L"\sigma_2(x,y) [Pa]")
 plot_def_esf_ang(xnod, tmax, [ang.+pi/4, ang.-pi/4], L"\tau_{max}(x,y) [Pa]")
 
-## Calculo de los esfuerzos de von Mises
+## Cálculo de los esfuerzos de von Mises
 s3 = zeros(size(s1))   # s3 = zeros(size(s1)) de MATLAB
 sv = sqrt.(((s1-s2).^2 + (s2-s3).^2 + (s1-s3).^2)/2)
 
@@ -653,9 +620,9 @@ vtkfile = vtk_grid("Q8_element", xnod[:,X],xnod[:,Y], cells)
 
 vtkfile["uv"]  = a 
 
-vtkfile["s_x"] = sx;    vtkfile["s1"] = s1;      vtkfile["ex"] = ex; vtkfile["gxy"] = gxy;
-vtkfile["s_y"] = sy;    vtkfile["s2"] = s2;      vtkfile["ey"] = ey;
-vtkfile["t_xy"]  = txy; vtkfile["Tmax"] = tmax;  vtkfile["ez"] = ez;
+vtkfile["s_x"]   = sx;    vtkfile["s1"] = s1;      vtkfile["ex"] = ex; vtkfile["gxy"] = gxy;
+vtkfile["s_y"]   = sy;    vtkfile["s2"] = s2;      vtkfile["ey"] = ey;
+vtkfile["t_xy"]  = txy; vtkfile["Tmax"] = tmax;  vtkfile["ez"]   = ez;
 
 vtkfile["sv"] = sv
 vtkfile["n1"] = [cos.(ang)           sin.(ang)                    ]
