@@ -6,7 +6,7 @@ using CubicSplines
 ENV["MPLBACKEND"]="qt5agg"
 pygui(true)
 
-## Se crea un espacio para hacer clic y definir los nodos del EF
+## Se crea un espacio para hacer clic y definir los puntos de interpolación 
 figure()
 title("Haciendo clic con el ratón, defina los 10 puntos a interpolar")
 axis([-6, 6, -6, 6])
@@ -32,3 +32,8 @@ plot(xs, ys)
 #plot(xnod, itp1)
 
 ##SIN TERMINAR-FALTA FALTA
+
+#= using Dierckx
+fi = CubicSplineInterpolation(xnod, ynod, extrapolation_bc=Flat())  # use Interpolations
+fd = Spline1D(xs, ys, bc="nearest")  # use Dierckx
+spline = Spline1D(xnod,ynod,k=3,bc = "nearest" =#)

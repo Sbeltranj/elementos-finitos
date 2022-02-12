@@ -211,7 +211,6 @@ else
     JR = minimum(detJ) / maximum(detJ)
 end
 
-
 ## se grafica el jacobiano
 ax2 = fig.add_subplot(gs[1,3])
 h = ax2.pcolor(xi, eta, detJ, cmap="jet")
