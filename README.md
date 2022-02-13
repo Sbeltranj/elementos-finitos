@@ -19,3 +19,7 @@ https://github.com/JuliaPy/PyPlot.jl#readme.
 - Momentos losa simplemente apoyada  [clic](https://github.com/Sbeltranj/elementos-finitos/tree/master/Losas/Kirchhoff_Love/Kirchhoff_Love).
 
 [![plot-9.png](https://i.postimg.cc/m2vWxVsP/plot-9.png)](https://postimg.cc/vctNfrDy)
+
+- Modos de energía nula, EF QL9.[clic](https://github.com/Sbeltranj/elementos-finitos/tree/master/Losas/MINDLIN/QL9_integracion_reducida).
+
+[![MEN.png](https://i.postimg.cc/sgBsG3FL/MEN.png)](https://postimg.cc/qNd99Vvc)
