@@ -285,7 +285,7 @@ img = ax.plot_trisurf(triang, a_, cmap="bwr")
 colorbar(img, shrink=0.7) =#
 
 esc = 1.5
-fig = plt.figure(figsize=(14, 14))
+fig = plt.figure(figsize=(16, 16))
 ax = plt.axes(projection="3d")
 title("Modo de energía nula en el QL9")
 
