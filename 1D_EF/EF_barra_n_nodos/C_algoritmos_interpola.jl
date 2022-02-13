@@ -1,6 +1,6 @@
-using Interpolations, PyPlot, PyCall, MappedArrays
-using CubicSplines
+using Interpolations, PyPlot, PyCall, MappedArrays, CubicSplines
 
+# https://github.com/diegoandresalvarez/elementosfinitos/blob/master/codigo/1D/EF_barra_n_nodos/comparing_interpolation_algorithms.m
 #https://juliamath.github.io/Interpolations.jl/latest/api/
 
 ENV["MPLBACKEND"]="qt5agg"
