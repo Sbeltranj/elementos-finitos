@@ -79,7 +79,7 @@ n_gl_s = 3; # orden de la cuadratura de GL para la integración de Ks
 =#
 
 # se utilizara integración SELECTIVA
-n_gl_b = 3; # orden de la cuadratura de GL para la integración de Kb
+n_gl_b = 2; # orden de la cuadratura de GL para la integración de Kb
 n_gl_s = 2; # orden de la cuadratura de GL para la integración de Ks
 
 # se utilizara integración REDUCIDA

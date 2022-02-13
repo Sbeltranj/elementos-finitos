@@ -1,4 +1,7 @@
 function dibujar_EF_Q89_RM(xe, ye, N, ae, te, esc_w, esc_t)
+
+    ## NOTA: aún no encuentro la forma, de tener un solo smooth, para todo el gráfico,
+    # dado que realizá la escala de colores por EFs...
     
     # Programa original (MATLAB) elaborado por:
     # Diego Andrés Alvarez Marín
@@ -6,6 +9,7 @@ function dibujar_EF_Q89_RM(xe, ye, N, ae, te, esc_w, esc_t)
 
     #Traduciendo a JULIA 1.7.1, por:
     # Santiago Beltrán Jaramillo
+    # sbeltran@unal.edu.co
 
     #Importante: este programa hace uso de PyPlot de Python, importante tener dicha librería instalada.
 
@@ -80,6 +84,7 @@ function dibujar_EF_Q89_RM(xe, ye, N, ae, te, esc_w, esc_t)
     end 
     
     ## Meshgrid, tomado de: https://stackoverflow.com/questions/44581049/utilizing-ndgrid-meshgrid-functionality-in-julia
+    
     function meshgrid(x, y)
         X = [i for i in x, j in 1:length(y)]
         Y = [j for i in 1:length(x), j in y]
@@ -108,13 +113,15 @@ function dibujar_EF_Q89_RM(xe, ye, N, ae, te, esc_w, esc_t)
     #@pyimport matplotlib.cm as cmapi
     cm = pyimport("matplotlib.cm")
 
-#=     norma = plt.Normalize(minimum(w), maximum(w))
+    #=norma = plt.Normalize(minimum(w), maximum(w))
     cim = cm.jet(norma(w)) 
     rcount, ccount, _ = size(cim) =#
 
-    #my_col = cm.jet(w/minimum(w))
-    ax.plot_surface(x, y, w, rstride=1, cstride=1, 
-        linewidth=2, cmap = "jet")
+    ## NOTA: aún no encuentro la forma, de tener un solo smooth, para todo el gráfico
+    # dado que realiza la escala de colores por EFs
+    #my_col = cm.jet(w/minimum(w)) facecolors = my_col
+    ax.plot_surface(x, y, w, rstride=1, cstride=1,
+        linewidth=0, cmap = "jet")
 
     return
 end
