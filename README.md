@@ -4,6 +4,15 @@ Códigos de análisis estructural por elementos finitos, traducidos de PYTHON y 
 
 El archivo `Install_Pkg.jl` [clic](https://github.com/Sbeltranj/elementos-finitos/blob/master/Install_Pkg.jl), instala los paquetes de JULIA utilizados en este repositorio. 
 
+## Contenido 
+
+- Elementos finitos de barra (1D)[clic](https://github.com/Sbeltranj/elementos-finitos/tree/master/1D_EF)
+- Análisis de estructuras en tensión plana, con EFs T3, Q8, QM6(empleado en SAP2000), Q6.[clic](https://github.com/Sbeltranj/elementos-finitos/tree/master/2D)
+- Método matricial (Pórticos, cerchas, vigas)[clic](https://github.com/Sbeltranj/elementos-finitos/tree/master/An%C3%A1lisis%20matricial)
+- Losas macizas, por las teorías de Kirchhoff-Love y Mindlin–Reissner. [clic](https://github.com/Sbeltranj/elementos-finitos/tree/master/Losas)
+
+# PyPlot Backends 
+
 Aquí encontrará algunos códigos, en los cuales se hace uso la librería de PYTHON (Matplotlib); ya que JULIA permite utilizar diversas librerías de diferentes lenguajes de programación, en su entorno de salida gráfica. (visitar : https://docs.juliaplots.org/latest/backends/).
 
 Para ello se hace necesario, tener instalada la librería Matplotlib de Python: `pip install matplotlib`: 
