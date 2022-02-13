@@ -6,12 +6,14 @@ El archivo `Install_Pkg.jl` [clic](https://github.com/Sbeltranj/elementos-finito
 
 ## Contenido 
 
-- Elementos finitos de barra (1D)[clic](https://github.com/Sbeltranj/elementos-finitos/tree/master/1D_EF)
-- Análisis de estructuras en tensión plana, con EFs T3, Q8, QM6(empleado en SAP2000), Q6.[clic](https://github.com/Sbeltranj/elementos-finitos/tree/master/2D)
-- Método matricial (Pórticos, cerchas, vigas)[clic](https://github.com/Sbeltranj/elementos-finitos/tree/master/An%C3%A1lisis%20matricial)
+- Elementos finitos de barra (1D).  [clic](https://github.com/Sbeltranj/elementos-finitos/tree/master/1D_EF)
+- Análisis de estructuras en tensión plana, con EFs T3, Q8, QM6(empleado en SAP2000), Q6. [clic](https://github.com/Sbeltranj/elementos-finitos/tree/master/2D)
+- Método matricial (Pórticos, cerchas, vigas). [clic](https://github.com/Sbeltranj/elementos-finitos/tree/master/An%C3%A1lisis%20matricial)
+- Elementos finitos tridimensionales H20. [clic](https://github.com/Sbeltranj/elementos-finitos/tree/master/3D)
 - Losas macizas, por las teorías de Kirchhoff-Love y Mindlin–Reissner. [clic](https://github.com/Sbeltranj/elementos-finitos/tree/master/Losas)
 
-# PyPlot Backends 
+
+## PyPlot Backend 
 
 Aquí encontrará algunos códigos, en los cuales se hace uso la librería de PYTHON (Matplotlib); ya que JULIA permite utilizar diversas librerías de diferentes lenguajes de programación, en su entorno de salida gráfica. (visitar : https://docs.juliaplots.org/latest/backends/).
 
