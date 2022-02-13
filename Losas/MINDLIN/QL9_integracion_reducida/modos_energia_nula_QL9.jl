@@ -284,14 +284,16 @@ ax.set_box_aspect((2, 4, esc))
 img = ax.plot_trisurf(triang, a_, cmap="bwr")
 colorbar(img, shrink=0.7) =#
 
-esc = 2.2
-fig = plt.figure()
-title("Estructura deformada $(esc) veces")
+esc = 1.5
+fig = plt.figure(figsize=(14, 14))
 ax = plt.axes(projection="3d")
-ax.set_box_aspect((2, 4, esc)) 
+title("Modo de energía nula en el QL9")
+
+ax.set_box_aspect((2.5, 4.5, esc)) 
 #colorbar(fig, shrink=0.7)
 esc = 1.1
 for e = 1:nef
-   dibujar_EF_Q89_RM(xnod[LaG[e,:],X], xnod[LaG[e,:],Y],Nforma, a[idx[e]]*10000, t, esc, esc);
+   dibujar_EF_Q89_RM(xnod[LaG[e,:],X], xnod[LaG[e,:],Y],Nforma, a[idx[e]]*1000, t, esc, esc);
 end
 
+fig.savefig("fig1.pdf",dpi=400)

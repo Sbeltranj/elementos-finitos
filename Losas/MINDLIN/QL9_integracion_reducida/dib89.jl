@@ -114,7 +114,7 @@ function dibujar_EF_Q89_RM(xe, ye, N, ae, te, esc_w, esc_t)
 
     #my_col = cm.jet(w/minimum(w))
     ax.plot_surface(x, y, w, rstride=1, cstride=1, 
-        linewidth=0, cmap = "jet")
+        linewidth=2, cmap = "jet")
 
     return
 end
