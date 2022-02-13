@@ -14,7 +14,7 @@
 #Cargamos funciones:
 
 include("Malla1.jl"); include("gauss_legendre.jl"); include("Bb_RM.jl"); include("Bs_RM.jl")
-include("dibujar_QL9.jl"); include("funciones_forma_lagrangiano_9_nodos.jl"); include("dib89.jl")
+include("dibujar_QL9.jl"); include("funciones_forma_lagrangiano_9_nodos.jl"); include("dibujar_EF_Q89.jl")
 
 ## Para borrar memoria: ctrl+D --> ENTER, en Julia REPL
 
