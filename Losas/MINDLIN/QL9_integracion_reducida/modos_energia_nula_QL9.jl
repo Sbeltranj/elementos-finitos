@@ -296,4 +296,4 @@ for e = 1:nef
    dibujar_EF_Q89_RM(xnod[LaG[e,:],X], xnod[LaG[e,:],Y],Nforma, a[idx[e]]*1000, t, esc, esc);
 end
 
-fig.savefig("fig1.pdf",dpi=400)
+#fig.savefig("fig1.pdf",dpi=400)

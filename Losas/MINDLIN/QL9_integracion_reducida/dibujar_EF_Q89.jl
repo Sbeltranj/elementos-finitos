@@ -120,8 +120,8 @@ function dibujar_EF_Q89_RM(xe, ye, N, ae, te, esc_w, esc_t)
     ## NOTA: aún no encuentro la forma, de tener un solo smooth, para todo el gráfico
     # dado que realiza la escala de colores por EFs
     #my_col = cm.jet(w/minimum(w)) facecolors = my_col
-    ax.plot_surface(x, y, w, rstride=1, cstride=1,
-        linewidth=0, cmap = "jet")
+    #ax.plot_surface(x, y, w, rstride=1, cstride=1,
+     #   linewidth=0, cmap = "jet")
 
     return
 end

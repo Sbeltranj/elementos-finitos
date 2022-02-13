@@ -294,7 +294,7 @@ end
 
 
 
-#= ## En los puntos de integración de Gauss-Legendre calcular:
+## En los puntos de integración de Gauss-Legendre calcular:
 ## El vector de momentos flectores y torsores (2x2)
 ## El vector de fuerzas cortantes (1x1 o 2x2)
 n_gl_b = 2; x_gl_b, w_gl_b  = gausslegendre_quad(n_gl_b);
@@ -436,19 +436,19 @@ ang   = atan.(Qy, Qx)
 
 ## se dibujan los gráficos:
 #Momentos Mx, My, Mxy  
-figure(4)
+figure(5)
 subplot(131);plot_mom_Q_ang(xnod,[My], [],[L"Momento Mx(kN-m/m)"])
 subplot(132); plot_mom_Q_ang(xnod,[Mx], [],[L"Momento My(kN-m/m)"])
 subplot(133);plot_mom_Q_ang(xnod,[Mxy], [],[L"Momento Mxy(kN-m/m)"])
 
 #Momentos principales
-figure(5)
+figure(6)
 subplot(131);plot_mom_Q_ang(xnod,[Mf1_xy], [ang_],[L"Mf1_{xy}(kN-m/m)"])
 subplot(132);plot_mom_Q_ang(xnod,[Mf2_xy], [ang_.+pi/2],[L"Mf2_{xy}(kN-m/m)"])
 subplot(133);plot_mom_Q_ang(xnod,[Mt_max], [ang_.+pi/4, ang_.-pi/4],[L"Mt_{max}(kN-m/m)"])
 
 #Cortantes Qx, Qy, Qmax 
-figure(6)
+figure(7)
 subplot(131);plot_mom_Q_ang(xnod,[Qx], [],[L"Q_x(kN/m)"])
 subplot(132);plot_mom_Q_ang(xnod,[Qy], [],[L"Q_y(kN/m)"])
-subplot(133);plot_mom_Q_ang(xnod,[Q_max], [ang],[ L"Q_{max}(kN/m)"]) =#
+subplot(133);plot_mom_Q_ang(xnod,[Q_max], [ang],[ L"Q_{max}(kN/m)"])
