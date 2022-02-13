@@ -11,7 +11,7 @@ El archivo `Install_Pkg.jl` [clic](https://github.com/Sbeltranj/elementos-finito
 - Método matricial (Pórticos, cerchas, vigas). [clic](https://github.com/Sbeltranj/elementos-finitos/tree/master/An%C3%A1lisis%20matricial)
 - Elementos finitos tridimensionales H20. [clic](https://github.com/Sbeltranj/elementos-finitos/tree/master/3D)
 - Losas macizas, por las teorías de Kirchhoff-Love y Mindlin–Reissner. [clic](https://github.com/Sbeltranj/elementos-finitos/tree/master/Losas)
-
+- Elementos finitos de viga, por las teorías de Euler-Bernoulli y Timoshenko-Ehrenfest. [clic](https://github.com/Sbeltranj/elementos-finitos/tree/master/Vigas)
 
 ## PyPlot Backend 
 
