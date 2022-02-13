@@ -1,6 +1,6 @@
 # Elementos_Finitos
 Códigos de análisis estructural por elementos finitos, traducidos de PYTHON y MATLAB,                                                                                              
-(ver: https://github.com/diegoandresalvarez/elementosfinitos) al lenguaje de programación JULIA (https://julialang.org/). 
+(ver: [Diego Andrés Alvarez Marín - Elementos Finitos](https://github.com/diegoandresalvarez/elementosfinitos)) al lenguaje de programación JULIA (https://julialang.org/). 
 
 El archivo `Install_Pkg.jl` [clic](https://github.com/Sbeltranj/elementos-finitos/blob/master/Install_Pkg.jl), instala los paquetes de JULIA utilizados en este repositorio. 
 
