@@ -7,7 +7,7 @@
 # Santiago Beltrán Jaramillo
 # sbeltran@unal.edu.co
 
-## Calculo de los desplazamientos verticales y ángulos de giro, las 
+## Cálculo de los desplazamientos verticales y ángulos de giro, las 
 # reacciones, los momentos flectores y las fuerzas cortantes en una losa de
 # Mindlin utilizando los elementos finitos de placa "QQQQ-L"
 
@@ -33,7 +33,7 @@ nu = 0.3;            # coeficiente de Poisson
 t  = 0.05;           # espesor de la losa (m)
 qdistr = -10000;     # carga (N/m^2)
 
-nef   = size(LaG,1);  # número de EFs (numero de filas de LaG)
+nef   = size(LaG,1);  # número de EFs (número de filas de LaG)
 nnoef = size(LaG,2);  # número de nodos por EF
 nno   = size(xnod,1); # número de nodos (numero de filas de xnod)
 ngdl  = 3*nno;        # número de grados de libertad (tres por nodo)
@@ -152,7 +152,7 @@ for e = 1:nef      # ciclo sobre todos los elementos finitos
    end
 
    ## se calcula la matriz NN
-   Mbe = zeros(3*nnoef, 3*nnoef); # matriz que se utiliza en el calculo de fe   
+   Mbe = zeros(3*nnoef, 3*nnoef); # matriz que se utiliza en el cálculo de fe   
    local xi_gl, eta_gl
    for p = 1:n_gl_b
       for q = 1:n_gl_b

@@ -7,7 +7,7 @@
 # Santiago Beltrán Jaramillo
 # sbeltran@unal.edu.co
 
-## Calculo de los desplazamientos verticales y ángulos de giro, las 
+## Cálculo de los desplazamientos verticales y ángulos de giro, las 
 # reacciones, los momentos flectores y las fuerzas cortantes en una losa de
 # Mindlin utilizando los elementos finitos de placa "QL9"
 
@@ -34,7 +34,7 @@ qdistr = -10000;     # carga (N/m^2)
 
 
 
-nef   = size(LaG,1);  # número de EFs (numero de filas de LaG)
+nef   = size(LaG,1);  # número de EFs (número de filas de LaG)
 nnoef = size(LaG,2);  # número de nodos por EF
 nno   = size(xnod,1); # número de nodos (numero de filas de xnod)
 ngdl  = 3*nno;        # número de grados de libertad (tres por nodo)
@@ -72,17 +72,17 @@ plot(xnod[:,X], xnod[:,Y], "b.")
 # se asumirá aquí el mismo orden de la cuadratura tanto en la dirección de
 # xi como en la dirección de eta
 
-# se utilizara integración COMPLETA
-#=
-n_gl_b = 3; # orden de la cuadratura de GL para la integración de Kb
-n_gl_s = 3; # orden de la cuadratura de GL para la integración de Ks
-=#
+# se utilizará integración COMPLETA
 
-# se utilizara integración SELECTIVA
 n_gl_b = 3; # orden de la cuadratura de GL para la integración de Kb
 n_gl_s = 3; # orden de la cuadratura de GL para la integración de Ks
 
-# se utilizara integración REDUCIDA
+
+# se utilizará integración SELECTIVA
+#n_gl_b = 3; # orden de la cuadratura de GL para la integración de Kb
+#n_gl_s = 2; # orden de la cuadratura de GL para la integración de Ks
+
+# se utilizará integración REDUCIDA
 #=
 n_gl_b = 2; # orden de la cuadratura de GL para la integración de Kb
 n_gl_s = 2; # orden de la cuadratura de GL para la integración de Ks
@@ -110,7 +110,7 @@ K   = spzeros(ngdl,ngdl); # matriz de rigidez global como RALA (sparse)
 f   = zeros(ngdl,1);     # vector de fuerzas nodales equivalentes global
 idx   = Array{Array{Int64}}(undef, nef,1)     # grados de libertad de cada elemento finito
 
-# en los siguientes contenedores se almacenara la matriz respectiva para 
+# en los siguientes contenedores se almacenará la matriz respectiva para 
 # cada punto de integración: 
 nno_ = length(xnod[LaG[1,:],X])*3
 
@@ -167,7 +167,7 @@ for e = 1:nef      # ciclo sobre todos los elementos finitos
    end 
 
    ## se calcula la matriz NN
-   Mbe = zeros(3*nnoef, 3*nnoef); # matriz que se utiliza en el calculo de fe   
+   Mbe = zeros(3*nnoef, 3*nnoef); # matriz que se utiliza en el cálculo de fe   
    local xi_gl, eta_gl
    for p = 1:n_gl_b
       for q = 1:n_gl_b
@@ -258,9 +258,9 @@ a = zeros(ngdl);   a[c]  = ac;   a[d] = ad   # desplazamientos
 q  = zeros(ngdl);  q[c]  = qd;   q[d] = qc   # fuerzas nodales equivalentes
 
 ## Se dibuja el plano medio de la malla de elementos finitos y las deformaciones de esta
-#= aa_ =  reshape(a,3,nno)'
+aa_ =  reshape(a,3,nno)'
 a_ = aa_[:,1]*1000
-NL1, NL2, NL3, NL4, NL5, NL6, NL7, NL8 = 1,2,3,4,5,6,7,8
+#=NL1, NL2, NL3, NL4, NL5, NL6, NL7, NL8 = 1,2,3,4,5,6,7,8
 
 @pyimport matplotlib.tri as mtri
 triangles = Vector{Vector{Int64}}(undef, 6*nef)
@@ -289,11 +289,12 @@ fig = plt.figure(figsize=(16, 16))
 ax = plt.axes(projection="3d")
 title("Modo de energía nula en el QL9")
 
+min_a = minimum(a_)
 ax.set_box_aspect((2.5, 4.5, esc)) 
 #colorbar(fig, shrink=0.7)
 esc = 1.1
 for e = 1:nef
-   dibujar_EF_Q89_RM(xnod[LaG[e,:],X], xnod[LaG[e,:],Y],Nforma, a[idx[e]]*1000, t, esc, esc);
+   dibujar_EF_Q89_RM(xnod[LaG[e,:],X], xnod[LaG[e,:],Y],Nforma, a[idx[e]]*1000, t, esc, esc, min_a);
 end
 
 #fig.savefig("fig1.pdf",dpi=400)

@@ -1,4 +1,4 @@
-using BoundaryValueDiffEq#,DifferentialEquations
+using BoundaryValueDiffEq #,DifferentialEquations
 
 function calc_fuerzas_nodales_equivalentes(A,E,I,x1,x2,y1,y2,qxloc,qyloc,L)
 

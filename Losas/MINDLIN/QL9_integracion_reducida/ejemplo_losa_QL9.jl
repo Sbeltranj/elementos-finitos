@@ -7,7 +7,7 @@
 # Santiago Beltrán Jaramillo
 # sbeltran@unal.edu.co
 
-## Calculo de los desplazamientos verticales y ángulos de giro, las 
+## Cálculo de los desplazamientos verticales y ángulos de giro, las 
 # reacciones, los momentos flectores y las fuerzas cortantes en una losa de
 # Mindlin utilizando los elementos finitos de placa "QL9"
 
@@ -32,7 +32,7 @@ nu = 0.3;            # coeficiente de Poisson
 t  = 0.05;           # espesor de la losa (m)
 qdistr = -10000;     # carga (N/m^2)
 
-nef   = size(LaG,1);  # número de EFs (numero de filas de LaG)
+nef   = size(LaG,1);  # número de EFs (número de filas de LaG)
 nnoef = size(LaG,2);  # número de nodos por EF
 nno   = size(xnod,1); # número de nodos (numero de filas de xnod)
 ngdl  = 3*nno;        # número de grados de libertad (tres por nodo)
@@ -70,17 +70,17 @@ plot(xnod[:,X], xnod[:,Y], "b.")
 # se asumirá aquí el mismo orden de la cuadratura tanto en la dirección de
 # xi como en la dirección de eta
 
-# se utilizara integración COMPLETA
+# se utilizará integración COMPLETA
 #=
 n_gl_b = 3; # orden de la cuadratura de GL para la integración de Kb
 n_gl_s = 3; # orden de la cuadratura de GL para la integración de Ks
 =#
 
-# se utilizara integración SELECTIVA
+# se utilizará integración SELECTIVA
 n_gl_b = 3; # orden de la cuadratura de GL para la integración de Kb
 n_gl_s = 2; # orden de la cuadratura de GL para la integración de Ks
 
-# se utilizara integración REDUCIDA
+# se utilizará integración REDUCIDA
 #=
 n_gl_b = 2; # orden de la cuadratura de GL para la integración de Kb
 n_gl_s = 2; # orden de la cuadratura de GL para la integración de Ks
@@ -108,7 +108,7 @@ K   = spzeros(ngdl,ngdl); # matriz de rigidez global como RALA (sparse)
 f   = zeros(ngdl,1);     # vector de fuerzas nodales equivalentes global
 idx   = Array{Array{Int64}}(undef, nef,1)     # grados de libertad de cada elemento finito
 
-# en los siguientes contenedores se almacenara la matriz respectiva para 
+# en los siguientes contenedores se almacenará la matriz respectiva para 
 # cada punto de integración: 
 nno_ = length(xnod[LaG[1,:],X])*3
 
@@ -165,7 +165,7 @@ for e = 1:nef      # ciclo sobre todos los elementos finitos
    end 
 
    ## se calcula la matriz NN
-   Mbe = zeros(3*nnoef, 3*nnoef); # matriz que se utiliza en el calculo de fe   
+   Mbe = zeros(3*nnoef, 3*nnoef); # matriz que se utiliza en el cálculo de fe   
    local xi_gl, eta_gl
    for p = 1:n_gl_b
       for q = 1:n_gl_b
@@ -287,9 +287,10 @@ colorbar(img, shrink=0.79)
 fig = plt.figure()
 ax = plt.axes(projection="3d")
 ax.set_box_aspect((2, 4, esc)) 
+min_a = minimum(a_)
 
 for e = 1:nef
-   dibujar_EF_Q89_RM(xnod[LaG[e,:],X], xnod[LaG[e,:],Y],Nforma, a[idx[e]]*1000, t, esc, esc);
+   dibujar_EF_Q89_RM(xnod[LaG[e,:],X], xnod[LaG[e,:],Y],Nforma, a[idx[e]]*1000, t, esc, esc, min_a);
 end
 
 
@@ -332,7 +333,7 @@ for e = 1:nef      # ciclo sobre todos los elementos finitos
         end
     end
     
-    ## se calcula la matrix Bs en los puntos de integracion de GL para el
+    ## se calcula la matrix Bs en los puntos de integración de GL para el
     # calculo de las fuerzas cortantes
 
     local xi_gl, eta_gl
