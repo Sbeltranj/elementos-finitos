@@ -24,16 +24,16 @@ deformaciones y los esfuerzos de la estructura mostrada en la figura adjunta=#
 import XLSX
 using Polynomials, LinearAlgebra, Statistics, SparseArrays, PyCall, WriteVTK
 
-using PlotlyJS
+using PyPlot
 
 
 
-#ENV["MPLBACKEND"]="qt5agg"
+ENV["MPLBACKEND"]="qt5agg"
 include("gausslegendre_quad.jl")
 include("funcionQ6.jl")
 
-#pygui(true)
-#close("all")          #cerrar ventanas
+pygui(true)
+close("all")          #cerrar ventanas
 
 # ##Defino las constantes y variables, para hacer el código mas legible
 X   = EF  = nodo      =  elemento  = material = 1
@@ -103,7 +103,7 @@ end
 ## Se dibuja la malla de elementos finitos
 NL1, NL2, NL3, NL4 = 1, 2, 3, 4  # Definición de los EF triangulares por ndo
 
-#= figure(1)
+figure(1)
 
 cg = zeros(nef, 2) # almacena el centro de gravedad
 for e = 1:nef
@@ -126,7 +126,7 @@ for i = 1:nno
     text(xnod[i, X], xnod[i, Y], "$i", color = "r")
 end
 axis("equal") 
-title("Malla de elementos finitos") =#
+title("Malla de elementos finitos")
 
 ## Funciones de forma y sus derivadas del elemento rectangular de 4 nodos (N1 a
 #   N4) y las funciones de forma de los modos incompatibles (N5 y N6)
@@ -261,9 +261,9 @@ for e = 1:nef
 end
 
 ## Muestro la configuración de la matriz K (K es rala)
-#= figure(2)
+figure(2)
 spy(K)
-title("Los puntos representan los elementos diferentes de cero") =#
+title("Los puntos representan los elementos diferentes de cero")
 
 ##  Cálculo del vector  para fuerzas superficiales
 columns, labels = XLSX.readtable(filename, "carga_distr")
@@ -343,7 +343,7 @@ delta  = reshape(a, 2, nno)'
 escala = 20000                  # factor de escalamiento de la deformada
 xdef   = xnod + escala*delta    # posición de la deformada
 
-#= figure(3)
+figure(3)
 
 for e = 1:nef
     nod_ef = LaG[e, [NL1, NL2, NL3, NL4, NL1]]
@@ -354,7 +354,7 @@ end
 title("Estructura deformada escalada ")
 xlabel("x [m]")
 ylabel("y [m]")
-tight_layout() =#
+tight_layout()
 
 ## Se calcula para cada elemento las deformaciones y los esfuerzos
 def = Array{Any}(undef,nef,n_gl,n_gl)
@@ -441,56 +441,17 @@ ez  = vec(ez);
 #                                       txy sy  0     # de Cauchy
 #                                       0   0   0]);
 
-s1   = (sx+sy)/2 + sqrt.(((sx-sy)/2).^2+txy.^2) # esfuerzo normal maximo
-s2   = (sx+sy)/2 - sqrt.(((sx-sy)/2).^2+txy.^2) # esfuerzo normal minimo
+s1   = (sx+sy)/2 + sqrt.(((sx-sy)/2).^2+txy.^2) # esfuerzo normal máximo
+s2   = (sx+sy)/2 - sqrt.(((sx-sy)/2).^2+txy.^2) # esfuerzo normal mínimo
 tmax = (s1-s2)/2                               # esfuerzo cortante maximo
 ang  = 0.5*atan.(2*txy, sx-sy) # angulo de inclinacion de s1
 
-## Calculo de los esfuerzos de von Mises
+## Cálculo de los esfuerzos de von Mises
 s3 = zeros(size(s1))   # s3 = zeros(size(s1)) de MATLAB
 sv = sqrt.(((s1-s2).^2 + (s2-s3).^2 + (s1-s3).^2)/2);
 
 
-## Meshgrid, tomado de: https://stackoverflow.com/questions/44581049/utilizing-ndgrid-meshgrid-functionality-in-julia
-
-function meshgrid(x, y)
-    X = [i for i in x, j in 1:length(y)]
-    Y = [j for i in 1:length(x), j in y]
-    return X, Y
-end
-
-delta = 0.1
-xxi  = collect(-1:delta:1)
-eeta = collect(-1:delta:1)
-n    = length(xxi);
-xi, eta = meshgrid(xxi, eeta)
-xi = xi' ; eta = eta'
-w_ = 1
-
-w = zeros(21,21);
-x = zeros(21,21);
-y = zeros(21,21);
-
-
-pt1 = plot(1)
-#gr()
-
-for e = 1:nef
-    nno = size(xnod[LaG[e,:],1],1)
-    delta  = reshape(a[idx[e]], 2, nno)'
-    for i = 1:21
-        for j = 1:21
-            w[i,j] = sum(Nforma(xi[i,j], eta[i,j]) .* delta[:,w_]);
-            x[i,j] = sum(Nforma(xi[i,j], eta[i,j]) .* xnod[LaG[e,:],1]);
-            y[i,j] = sum(Nforma(xi[i,j], eta[i,j]) .* xnod[LaG[e,:],2]);
-        end
-    end
-    pt1 = plot(contour(x=x, y=y, z=w))
-    
-end
-display(pt1)
-
-#= #se carga la función para graficar "plot_def_esf_ang" desde funcionQ6.jl
+#se carga la función para graficar "plot_def_esf_ang" desde funcionQ6.jl
 ## Se dibujan los resultados
 plot_def_esf_ang(xnod, sx,  [], L"\sigma_x(x,y) [Pa]")
 plot_def_esf_ang(xnod, sy,  [], L"\sigma_y(x,y) [Pa]")
@@ -577,4 +538,3 @@ vtkfile["n1"] = [cos.(ang)           sin.(ang)                    ]
 vtkfile["n2"] = [cos.(ang .+ pi/2)           sin.(ang .+ pi/2)    ]
 
 outfiles = vtk_save(vtkfile)
- =#
