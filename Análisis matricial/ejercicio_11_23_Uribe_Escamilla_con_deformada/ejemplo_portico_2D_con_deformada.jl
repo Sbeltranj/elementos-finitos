@@ -1,4 +1,4 @@
-# Programa elaborado en JULIA 1.7.1
+# Programa elaborado en JULIA 1.8.2
 
 # Diego Andrés Alvarez Marín
 # daalvarez@unal.edu.co
