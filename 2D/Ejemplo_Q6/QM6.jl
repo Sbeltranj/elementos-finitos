@@ -47,11 +47,11 @@ e_ = [ 9, 10, 11, 12 ]            # GDL a eliminar en condensación nodal
 filename = "malla1_no_estructurada.xlsx"
 
 #se carga el libro.xlsx, con el nombre de la hoja "xnod"
-columns, labels = XLSX.readtable(filename, "xnod")
+columns = XLSX.readtable(filename, "xnod")
 
 ## posición de los nodos:
 ##Se lee la posición de los nodos
-T    = hcat(columns...)  
+T    = hcat(columns.data...)  
 # xnod: fila=número del nodo, columna=coordenada X_=1 o Y_=2
 xnod = T[:,x_:y_]   
 nno  = length(xnod[:,1])
@@ -63,16 +63,16 @@ gdl  = reshape(hcat(gdl...)',nno,2)
 
 # ## definición de elementos finitos con respecto a nodos
 # LaG: fila=número del elemento, columna=número del nodo local
-columns, labels = XLSX.readtable(filename, "LaG_mat")
-T = hcat(columns...)
+columns = XLSX.readtable(filename, "LaG_mat")
+T = hcat(columns.data...)
 
 LaG   = T[:,NL1:NL4]        # Definición de EFs respecto a nodos
 nef   = size(LaG,1)
 
 # ## definición de los materiales
 mat   = T[:,5]
-columns, labels = XLSX.readtable(filename, "prop_mat")
-T  = hcat(columns...)
+columns = XLSX.readtable(filename, "prop_mat")
+T  = hcat(columns.data...)
 
 Ee   = T[:,   E]     # [Pa]     módulo de elasticidad
 nue  = T[:,  nu]     # [-]      coeficiente de Poisson
@@ -81,8 +81,8 @@ te   = T[:, espesor] # [m]      espesor
 nmat = size(Ee,1)    # número de materiales
 
 ## Relación de cargas puntuales
-columns, labels = XLSX.readtable(filename, "carga_punt")
-T  = hcat(columns...)
+columns = XLSX.readtable(filename, "carga_punt")
+T  = hcat(columns.data...)
 
 ncp     = size(T,1)        # número de cargas puntuales
 idxNODO = T[:,nodo]        
@@ -279,8 +279,8 @@ spy(K)
 title("Los puntos representan los elementos diferentes de cero")
 
 ##  Cálculo del vector  para fuerzas superficiales
-columns, labels = XLSX.readtable(filename, "carga_distr")
-T    = hcat(columns...)
+columns = XLSX.readtable(filename, "carga_distr")
+T    = hcat(columns.data...)
 
 idxNODO = T[:,nodo]
 nlcd = size(idxNODO,1)
@@ -305,8 +305,8 @@ for i = 1:nlcd
  
 end
 ## se relacionan las restricciones
-columns, labels = XLSX.readtable(filename, "restric")
-T = hcat(columns...)
+columns = XLSX.readtable(filename, "restric")
+T = hcat(columns.data...)
 
 idxNODO = T[:,nodo]
 dirdesp = T[:,direccion];
