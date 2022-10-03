@@ -358,6 +358,8 @@ c = round.(Int, c)  # se convierte en Int64
 #| qc |   | Kdc Kdd || ad |   | fc |
 
 ## extraigo las submatrices y especifico las cantidades conocidas
+
+d = Int.(d)
 Kcc = K[c,c]; Kcd = K[c,d]; fd = f[c]
 Kdc = K[d,c]; Kdd = K[d,d]; fc = f[d]
 
